@@ -1,0 +1,405 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+/* Filter tabs */
+.filter-wrap { margin-bottom: 40px; }
+.portfolio-filters {
+	padding: 0; list-style: none;
+	display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;
+}
+.portfolio-filters li {
+	padding: 9px 24px;
+	border-radius: 4px;
+	font-size: 13px; font-weight: 600;
+	letter-spacing: 1px; text-transform: uppercase;
+	cursor: pointer;
+	border: 1px solid rgba(26,46,74,0.2);
+	color: var(--text-muted);
+	transition: all 0.3s;
+}
+.portfolio-filters li.active,
+.portfolio-filters li:hover {
+	background: var(--primary);
+	color: var(--white);
+	border-color: var(--primary);
+}
+
+/* Project Cards */
+.projects-section { padding: 90px 0; background: var(--light-bg); }
+.project-item {
+	position: relative; overflow: hidden;
+	border-radius: 8px; margin-bottom: 24px;
+	height: 280px;
+	box-shadow: 0 4px 20px rgba(26,46,74,0.1);
+}
+.project-item img {
+	width: 100%; height: 100%; object-fit: cover;
+	transition: transform 0.5s;
+}
+.project-item:hover img { transform: scale(1.08); }
+.project-item-overlay {
+	position: absolute; inset: 0;
+	background: linear-gradient(to top, rgba(26,46,74,0.92) 0%, rgba(26,46,74,0.2) 60%, transparent 100%);
+	display: flex; flex-direction: column;
+	justify-content: flex-end; padding: 24px;
+	opacity: 1;
+	transition: all 0.3s;
+}
+.project-item-overlay .category {
+	font-size: 11px; font-weight: 700;
+	letter-spacing: 2px; text-transform: uppercase;
+	color: var(--accent); margin-bottom: 8px;
+}
+.project-item-overlay h4 { color: var(--white); font-size: 18px; margin: 0 0 4px; }
+.project-item-overlay .location {
+	color: rgba(255,255,255,0.65); font-size: 13px;
+}
+.project-item-overlay .view-link {
+	position: absolute; top: 20px; right: 20px;
+	width: 40px; height: 40px;
+	background: var(--accent);
+	border-radius: 50%;
+	display: flex; align-items: center; justify-content: center;
+	color: var(--white);
+	font-size: 14px;
+	opacity: 0; transform: scale(0.7);
+	transition: all 0.3s;
+	text-decoration: none;
+}
+.project-item:hover .view-link { opacity: 1; transform: scale(1); }
+
+/* Detail modal / featured */
+.project-detail-section { padding: 90px 0; }
+.project-detail-card {
+	background: var(--white);
+	border-radius: 8px;
+	overflow: hidden;
+	box-shadow: 0 8px 40px rgba(26,46,74,0.1);
+	margin-bottom: 40px;
+}
+.project-detail-card .detail-img {
+	height: 350px; overflow: hidden;
+}
+.project-detail-card .detail-img img {
+	width: 100%; height: 100%; object-fit: cover;
+	transition: transform 0.5s;
+}
+.project-detail-card:hover .detail-img img { transform: scale(1.05); }
+.project-detail-card .detail-body { padding: 36px; }
+.detail-body .category-tag {
+	background: rgba(201,150,62,0.12);
+	color: var(--accent);
+	font-size: 11px; font-weight: 700;
+	letter-spacing: 2px; text-transform: uppercase;
+	padding: 5px 14px; border-radius: 3px;
+	display: inline-block; margin-bottom: 16px;
+}
+.detail-body h3 { font-size: 26px; color: var(--primary); margin-bottom: 12px; }
+.detail-body p { font-size: 14px; color: var(--text-muted); line-height: 1.8; margin-bottom: 20px; }
+.project-meta { display: flex; flex-wrap: wrap; gap: 20px; margin-top: 20px; }
+.meta-item { display: flex; flex-direction: column; }
+.meta-item .meta-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 4px; }
+.meta-item .meta-value { font-size: 14px; font-weight: 600; color: var(--primary); }
+
+/* Stats bar */
+.project-stats { background: var(--primary); padding: 60px 0; }
+.pstat-item { text-align: center; padding: 20px; }
+.pstat-item .num {
+	font-family: 'Playfair Display', serif;
+	font-size: 42px; font-weight: 800; color: var(--accent); line-height: 1;
+}
+.pstat-item .label { color: rgba(255,255,255,0.6); font-size: 14px; margin-top: 6px; }
+</style>
+
+<!-- PAGE HEADER -->
+<section class="section-top">
+	<div class="container">
+		<div class="col-lg-10 offset-lg-1 col-xs-12 text-center">
+			<div class="section-top-title wow fadeInRight" data-wow-duration="1s" data-wow-delay="0.3s">
+				<h1>Danh Mục Dự Án</h1>
+				<p>Những công trình tiêu biểu được xây dựng bởi đội ngũ Sao Bắc Đẩu</p>
+				<div class="breadcrumb-nav">
+					<a href="index.html">Trang Chủ</a>
+					<span>/</span>
+					<strong>Dự Án</strong>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+<!-- PROJECT STATS -->
+<section class="project-stats">
+	<div class="container">
+		<div class="row">
+			<div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
+				<div class="pstat-item">
+					<div class="num">500+</div>
+					<div class="label">Tổng Dự Án Đã Hoàn Thành</div>
+				</div>
+			</div>
+			<div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.2s">
+				<div class="pstat-item">
+					<div class="num">120+</div>
+					<div class="label">Dự Án Dân Dụng</div>
+				</div>
+			</div>
+			<div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.3s">
+				<div class="pstat-item">
+					<div class="num">80+</div>
+					<div class="label">Dự Án Công Nghiệp</div>
+				</div>
+			</div>
+			<div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.4s">
+				<div class="pstat-item">
+					<div class="num">300+</div>
+					<div class="label">Dự Án Hạ Tầng & Khác</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+<!-- PROJECTS GALLERY -->
+<section class="projects-section">
+	<div class="container">
+		<div class="section-title text-center wow zoomIn">
+			<h2>Tất Cả Dự Án</h2>
+			<p>Lọc theo loại hình để tìm các công trình phù hợp</p>
+		</div>
+
+		<!-- Filters -->
+		<div class="filter-wrap text-center wow fadeInUp">
+			<ul class="portfolio-filters" id="filter-list">
+				<li class="active" data-filter="all">Tất Cả</li>
+				<li data-filter="dan-dung">Dân Dụng</li>
+				<li data-filter="cong-nghiep">Công Nghiệp</li>
+				<li data-filter="ha-tang">Hạ Tầng</li>
+				<li data-filter="thuong-mai">Thương Mại</li>
+				<li data-filter="noi-that">Nội Thất</li>
+			</ul>
+		</div>
+
+		<!-- Grid -->
+		<div class="row portfolio-items-list" id="projects-grid">
+			<div class="col-lg-4 col-md-6 mix dan-dung wow fadeInUp" data-wow-delay="0.1s">
+				<div class="project-item">
+					<img src="assets/img/portfolio/1.jpg" alt="Khu Đô Thị Sao Phương Bắc">
+					<div class="project-item-overlay">
+						<div class="category">Dân Dụng</div>
+						<h4>Khu Đô Thị Sao Phương Bắc</h4>
+						<div class="location"><i class="fa fa-map-marker"></i> Bình Dương — 2024</div>
+						<a href="assets/img/portfolio/1.jpg" class="view-link prettyPhoto">
+							<i class="fa fa-expand"></i>
+						</a>
+					</div>
+				</div>
+			</div>
+			<div class="col-lg-4 col-md-6 mix cong-nghiep wow fadeInUp" data-wow-delay="0.2s">
+				<div class="project-item">
+					<img src="assets/img/portfolio/2.jpg" alt="Nhà Máy Sản Xuất Long Thành">
+					<div class="project-item-overlay">
+						<div class="category">Công Nghiệp</div>
+						<h4>Nhà Máy Sản Xuất Long Thành</h4>
+						<div class="location"><i class="fa fa-map-marker"></i> Đồng Nai — 2023</div>
+						<a href="assets/img/portfolio/2.jpg" class="view-link prettyPhoto">
+							<i class="fa fa-expand"></i>
+						</a>
+					</div>
+				</div>
+			</div>
+			<div class="col-lg-4 col-md-6 mix thuong-mai wow fadeInUp" data-wow-delay="0.3s">
+				<div class="project-item">
+					<img src="assets/img/portfolio/3.jpg" alt="SBD Tower">
+					<div class="project-item-overlay">
+						<div class="category">Thương Mại</div>
+						<h4>Tòa Nhà Văn Phòng SBD Tower</h4>
+						<div class="location"><i class="fa fa-map-marker"></i> TP. HCM — 2023</div>
+						<a href="assets/img/portfolio/3.jpg" class="view-link prettyPhoto">
+							<i class="fa fa-expand"></i>
+						</a>
+					</div>
+				</div>
+			</div>
+			<div class="col-lg-4 col-md-6 mix ha-tang wow fadeInUp" data-wow-delay="0.1s">
+				<div class="project-item">
+					<img src="assets/img/portfolio/4.jpg" alt="Đường Vành Đai KCN Tân Bình">
+					<div class="project-item-overlay">
+						<div class="category">Hạ Tầng</div>
+						<h4>Cải Tạo Đường Vành Đai KCN Tân Bình</h4>
+						<div class="location"><i class="fa fa-map-marker"></i> TP. HCM — 2022</div>
+						<a href="assets/img/portfolio/4.jpg" class="view-link prettyPhoto">
+							<i class="fa fa-expand"></i>
+						</a>
+					</div>
+				</div>
+			</div>
+			<div class="col-lg-4 col-md-6 mix dan-dung wow fadeInUp" data-wow-delay="0.2s">
+				<div class="project-item">
+					<img src="assets/img/portfolio/5.jpg" alt="Biệt Thự Phú Mỹ Hưng">
+					<div class="project-item-overlay">
+						<div class="category">Dân Dụng</div>
+						<h4>Biệt Thự Cao Cấp Phú Mỹ Hưng</h4>
+						<div class="location"><i class="fa fa-map-marker"></i> TP. HCM — 2022</div>
+						<a href="assets/img/portfolio/5.jpg" class="view-link prettyPhoto">
+							<i class="fa fa-expand"></i>
+						</a>
+					</div>
+				</div>
+			</div>
+			<div class="col-lg-4 col-md-6 mix noi-that wow fadeInUp" data-wow-delay="0.3s">
+				<div class="project-item">
+					<img src="assets/img/portfolio/6.jpg" alt="Nội Thất Văn Phòng Vietcombank">
+					<div class="project-item-overlay">
+						<div class="category">Nội Thất</div>
+						<h4>Nội Thất Văn Phòng Vietcombank CN3</h4>
+						<div class="location"><i class="fa fa-map-marker"></i> Hà Nội — 2023</div>
+						<a href="assets/img/portfolio/6.jpg" class="view-link prettyPhoto">
+							<i class="fa fa-expand"></i>
+						</a>
+					</div>
+				</div>
+			</div>
+			<div class="col-lg-4 col-md-6 mix cong-nghiep wow fadeInUp" data-wow-delay="0.1s">
+				<div class="project-item">
+					<img src="assets/img/portfolio/7.jpg" alt="Kho Lạnh Bình Chánh">
+					<div class="project-item-overlay">
+						<div class="category">Công Nghiệp</div>
+						<h4>Kho Lạnh Trung Tâm Bình Chánh</h4>
+						<div class="location"><i class="fa fa-map-marker"></i> TP. HCM — 2022</div>
+						<a href="assets/img/portfolio/7.jpg" class="view-link prettyPhoto">
+							<i class="fa fa-expand"></i>
+						</a>
+					</div>
+				</div>
+			</div>
+			<div class="col-lg-4 col-md-6 mix ha-tang wow fadeInUp" data-wow-delay="0.2s">
+				<div class="project-item">
+					<img src="assets/img/portfolio/8.jpg" alt="Cầu Cảng Cát Lái">
+					<div class="project-item-overlay">
+						<div class="category">Hạ Tầng</div>
+						<h4>Nâng Cấp Cầu Cảng Cát Lái</h4>
+						<div class="location"><i class="fa fa-map-marker"></i> TP. HCM — 2021</div>
+						<a href="assets/img/portfolio/8.jpg" class="view-link prettyPhoto">
+							<i class="fa fa-expand"></i>
+						</a>
+					</div>
+				</div>
+			</div>
+			<div class="col-lg-4 col-md-6 mix thuong-mai wow fadeInUp" data-wow-delay="0.3s">
+				<div class="project-item">
+					<img src="assets/img/portfolio/9.jpg" alt="Trung Tâm Thương Mại">
+					<div class="project-item-overlay">
+						<div class="category">Thương Mại</div>
+						<h4>Trung Tâm Thương Mại Bắc Sài Gòn</h4>
+						<div class="location"><i class="fa fa-map-marker"></i> TP. HCM — 2021</div>
+						<a href="assets/img/portfolio/9.jpg" class="view-link prettyPhoto">
+							<i class="fa fa-expand"></i>
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+<!-- FEATURED PROJECT DETAIL -->
+<section class="project-detail-section">
+	<div class="container">
+		<div class="section-title text-center wow zoomIn">
+			<h2>Dự Án Nổi Bật</h2>
+			<p>Công trình tiêu biểu thể hiện năng lực và đẳng cấp của Sao Bắc Đẩu</p>
+		</div>
+		<div class="row">
+			<div class="col-lg-6 wow fadeInLeft">
+				<div class="project-detail-card">
+					<div class="detail-img">
+						<img src="assets/img/portfolio/1.jpg" alt="Khu Đô Thị Sao Phương Bắc">
+					</div>
+					<div class="detail-body">
+						<span class="category-tag">Khu Dân Cư</span>
+						<h3>Khu Đô Thị Sao Phương Bắc</h3>
+						<p>Dự án khu đô thị tích hợp quy mô 120 ha tại Bình Dương, bao gồm nhà ở thương mại, biệt thự, trường học và công viên cây xanh. Sử dụng vật liệu xây dựng xanh, đạt tiêu chuẩn LEED Silver.</p>
+						<div class="project-meta">
+							<div class="meta-item">
+								<span class="meta-label">Chủ Đầu Tư</span>
+								<span class="meta-value">Tập đoàn Phú Long</span>
+							</div>
+							<div class="meta-item">
+								<span class="meta-label">Diện Tích</span>
+								<span class="meta-value">120 ha</span>
+							</div>
+							<div class="meta-item">
+								<span class="meta-label">Thời Gian</span>
+								<span class="meta-value">2021 – 2024</span>
+							</div>
+							<div class="meta-item">
+								<span class="meta-label">Giá Trị</span>
+								<span class="meta-value">850 tỷ VNĐ</span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-lg-6 wow fadeInRight">
+				<div class="project-detail-card">
+					<div class="detail-img">
+						<img src="assets/img/portfolio/2.jpg" alt="Nhà Máy Long Thành">
+					</div>
+					<div class="detail-body">
+						<span class="category-tag">Công Nghiệp</span>
+						<h3>Nhà Máy Sản Xuất Long Thành</h3>
+						<p>Tổ hợp nhà máy sản xuất linh kiện điện tử trên diện tích 25 ha tại KCN Long Thành, Đồng Nai. Thiết kế đặc biệt chú trọng hệ thống phòng sạch và kiểm soát nhiệt độ/độ ẩm.</p>
+						<div class="project-meta">
+							<div class="meta-item">
+								<span class="meta-label">Chủ Đầu Tư</span>
+								<span class="meta-value">Samsung Việt Nam</span>
+							</div>
+							<div class="meta-item">
+								<span class="meta-label">Diện Tích</span>
+								<span class="meta-value">25 ha</span>
+							</div>
+							<div class="meta-item">
+								<span class="meta-label">Thời Gian</span>
+								<span class="meta-value">2022 – 2023</span>
+							</div>
+							<div class="meta-item">
+								<span class="meta-label">Giá Trị</span>
+								<span class="meta-value">420 tỷ VNĐ</span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+<!-- CTA -->
+<section style="background: linear-gradient(135deg, var(--accent) 0%, #b5832e 100%); padding: 80px 0; text-align: center;">
+	<div class="container">
+		<h2 style="color: var(--white); font-size: 38px; margin-bottom: 16px;">Có Dự Án Cần Thi Công?</h2>
+		<p style="color: rgba(255,255,255,0.85); font-size: 17px; margin-bottom: 32px;">Liên hệ ngay để nhận tư vấn miễn phí và báo giá chi tiết từ đội ngũ chuyên gia của chúng tôi.</p>
+		<a href="contact.html" class="btn-cta" style="background: var(--white); color: var(--accent); padding: 14px 36px; border-radius: 4px; font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; text-decoration: none; display: inline-block; transition: all 0.3s;">Gửi Yêu Cầu Tư Vấn</a>
+	</div>
+</section>
+
+<script>
+// Simple filter functionality
+$(document).ready(function(){
+	$('#filter-list li').on('click', function(){
+		$('#filter-list li').removeClass('active');
+		$(this).addClass('active');
+		var filter = $(this).data('filter');
+		if(filter === 'all'){
+			$('#projects-grid .mix').show();
+		} else {
+			$('#projects-grid .mix').hide();
+			$('#projects-grid .mix.' + filter).show();
+		}
+	});
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="vi">
+{% load static %}
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Sao Bắc Đẩu - Công Ty Xây Dựng</title>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <!-- Animate.css cho WOW.js -->
+    <link rel="stylesheet" href="{% static 'css/animate.css' %}">
+    <!-- Main Style -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+    <link rel="stylesheet" href="{% static 'css/about.css' %}">
+    <link rel="stylesheet" href="{% static 'css/contact.css' %}">
+</head>
+<body data-spy="scroll" data-offset="80">
+
+    <!-- PRELOADER -->
+    <div class="preloader">
+        <div class="star-icon">★</div>
+    </div>
+
+    <!-- NAVBAR -->
+    <header class="site-navbar js-sticky-header site-navbar-target" role="banner">
+        <div class="container">
+            <div class="navbar-inner">
+
+                <!-- Logo -->
+                <div class="site-logo">
+                    <a href="{% url 'home' %}">
+                        <div class="logo-icon">★</div>
+                        <div class="logo-text">
+                            <span>Sao Bắc Đẩu</span>
+                            <span>Construction</span>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Menu Desktop -->
+                <nav class="site-navigation d-none d-xl-block">
+                    <ul class="site-menu">
+                        <li><a href="{% url 'home' %}" class="nav-link">Trang Chủ</a></li>
+                        <li><a href="{% url 'about' %}" class="nav-link">Giới Thiệu</a></li>
+                        <li><a href="{% url 'project' %}" class="nav-link">Dự Án</a></li>
+                        <li><a href="{% url 'contact' %}" class="nav-link">Liên Hệ</a></li>
+                    </ul>
+                </nav>
+
+                <!-- Mobile Toggle -->
+                <div class="mobile-toggle d-xl-none">
+                    <a href="#" class="site-menu-toggle js-menu-toggle">
+                        <span class="icon-menu h3"></span>
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    {% block content %}
+    {% endblock %}
+
+    <!-- FOOTER -->
+    <footer class="footer-area">
+        <div class="container">
+            <div class="row">
+                <!-- Col 1: Brand -->
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="footer-logo-wrap">
+                        <a href="{% url 'home' %}" style="display:flex; align-items:center; gap:12px; text-decoration:none;">
+                            <div class="logo-icon" style="width:42px;height:42px;font-size:20px;">★</div>
+                            <div class="logo-text">
+                                <span>Sao Bắc Đẩu</span>
+                                <span>Construction</span>
+                            </div>
+                        </a>
+                    </div>
+                    <p class="footer-desc">Công ty xây dựng Sao Bắc Đẩu — hơn 15 năm kinh nghiệm trong lĩnh vực xây dựng dân dụng, công nghiệp và hạ tầng tại Việt Nam. Chất lượng — Uy tín — Bền vững.</p>
+                    <div class="footer-social">
+                        <a href="#" aria-label="Facebook"><i class="fa fa-facebook"></i></a>
+                        <a href="#" aria-label="YouTube"><i class="fa fa-youtube"></i></a>
+                        <a href="#" aria-label="LinkedIn"><i class="fa fa-linkedin"></i></a>
+                        <a href="#" aria-label="Instagram"><i class="fa fa-instagram"></i></a>
+                    </div>
+                </div>
+
+                <!-- Col 2: Navigation -->
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <div class="footer-heading">Điều Hướng</div>
+                    <ul class="footer-links">
+                        <li><a href="{% url 'home' %}">Trang Chủ</a></li>
+                        <li><a href="{% url 'about' %}">Giới Thiệu</a></li>
+                        <li><a href="{% url 'project' %}">Dự Án</a></li>
+                        <li><a href="{% url 'contact' %}">Liên Hệ</a></li>
+                    </ul>
+                </div>
+
+                <!-- Col 3: Services -->
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <div class="footer-heading">Dịch Vụ</div>
+                    <ul class="footer-links">
+                        <li><a href="#">Xây dựng dân dụng</a></li>
+                        <li><a href="#">Xây dựng công nghiệp</a></li>
+                        <li><a href="#">Thiết kế & Quy hoạch</a></li>
+                        <li><a href="#">Thi công nội thất</a></li>
+                        <li><a href="#">Quản lý dự án</a></li>
+                    </ul>
+                </div>
+
+                <!-- Col 4: Contact -->
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="footer-heading">Liên Hệ</div>
+                    <ul class="footer-contact-info">
+                        <li><i class="fa fa-map-marker"></i> 123 Đường Lê Lợi, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh</li>
+                        <li><i class="fa fa-phone"></i> (+84) 028 3823 4567</li>
+                        <li><i class="fa fa-fax"></i> (+84) 028 3823 4568</li>
+                        <li><i class="fa fa-envelope"></i> info@saobacday.com.vn</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <div class="container">
+                <p>© 2026 Công Ty Xây Dựng Sao Bắc Đẩu. Bảo lưu mọi quyền. | MST: 0123456789</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="{% static 'js/jquery-1.12.4.min.js' %}"></script>
+    <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'js/wow.min.js' %}"></script>
+    <script src="{% static 'js/scripts.js' %}"></script>
+    <!-- Thêm các file JS khác nếu bạn đang dùng -->
+
+</body>
+</html>
