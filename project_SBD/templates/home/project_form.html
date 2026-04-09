@@ -17,6 +17,15 @@
                   class="form-control mb-2"
                   placeholder="Mô tả">{{ project.description|default:'' }}</textarea>
 
+        <select name="category" class="form-control mb-2" required>
+            <option value="" disabled {% if not project %}selected{% endif %}>-- Chọn danh mục --</option>
+            {% for c in categories %}
+                <option value="{{ c.id }}" {% if project and project.category_id == c.id %}selected{% endif %}>
+                    {{ c.name }}
+                </option>
+            {% endfor %}
+        </select>
+
         <input type="file" name="image" class="form-control mb-2">
 
         {% if project.image %}

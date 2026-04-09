@@ -10,7 +10,7 @@
 		overflow: hidden;
 	}
 	.detail-hero {
-		height: 380px;
+		height: 360px;
 		position: relative;
 		background: radial-gradient(900px 320px at 20% 15%, rgba(201, 150, 62, 0.35) 0%, transparent 60%),
 		            linear-gradient(135deg, rgba(8, 28, 50, 0.96) 0%, rgba(26, 60, 94, 0.96) 60%, rgba(201, 150, 62, 0.22) 100%);
@@ -21,7 +21,7 @@
 		display:flex; align-items:center; justify-content:center;
 		color: rgba(255,255,255,0.92);
 	}
-	.detail-hero .fallback i { font-size: 74px; }
+	.detail-hero .fallback i { font-size: 70px; }
 	.detail-body { padding: 34px; }
 	.badge-cat {
 		display:inline-block;
@@ -45,12 +45,12 @@
 	<div class="container">
 		<div class="col-lg-10 offset-lg-1 col-xs-12 text-center">
 			<div class="section-top-title wow fadeInRight" data-wow-duration="1s" data-wow-delay="0.3s">
-				<h1>Chi Tiết Dự Án</h1>
-				<p>{{ project.name }}</p>
+				<h1>Chi Tiết Sản Phẩm</h1>
+				<p>{{ product.name }}</p>
 				<div class="breadcrumb-nav">
 					<a href="{% url 'home' %}">Trang Chủ</a>
 					<span>/</span>
-					<a href="{% url 'project' %}">Dự Án</a>
+					<a href="{% url 'product' %}">Sản Phẩm</a>
 					<span>/</span>
 					<strong>Chi tiết</strong>
 				</div>
@@ -65,24 +65,24 @@
 			<div class="col-lg-10">
 				<div class="detail-card">
 					<div class="detail-hero">
-						{% if project.image %}
-							<img src="{{ project.image.url }}" alt="{{ project.name }}">
+						{% if product.image %}
+							<img src="{{ product.image.url }}" alt="{{ product.name }}">
 						{% else %}
-							<div class="fallback" aria-hidden="true"><i class="fa fa-building-o"></i></div>
+							<div class="fallback" aria-hidden="true"><i class="fa fa-cube"></i></div>
 						{% endif %}
 					</div>
 					<div class="detail-body">
-						<div class="badge-cat">{{ project.category.name }}</div>
-						<h2 class="detail-title">{{ project.name }}</h2>
+						<div class="badge-cat">{{ product.category.name }}</div>
+						<h2 class="detail-title">{{ product.name }}</h2>
 						<div class="detail-meta">
-							<i class="fa fa-calendar-o"></i> {{ project.created_at|date:"d/m/Y H:i" }}
+							<i class="fa fa-calendar-o"></i> {{ product.created_at|date:"d/m/Y H:i" }}
 						</div>
 						<div class="detail-desc">
-							{{ project.description|linebreaksbr }}
+							{{ product.description|default:""|linebreaksbr }}
 						</div>
 
 						<div class="d-flex justify-content-between align-items-center mt-4">
-							<a href="{% url 'project' %}" class="btn btn-secondary">Quay lại</a>
+							<a href="{% url 'product' %}" class="btn btn-secondary">Quay lại</a>
 							<a href="{% url 'contact' %}" class="btn btn-primary">Nhận tư vấn</a>
 						</div>
 					</div>

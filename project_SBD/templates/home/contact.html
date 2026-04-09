@@ -11,7 +11,7 @@
 				<h1>Liên Hệ Với Chúng Tôi</h1>
 				<p>Đội ngũ tư vấn luôn sẵn sàng hỗ trợ bạn 24/7</p>
 				<div class="breadcrumb-nav">
-					<a href="index.html">Trang Chủ</a>
+					<a href="{% url 'home' %}">Trang Chủ</a>
 					<span>/</span>
 					<strong>Liên Hệ</strong>
 				</div>
@@ -202,21 +202,34 @@
 </section>
 
 <script>
-$(document).ready(function(){
+document.addEventListener('DOMContentLoaded', function () {
 	// FAQ accordion
-	$('.faq-question').on('click', function(){
-		var parent = $(this).parent();
-		$('.faq-item').not(parent).removeClass('open');
-		parent.toggleClass('open');
-	});
+	var faqRoot = document.querySelector('.faq-section');
+	if (faqRoot) {
+		faqRoot.addEventListener('click', function (e) {
+			var q = e.target.closest('.faq-question');
+			if (!q) return;
+			var parent = q.closest('.faq-item');
+			if (!parent) return;
+			Array.prototype.slice.call(faqRoot.querySelectorAll('.faq-item')).forEach(function (el) {
+				if (el !== parent) el.classList.remove('open');
+			});
+			parent.classList.toggle('open');
+		});
+	}
 
 	// Form submit demo
-	$('#contact-form').on('submit', function(e){
-		e.preventDefault();
-		$('#form-success').fadeIn();
-		$(this)[0].reset();
-		$('html, body').animate({ scrollTop: $('#form-success').offset().top - 100 }, 600);
-	});
+	var form = document.getElementById('contact-form');
+	var success = document.getElementById('form-success');
+	if (form && success) {
+		form.addEventListener('submit', function (e) {
+			e.preventDefault();
+			success.style.display = 'block';
+			form.reset();
+			var y = success.getBoundingClientRect().top + window.scrollY - 100;
+			window.scrollTo({ top: y, behavior: 'smooth' });
+		});
+	}
 });
 </script>
 

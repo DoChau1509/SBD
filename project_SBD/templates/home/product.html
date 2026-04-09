@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+	/* Filter tabs */
+	.filter-wrap { margin-bottom: 40px; }
+	.portfolio-filters {
+		padding: 0; list-style: none;
+		display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;
+	}
+	.portfolio-filters li {
+		padding: 9px 24px;
+		border-radius: 4px;
+		font-size: 13px; font-weight: 600;
+		letter-spacing: 1px; text-transform: uppercase;
+		cursor: pointer;
+		border: 1px solid rgba(26,46,74,0.2);
+		color: var(--text-muted);
+		transition: all 0.3s;
+		user-select: none;
+	}
+	.portfolio-filters li.active,
+	.portfolio-filters li:hover {
+		background: var(--primary);
+		color: var(--white);
+		border-color: var(--primary);
+	}
+
+	.products-section { padding: 90px 0; background: var(--light-bg); }
+	.product-card {
+		background: var(--white);
+		border-radius: 10px;
+		box-shadow: 0 6px 26px rgba(26,46,74,0.10);
+		overflow: hidden;
+		transition: transform 0.25s ease, box-shadow 0.25s ease;
+		height: 100%;
+	}
+	.product-card:hover { transform: translateY(-6px); box-shadow: 0 12px 44px rgba(26,46,74,0.14); }
+
+	.product-thumb {
+		height: 220px;
+		position: relative;
+		background: radial-gradient(900px 320px at 20% 15%, rgba(201, 150, 62, 0.35) 0%, transparent 60%),
+		            linear-gradient(135deg, rgba(8, 28, 50, 0.96) 0%, rgba(26, 60, 94, 0.96) 60%, rgba(201, 150, 62, 0.22) 100%);
+	}
+	.product-thumb img { width: 100%; height: 100%; object-fit: cover; display:block; }
+	.product-thumb .fallback {
+		position:absolute; inset:0;
+		display:flex; align-items:center; justify-content:center;
+		color: rgba(255,255,255,0.92);
+	}
+	.product-thumb .fallback i { font-size: 56px; }
+
+	.product-body { padding: 18px 18px 20px; }
+	.product-cat {
+		display:inline-block;
+		font-size: 11px;
+		font-weight: 800;
+		letter-spacing: 1.5px;
+		text-transform: uppercase;
+		color: var(--accent-dark);
+		background: rgba(201,150,62,0.14);
+		border: 1px solid rgba(201,150,62,0.35);
+		padding: 5px 12px;
+		border-radius: 999px;
+		margin-bottom: 10px;
+	}
+	.product-title { font-size: 18px; margin: 0 0 8px; color: var(--primary); }
+	.product-desc { font-size: 13.5px; color: var(--text-muted); line-height: 1.7; margin: 0; }
+	.product-actions { margin-top: 14px; display:flex; align-items:center; justify-content: space-between; }
+	.product-actions .meta { font-size: 12.5px; color: var(--text-muted); }
+</style>
+
+<!-- PAGE HEADER -->
+<section class="section-top">
+	<div class="container">
+		<div class="col-lg-10 offset-lg-1 col-xs-12 text-center">
+			<div class="section-top-title wow fadeInRight" data-wow-duration="1s" data-wow-delay="0.3s">
+				<h1>Sản Phẩm</h1>
+				<p>Danh sách sản phẩm được cập nhật từ hệ thống quản trị</p>
+				<div class="breadcrumb-nav">
+					<a href="{% url 'home' %}">Trang Chủ</a>
+					<span>/</span>
+					<strong>Sản Phẩm</strong>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+<section class="products-section">
+	<div class="container">
+		<div class="section-title text-center wow zoomIn">
+			<h2>Danh Sách Sản Phẩm</h2>
+			<p>Lọc theo danh mục để tìm sản phẩm phù hợp</p>
+		</div>
+
+		<div class="filter-wrap text-center wow fadeInUp">
+			<ul class="portfolio-filters" id="filter-list">
+				<li class="active" data-filter="all">Tất Cả</li>
+				{% for c in categories %}
+					<li data-filter="cat-{{ c.id }}">{{ c.name }}</li>
+				{% endfor %}
+			</ul>
+		</div>
+
+		<div class="row" id="products-grid">
+			{% for p in products %}
+				<div class="col-lg-4 col-md-6 mb-4 mix cat-{{ p.category_id }} wow fadeInUp" data-wow-delay="0.1s">
+					<a href="{% url 'product_detail' p.id %}" style="text-decoration:none; color:inherit;">
+						<div class="product-card">
+							<div class="product-thumb">
+								{% if p.image %}
+									<img src="{{ p.image.url }}" alt="{{ p.name }}">
+								{% else %}
+									<div class="fallback" aria-hidden="true"><i class="fa fa-cube"></i></div>
+								{% endif %}
+							</div>
+							<div class="product-body">
+								<div class="product-cat">{{ p.category.name }}</div>
+								<h3 class="product-title">{{ p.name }}</h3>
+								<p class="product-desc">{{ p.description|default:""|truncatechars:120 }}</p>
+								<div class="product-actions">
+									<div class="meta"><i class="fa fa-calendar-o"></i> {{ p.created_at|date:"d/m/Y" }}</div>
+									<div class="meta"><i class="fa fa-arrow-right"></i> Chi tiết</div>
+								</div>
+							</div>
+						</div>
+					</a>
+				</div>
+			{% empty %}
+				<div class="col-12">
+					<div class="text-center text-muted" style="padding: 40px 0;">
+						Chưa có sản phẩm nào.
+					</div>
+				</div>
+			{% endfor %}
+		</div>
+	</div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+	var filterList = document.getElementById('filter-list');
+	var grid = document.getElementById('products-grid');
+	if (!filterList || !grid) return;
+
+	var items = Array.prototype.slice.call(grid.querySelectorAll('.mix'));
+	filterList.addEventListener('click', function (e) {
+		var li = e.target.closest('li[data-filter]');
+		if (!li) return;
+
+		Array.prototype.slice.call(filterList.querySelectorAll('li')).forEach(function (el) {
+			el.classList.remove('active');
+		});
+		li.classList.add('active');
+
+		var filter = li.getAttribute('data-filter');
+		items.forEach(function (item) {
+			var show = (filter === 'all') || item.classList.contains(filter);
+			item.style.display = show ? '' : 'none';
+		});
+	});
+});
+</script>
+
+{% endblock %}
+

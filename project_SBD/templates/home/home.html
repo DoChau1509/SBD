@@ -2,7 +2,7 @@
 {% load static %}
 {% block content %}
 <!-- HERO -->
-<section class="home_bg" style="background-image: url({% static 'img/bg/home-bg.jpg' %}); background-size: cover; background-position: center;">
+<section class="home_bg">
     <div class="container">
         <div class="row">
             <div class="col-lg-10 offset-lg-1 col-sm-12 text-center">
@@ -80,7 +80,7 @@
             <div class="col-lg-4 col-md-6">
                 <div class="service-card wow fadeInUp" data-wow-delay="0.5s">
                     <div class="service-icon"><i class="fa fa-road"></i></div>
-                    <h4>Hạ Tầng & Giao Thông</h4>
+                    <h4>Hạ Tầng Và Giao Thông</h4>
                     <p>Thi công đường giao thông, cầu cống, hệ thống cấp thoát nước và hạ tầng kỹ thuật đô thị.</p>
                 </div>
             </div>
@@ -105,7 +105,9 @@
         <div class="row">
             <div class="col-lg-8 col-md-12">
                 <div class="project-card wow fadeInLeft">
-                    <img src="{% static 'img/portfolio/1.jpg' %}" alt="Khu đô thị Sao Bắc">
+                    <div class="project-thumb" aria-hidden="true">
+                        <i class="fa fa-building-o"></i>
+                    </div>
                     <div class="project-overlay">
                         <span class="tag">Khu Dân Cư</span>
                         <h4>Khu Đô Thị Sao Phương Bắc</h4>
@@ -115,7 +117,9 @@
             </div>
             <div class="col-lg-4 col-md-6">
                 <div class="project-card wow fadeInRight" data-wow-delay="0.1s">
-                    <img src="{% static 'img/portfolio/2.jpg' %}" alt="Nhà máy sản xuất">
+                    <div class="project-thumb" aria-hidden="true">
+                        <i class="fa fa-industry"></i>
+                    </div>
                     <div class="project-overlay">
                         <span class="tag">Công Nghiệp</span>
                         <h4>Nhà Máy Long Thành</h4>
@@ -125,7 +129,9 @@
             </div>
             <div class="col-lg-4 col-md-6">
                 <div class="project-card wow fadeInLeft" data-wow-delay="0.1s">
-                    <img src="{% static 'img/portfolio/3.jpg' %}" alt="Văn phòng">
+                    <div class="project-thumb" aria-hidden="true">
+                        <i class="fa fa-briefcase"></i>
+                    </div>
                     <div class="project-overlay">
                         <span class="tag">Thương Mại</span>
                         <h4>Tòa Nhà Văn Phòng SBD Tower</h4>
@@ -135,7 +141,9 @@
             </div>
             <div class="col-lg-8 col-md-12">
                 <div class="project-card wow fadeInRight" data-wow-delay="0.2s">
-                    <img src="{% static 'img/portfolio/4.jpg' %}" alt="Hạ tầng giao thông">
+                    <div class="project-thumb project-thumb--wide" aria-hidden="true">
+                        <i class="fa fa-road"></i>
+                    </div>
                     <div class="project-overlay">
                         <span class="tag">Hạ Tầng</span>
                         <h4>Cải Tạo Đường Vành Đai KCN Tân Bình</h4>
@@ -189,7 +197,13 @@
             </div>
             <div class="col-lg-6 wow fadeInRight mt-4 mt-lg-0">
                 <div class="why-us-img" style="padding-left: 20px;">
-                    <img src="{% static 'img/2.jpg' %}" alt="Công trường Sao Bắc Đẩu">
+                    <div class="why-us-media" role="img" aria-label="Năng lực thi công của Sao Bắc Đẩu">
+                        <div class="why-us-media-inner">
+                            <div class="kicker">SBD Construction</div>
+                            <div class="title">Thi công trọn gói</div>
+                            <div class="sub">Dân dụng • Công nghiệp • Hạ tầng</div>
+                        </div>
+                    </div>
                     <div class="experience-badge">
                         <div class="years">15+</div>
                         <div class="years-label">Năm Kinh Nghiệm</div>
@@ -212,7 +226,7 @@
                 <div class="testimonial-card">
                     <p>Sao Bắc Đẩu đã thi công nhà xưởng của chúng tôi với tiến độ đúng hẹn và chất lượng vượt kỳ vọng. Đội ngũ chuyên nghiệp, tư vấn nhiệt tình. Chắc chắn sẽ tiếp tục hợp tác.</p>
                     <div class="testimonial-author">
-                        <img src="{% static 'img/testimonial/1.jpg' %}" alt="Nguyễn Văn Thành">
+                        <div class="avatar" aria-hidden="true">TV</div>
                         <div>
                             <h6>Nguyễn Văn Thành</h6>
                             <span>Giám đốc — Công ty TNHH Sản Xuất Phú Long</span>
@@ -224,7 +238,7 @@
                 <div class="testimonial-card">
                     <p>Tôi rất hài lòng với dự án biệt thự do Sao Bắc Đẩu thi công. Mọi chi tiết nhỏ nhất đều được chú ý, thợ lành nghề và thái độ làm việc rất chuyên nghiệp.</p>
                     <div class="testimonial-author">
-                        <img src="{% static 'img/testimonial/2.jpg' %}" alt="Trần Thị Hương">
+                        <div class="avatar" aria-hidden="true">HH</div>
                         <div>
                             <h6>Trần Thị Hương</h6>
                             <span>Chủ đầu tư — Dự án biệt thự Phú Mỹ Hưng</span>
@@ -236,7 +250,7 @@
                 <div class="testimonial-card">
                     <p>Đơn vị uy tín, giá cả hợp lý, thi công bền đẹp. Chúng tôi đã phối hợp với Sao Bắc Đẩu trong nhiều dự án hạ tầng và luôn đánh giá cao sự chuyên nghiệp của họ.</p>
                     <div class="testimonial-author">
-                        <img src="{% static 'img/testimonial/3.jpg' %}" alt="Lê Quốc Hùng">
+                        <div class="avatar" aria-hidden="true">QH</div>
                         <div>
                             <h6>Lê Quốc Hùng</h6>
                             <span>Trưởng Ban QLDA — Ban Quản Lý KCN Tân Bình</span>
@@ -255,11 +269,11 @@
             <h2 style="font-size: 26px;">Đối Tác Tin Cậy</h2>
         </div>
         <div class="row align-items-center justify-content-center">
-            <div class="col"><div class="partner-logo"><img src="{% static 'img/partner/1.png' %}" alt="Partner 1"></div></div>
-            <div class="col"><div class="partner-logo"><img src="{% static 'img/partner/2.png' %}" alt="Partner 2"></div></div>
-            <div class="col"><div class="partner-logo"><img src="{% static 'img/partner/3.png' %}" alt="Partner 3"></div></div>
-            <div class="col"><div class="partner-logo"><img src="{% static 'img/partner/4.png' %}" alt="Partner 4"></div></div>
-            <div class="col"><div class="partner-logo"><img src="{% static 'img/partner/5.png' %}" alt="Partner 5"></div></div>
+            <div class="col"><div class="partner-logo"><div class="partner-pill">Phú Long</div></div></div>
+            <div class="col"><div class="partner-logo"><div class="partner-pill">Vietcombank</div></div></div>
+            <div class="col"><div class="partner-logo"><div class="partner-pill">Samsung VN</div></div></div>
+            <div class="col"><div class="partner-logo"><div class="partner-pill">Bureau Veritas</div></div></div>
+            <div class="col"><div class="partner-logo"><div class="partner-pill">VACC</div></div></div>
         </div>
     </div>
 </section>

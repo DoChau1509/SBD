@@ -183,14 +183,27 @@
     cursor: pointer;
 }
 
-.project-card img {
+.project-thumb {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, rgba(15, 43, 74, 0.92) 0%, rgba(26, 60, 94, 0.92) 55%, rgba(201, 150, 62, 0.35) 100%);
+    color: rgba(255, 255, 255, 0.92);
     transition: transform 0.55s ease;
 }
 
-.project-card:hover img { transform: scale(1.08); }
+.project-thumb i {
+    font-size: 54px;
+    color: rgba(255, 255, 255, 0.88);
+}
+
+.project-thumb.project-thumb--wide i {
+    font-size: 62px;
+}
+
+.project-card:hover .project-thumb { transform: scale(1.06); }
 
 .project-overlay {
     position: absolute;
@@ -287,12 +300,44 @@
     position: relative;
 }
 
-.why-us-img img {
+.why-us-media {
     width: 100%;
     height: 500px;
-    object-fit: cover;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
     border-radius: var(--radius);
     box-shadow: var(--shadow-lg);
+    background: radial-gradient(1100px 360px at 20% 15%, rgba(201, 150, 62, 0.40) 0%, transparent 60%),
+                linear-gradient(135deg, rgba(8, 28, 50, 0.94) 0%, rgba(26, 60, 94, 0.94) 60%, rgba(201, 150, 62, 0.22) 100%);
+    color: var(--white);
+}
+
+.why-us-media-inner .kicker {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.78);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    padding: 8px 14px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+}
+
+.why-us-media-inner .title {
+    font-family: 'Playfair Display', serif;
+    font-size: 40px;
+    font-weight: 800;
+    margin-bottom: 10px;
+}
+
+.why-us-media-inner .sub {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.68);
+    letter-spacing: 0.4px;
 }
 
 .experience-badge {
@@ -367,12 +412,19 @@
     gap: 14px;
 }
 
-.testimonial-author img {
+.testimonial-author .avatar {
     width: 50px;
     height: 50px;
     border-radius: 50%;
-    object-fit: cover;
     border: 2px solid var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    color: var(--white);
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-mid) 70%, rgba(201, 150, 62, 0.35) 100%);
+    flex-shrink: 0;
 }
 
 .testimonial-author h6 {
@@ -411,6 +463,21 @@
     max-height: 48px;
     max-width: 130px;
     object-fit: contain;
+}
+
+.partner-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 16px;
+    border-radius: 999px;
+    border: 1px solid rgba(26, 46, 74, 0.18);
+    background: var(--white);
+    color: var(--primary);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    white-space: nowrap;
 }
 
 /* ===== CTA ===== */
