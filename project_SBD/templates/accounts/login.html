@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container" style="margin-top:110px; max-width: 520px;">
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-4 p-md-5">
+            <div class="text-center mb-4">
+                <div style="width:56px;height:56px;border-radius:14px;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;background:rgba(201,150,62,0.12);border:1px solid rgba(201,150,62,0.35);color:var(--accent);font-size:22px;font-weight:800;">
+                    ★
+                </div>
+                <h3 class="mb-1" style="color:var(--primary); font-weight:800;">Đăng nhập</h3>
+                <div class="text-muted">Sao Bắc Đẩu Construction</div>
+            </div>
+
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <form method="post" novalidate>
+                {% csrf_token %}
+                {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+
+                <div class="mb-3">
+                    <label class="form-label">Tên đăng nhập</label>
+                    {{ form.username }}
+                    {% if form.username.errors %}<div class="text-danger small mt-1">{{ form.username.errors }}</div>{% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Mật khẩu</label>
+                    {{ form.password }}
+                    {% if form.password.errors %}<div class="text-danger small mt-1">{{ form.password.errors }}</div>{% endif %}
+                </div>
+
+                <button class="btn btn-primary w-100 py-2" type="submit">Đăng nhập</button>
+            </form>
+
+            <div class="text-center small text-muted mt-3 mb-0">
+                Chưa có tài khoản?
+                <a href="{% url 'register' %}{% if next %}?next={{ next|urlencode }}{% endif %}" class="fw-semibold text-decoration-none">Đăng ký</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,275 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<!-- PAGE HEADER -->
+<section class="section-top">
+	<div class="container">
+		<div class="col-lg-10 offset-lg-1 col-xs-12 text-center">
+			<div class="section-top-title wow fadeInRight" data-wow-duration="1s" data-wow-delay="0.3s">
+				<h1>Giới Thiệu Công Ty</h1>
+				<p>Xây dựng niềm tin — Kiến tạo tương lai</p>
+				<div class="breadcrumb-nav">
+					<a href="{% url 'home' %}">Trang Chủ</a>
+					<span>/</span>
+					<strong>Giới Thiệu</strong>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+<!-- ABOUT INTRO -->
+<section class="about-intro">
+	<div class="container">
+		<div class="row align-items-center">
+			<div class="col-lg-6 wow fadeInLeft" style="padding-bottom: 30px;">
+				<div class="about-img-wrap">
+					<div class="about-media" role="img" aria-label="Sao Bắc Đẩu Construction">
+						<div class="about-media-inner">
+							<div class="kicker">Thành lập 2009</div>
+							<div class="title">Sao Bắc Đẩu</div>
+							<div class="sub">Chất lượng — Uy tín — Bền vững</div>
+							<div class="highlights">
+								<div><i class="fa fa-check-circle"></i> ISO 9001:2015</div>
+								<div><i class="fa fa-check-circle"></i> 200+ kỹ sư</div>
+								<div><i class="fa fa-check-circle"></i> Thi công toàn quốc</div>
+							</div>
+						</div>
+					</div>
+					<div class="about-img-badge">
+						<div class="num">500+</div>
+						<div class="txt">Dự Án Hoàn Thành</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-lg-6 wow fadeInRight" style="padding-left: 50px;">
+				<h2>Công Ty Xây Dựng Sao Bắc Đẩu</h2>
+				<p>Được thành lập năm 2009, Công ty Xây Dựng Sao Bắc Đẩu (SBD Construction) là một trong những đơn vị xây dựng uy tín hàng đầu tại Việt Nam. Với phương châm <strong>"Chất lượng — Uy tín — Bền vững"</strong>, chúng tôi không ngừng nỗ lực mang đến những công trình xuất sắc cho khách hàng.</p>
+				<p>Trải qua hơn 15 năm phát triển, SBD đã hoàn thành hơn 500 công trình lớn nhỏ trải dài từ Bắc vào Nam, bao gồm các dự án dân dụng, thương mại, công nghiệp và hạ tầng kỹ thuật.</p>
+				<ul>
+					<li><i class="fa fa-check-circle"></i> Chứng nhận ISO 9001:2015 về Quản lý Chất lượng</li>
+					<li><i class="fa fa-check-circle"></i> Giấy phép xây dựng hạng I (Bộ Xây Dựng cấp)</li>
+					<li><i class="fa fa-check-circle"></i> Đội ngũ 200+ kỹ sư, kiến trúc sư có kinh nghiệm</li>
+					<li><i class="fa fa-check-circle"></i> Hệ thống thiết bị thi công hiện đại, đồng bộ</li>
+					<li><i class="fa fa-check-circle"></i> Bảo hành công trình từ 2 đến 5 năm</li>
+				</ul>
+				<a href="{% url 'contact' %}" class="btn-primary-custom">Liên Hệ Tư Vấn</a>
+			</div>
+		</div>
+	</div>
+</section>
+
+<!-- VISION MISSION -->
+<section class="vm-section">
+	<div class="container">
+		<div class="section-title text-center wow zoomIn">
+			<h2>Tầm Nhìn & Sứ Mệnh</h2>
+		</div>
+		<div class="row">
+			<div class="col-lg-4 col-md-6 mb-4 wow fadeInUp" data-wow-delay="0.1s">
+				<div class="vm-card">
+					<div class="icon"><i class="fa fa-eye"></i></div>
+					<h4>Tầm Nhìn</h4>
+					<p>Trở thành tập đoàn xây dựng đa ngành hàng đầu Đông Nam Á vào năm 2035, được nhận diện bởi các công trình mang dấu ấn kiến trúc đặc sắc và chất lượng bền vững.</p>
+				</div>
+			</div>
+			<div class="col-lg-4 col-md-6 mb-4 wow fadeInUp" data-wow-delay="0.2s">
+				<div class="vm-card">
+					<div class="icon"><i class="fa fa-rocket"></i></div>
+					<h4>Sứ Mệnh</h4>
+					<p>Cung cấp dịch vụ xây dựng toàn diện, chất lượng cao với chi phí tối ưu, góp phần phát triển hạ tầng đất nước và nâng cao chất lượng sống cho cộng đồng.</p>
+				</div>
+			</div>
+			<div class="col-lg-4 col-md-6 mb-4 wow fadeInUp" data-wow-delay="0.3s">
+				<div class="vm-card">
+					<div class="icon"><i class="fa fa-heart"></i></div>
+					<h4>Giá Trị Cốt Lõi</h4>
+					<p>Chính trực — Chuyên nghiệp — Sáng tạo — Bền vững. Chúng tôi xây không chỉ những tòa nhà, mà còn xây dựng lòng tin và các mối quan hệ đối tác lâu dài.</p>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+<!-- NUMBERS -->
+<section class="numbers-section">
+	<div class="container">
+		<div class="row">
+			<div class="col-lg-3 col-md-6 number-divider wow fadeInUp" data-wow-delay="0.1s">
+				<div class="number-item">
+					<div class="num">500+</div>
+					<div class="label">Dự Án Hoàn Thành</div>
+				</div>
+			</div>
+			<div class="col-lg-3 col-md-6 number-divider wow fadeInUp" data-wow-delay="0.2s">
+				<div class="number-item">
+					<div class="num">15+</div>
+					<div class="label">Năm Kinh Nghiệm</div>
+				</div>
+			</div>
+			<div class="col-lg-3 col-md-6 number-divider wow fadeInUp" data-wow-delay="0.3s">
+				<div class="number-item">
+					<div class="num">200+</div>
+					<div class="label">Kỹ Sư & Chuyên Gia</div>
+				</div>
+			</div>
+			<div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.4s">
+				<div class="number-item">
+					<div class="num">50+</div>
+					<div class="label">Đối Tác Chiến Lược</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+<!-- VIDEO TOUR -->
+<section class="video-section">
+	<div class="container text-center">
+		<h2 class="wow fadeInDown">Quy Trình Triển Khai Dự Án</h2>
+		<p style="color: rgba(255,255,255,0.75); font-size:16px; margin-bottom: 36px;">Minh bạch từng bước — kiểm soát chất lượng và tiến độ theo tiêu chuẩn</p>
+		<div class="row justify-content-center" style="margin-top: 12px;">
+			<div class="col-lg-3 col-md-4 mb-4 wow fadeInUp" data-wow-delay="0.1s">
+				<div class="process-card">
+					<div class="icon"><i class="fa fa-search"></i></div>
+					<h4>Khảo sát</h4>
+					<p>Tiếp nhận nhu cầu, khảo sát hiện trạng và tư vấn phương án tối ưu.</p>
+				</div>
+			</div>
+			<div class="col-lg-3 col-md-4 mb-4 wow fadeInUp" data-wow-delay="0.2s">
+				<div class="process-card">
+					<div class="icon"><i class="fa fa-file-text-o"></i></div>
+					<h4>Báo giá</h4>
+					<p>Lập hồ sơ kỹ thuật, dự toán chi tiết và thống nhất hợp đồng.</p>
+				</div>
+			</div>
+			<div class="col-lg-3 col-md-4 mb-4 wow fadeInUp" data-wow-delay="0.3s">
+				<div class="process-card">
+					<div class="icon"><i class="fa fa-gavel"></i></div>
+					<h4>Thi công</h4>
+					<p>Triển khai theo tiến độ, nghiệm thu theo giai đoạn và bàn giao.</p>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+<!-- TEAM -->
+<section class="team-section">
+	<div class="container">
+		<div class="section-title text-center wow zoomIn">
+			<h2>Ban Lãnh Đạo</h2>
+			<p>Đội ngũ chuyên gia giàu kinh nghiệm dẫn dắt sự phát triển của công ty</p>
+		</div>
+		<div class="row">
+			<div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
+				<div class="team-card">
+					<div class="team-img-wrap"><div class="team-avatar" aria-hidden="true">NT</div></div>
+					<h4>Nguyễn Minh Tuấn</h4>
+					<div class="role">Tổng Giám Đốc</div>
+					<p class="bio">25 năm kinh nghiệm trong lĩnh vực xây dựng và quản lý dự án. Cử nhân Kỹ thuật Xây dựng — ĐH Bách Khoa TP.HCM.</p>
+					<div class="team-social">
+						<a href="#"><i class="fa fa-linkedin"></i></a>
+						<a href="#"><i class="fa fa-facebook"></i></a>
+					</div>
+				</div>
+			</div>
+			<div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.2s">
+				<div class="team-card">
+					<div class="team-img-wrap"><div class="team-avatar" aria-hidden="true">HH</div></div>
+					<h4>Trần Thanh Hải</h4>
+					<div class="role">Phó Tổng Giám Đốc</div>
+					<p class="bio">Chuyên gia về kết cấu và thi công công trình quy mô lớn. Thạc sĩ Kỹ thuật Xây dựng — ĐH Xây Dựng Hà Nội.</p>
+					<div class="team-social">
+						<a href="#"><i class="fa fa-linkedin"></i></a>
+						<a href="#"><i class="fa fa-facebook"></i></a>
+					</div>
+				</div>
+			</div>
+			<div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.3s">
+				<div class="team-card">
+					<div class="team-img-wrap"><div class="team-avatar" aria-hidden="true">MA</div></div>
+					<h4>Lê Thị Mai Anh</h4>
+					<div class="role">Giám Đốc Thiết Kế</div>
+					<p class="bio">Kiến trúc sư với hơn 18 năm kinh nghiệm. Tốt nghiệp xuất sắc ĐH Kiến Trúc TP.HCM, tu nghiệp tại Singapore.</p>
+					<div class="team-social">
+						<a href="#"><i class="fa fa-linkedin"></i></a>
+						<a href="#"><i class="fa fa-instagram"></i></a>
+					</div>
+				</div>
+			</div>
+			<div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.4s">
+				<div class="team-card">
+					<div class="team-img-wrap"><div class="team-avatar" aria-hidden="true">DT</div></div>
+					<h4>Phạm Đức Thắng</h4>
+					<div class="role">Giám Đốc Tài Chính</div>
+					<p class="bio">15 năm kinh nghiệm tài chính doanh nghiệp. Thạc sĩ Quản trị Kinh doanh — ĐH Kinh tế TP.HCM.</p>
+					<div class="team-social">
+						<a href="#"><i class="fa fa-linkedin"></i></a>
+						<a href="#"><i class="fa fa-facebook"></i></a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+<!-- CERTIFICATIONS -->
+<section class="cert-section">
+	<div class="container">
+		<div class="section-title text-center wow zoomIn">
+			<h2>Chứng Chỉ & Năng Lực</h2>
+			<p>Được công nhận bởi các tổ chức trong nước và quốc tế</p>
+		</div>
+		<div class="row">
+			<div class="col-lg-6 wow fadeInLeft">
+				<div class="cert-item">
+					<div class="cert-icon"><i class="fa fa-certificate"></i></div>
+					<div>
+						<h5>ISO 9001:2015 — Quản lý Chất lượng</h5>
+						<p>Chứng nhận bởi Bureau Veritas — có giá trị đến 12/2026</p>
+					</div>
+				</div>
+				<div class="cert-item">
+					<div class="cert-icon"><i class="fa fa-shield"></i></div>
+					<div>
+						<h5>ISO 45001:2018 — An toàn & Sức khỏe Nghề nghiệp</h5>
+						<p>Tiêu chuẩn quốc tế về an toàn lao động tại công trường</p>
+					</div>
+				</div>
+				<div class="cert-item">
+					<div class="cert-icon"><i class="fa fa-leaf"></i></div>
+					<div>
+						<h5>ISO 14001:2015 — Quản lý Môi trường</h5>
+						<p>Cam kết xây dựng xanh, giảm thiểu tác động môi trường</p>
+					</div>
+				</div>
+			</div>
+			<div class="col-lg-6 wow fadeInRight">
+				<div class="cert-item">
+					<div class="cert-icon"><i class="fa fa-building-o"></i></div>
+					<div>
+						<h5>Năng lực Xây dựng Hạng I — Bộ Xây Dựng</h5>
+						<p>Đủ năng lực thi công công trình cấp đặc biệt và cấp I trên toàn quốc</p>
+					</div>
+				</div>
+				<div class="cert-item">
+					<div class="cert-icon"><i class="fa fa-trophy"></i></div>
+					<div>
+						<h5>Top 10 Nhà Thầu Xây Dựng Uy Tín 2023</h5>
+						<p>Giải thưởng bình chọn bởi Hiệp hội Nhà thầu Xây dựng Việt Nam (VACC)</p>
+					</div>
+				</div>
+				<div class="cert-item">
+					<div class="cert-icon"><i class="fa fa-star"></i></div>
+					<div>
+						<h5>Doanh nghiệp Xuất sắc TP.HCM 2022–2024</h5>
+						<p>Bình chọn bởi UBND TP. Hồ Chí Minh trong 3 năm liên tiếp</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+{% endblock %}

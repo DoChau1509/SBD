@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container" style="margin-top:100px; max-width:600px;">
+
+    <h2>{% if project %}Sửa{% else %}Thêm{% endif %} Dự Án</h2>
+
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <input type="text" name="name"
+               value="{{ project.name|default:'' }}"
+               placeholder="Tên dự án"
+               class="form-control mb-2">
+
+        <textarea name="description"
+                  class="form-control mb-2"
+                  placeholder="Mô tả">{{ project.description|default:'' }}</textarea>
+
+        <select name="category" class="form-control mb-2" required>
+            <option value="" disabled {% if not project %}selected{% endif %}>-- Chọn danh mục --</option>
+            {% for c in categories %}
+                <option value="{{ c.id }}" {% if project and project.category_id == c.id %}selected{% endif %}>
+                    {{ c.name }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <input type="file" name="image" class="form-control mb-2">
+
+        {% if project.image %}
+            <img src="{{ project.image.url }}" width="120">
+        {% endif %}
+
+        <button class="btn btn-primary mt-2">Lưu</button>
+
+    </form>
+
+</div>
+
+{% endblock %}

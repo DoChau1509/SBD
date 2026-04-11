@@ -1,0 +1,236 @@
+{% extends 'base.html' %}
+{% block content %}
+
+
+
+<!-- PAGE HEADER -->
+<section class="section-top">
+	<div class="container">
+		<div class="col-lg-10 offset-lg-1 col-xs-12 text-center">
+			<div class="section-top-title wow fadeInRight" data-wow-duration="1s" data-wow-delay="0.3s">
+				<h1>Liên Hệ Với Chúng Tôi</h1>
+				<p>Đội ngũ tư vấn luôn sẵn sàng hỗ trợ bạn 24/7</p>
+				<div class="breadcrumb-nav">
+					<a href="{% url 'home' %}">Trang Chủ</a>
+					<span>/</span>
+					<strong>Liên Hệ</strong>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+<!-- CONTACT FORM + INFO -->
+<section class="contact-area">
+	<div class="container">
+		<div class="section-title text-center wow zoomIn">
+			<h2>Gửi Yêu Cầu Tư Vấn</h2>
+			<p>Điền thông tin bên dưới — chúng tôi sẽ liên hệ lại trong vòng 24 giờ làm việc</p>
+		</div>
+		<div class="row">
+			<!-- Form -->
+			<div class="col-lg-7 col-md-12 wow fadeInLeft mb-4">
+				<div class="contact-form-wrap">
+					<h3>Gửi Tin Nhắn</h3>
+					<p>Vui lòng cung cấp thông tin dự án để chúng tôi tư vấn chính xác nhất.</p>
+					<form id="contact-form" method="post" enctype="multipart/form-data" novalidate>
+						<div class="form-row-half">
+							<div class="form-group">
+								<label>Họ và Tên *</label>
+								<input type="text" name="name" class="form-control" placeholder="Nguyễn Văn A" required>
+							</div>
+							<div class="form-group">
+								<label>Số Điện Thoại *</label>
+								<input type="tel" name="phone" class="form-control" placeholder="0901 234 567" required>
+							</div>
+						</div>
+						<div class="form-group">
+							<label>Email</label>
+							<input type="email" name="email" class="form-control" placeholder="example@email.com">
+						</div>
+						<div class="form-group">
+							<label>Loại Dự Án *</label>
+							<select name="project_type" class="form-control" required>
+								<option value="" disabled selected>-- Chọn loại dự án --</option>
+								<option value="dan-dung">Xây dựng Dân dụng (Nhà ở, Biệt thự, Chung cư)</option>
+								<option value="cong-nghiep">Xây dựng Công nghiệp (Nhà máy, Kho xưởng)</option>
+								<option value="thuong-mai">Xây dựng Thương mại (Văn phòng, TTTM)</option>
+								<option value="ha-tang">Hạ tầng Kỹ thuật (Đường, Cầu, Cống)</option>
+								<option value="noi-that">Thi công Nội thất</option>
+								<option value="thiet-ke">Thiết kế Kiến trúc & Kết cấu</option>
+								<option value="khac">Khác</option>
+							</select>
+						</div>
+						<div class="form-group">
+							<label>Chủ Đề / Tiêu Đề *</label>
+							<input type="text" name="subject" class="form-control" placeholder="Ví dụ: Tư vấn xây dựng nhà xưởng 5000m²" required>
+						</div>
+						<div class="form-group">
+							<label>Nội Dung Chi Tiết</label>
+							<textarea rows="5" name="message" class="form-control" placeholder="Mô tả chi tiết về dự án, quy mô, địa điểm, yêu cầu đặc biệt..."></textarea>
+						</div>
+						<div class="form-group">
+							<label>Ngân Sách Dự Kiến</label>
+							<select name="budget" class="form-control">
+								<option value="" disabled selected>-- Chọn ngân sách (không bắt buộc) --</option>
+								<option>Dưới 1 tỷ VNĐ</option>
+								<option>1 – 5 tỷ VNĐ</option>
+								<option>5 – 20 tỷ VNĐ</option>
+								<option>20 – 100 tỷ VNĐ</option>
+								<option>Trên 100 tỷ VNĐ</option>
+							</select>
+						</div>
+						<button type="submit" class="btn-submit">
+							<i class="fa fa-paper-plane"></i> Gửi Yêu Cầu
+						</button>
+						<p class="form-note">* Thông tin bắt buộc. Chúng tôi cam kết bảo mật thông tin của bạn.</p>
+						<div class="form-success" id="form-success">
+							<i class="fa fa-check-circle"></i> Cảm ơn bạn! Chúng tôi đã nhận được yêu cầu và sẽ liên hệ lại trong 24 giờ làm việc.
+						</div>
+					</form>
+				</div>
+			</div>
+
+			<!-- Info -->
+			<div class="col-lg-5 col-md-12 wow fadeInRight mb-4">
+				<div class="contact-info-card">
+					<h4>Thông Tin Liên Hệ</h4>
+
+					<div class="contact-info-item">
+						<div class="contact-info-icon"><i class="fa fa-map-marker"></i></div>
+						<div class="contact-info-content">
+							<h6>Trụ Sở Chính</h6>
+							<p>123 Đường Lê Lợi, Phường Bến Nghé<br>Quận 1, TP. Hồ Chí Minh</p>
+						</div>
+					</div>
+
+					<div class="contact-info-item">
+						<div class="contact-info-icon"><i class="fa fa-building-o"></i></div>
+						<div class="contact-info-content">
+							<h6>Chi Nhánh Hà Nội</h6>
+							<p>45 Đường Láng, Đống Đa<br>Hà Nội</p>
+						</div>
+					</div>
+
+					<div class="contact-info-item">
+						<div class="contact-info-icon"><i class="fa fa-phone"></i></div>
+						<div class="contact-info-content">
+							<h6>Điện Thoại</h6>
+							<a href="tel:+842838234567">(+84) 028 3823 4567</a><br>
+							<a href="tel:+842438234567">(+84) 024 3823 4567 (HN)</a>
+						</div>
+					</div>
+
+					<div class="contact-info-item">
+						<div class="contact-info-icon"><i class="fa fa-fax"></i></div>
+						<div class="contact-info-content">
+							<h6>Fax</h6>
+							<p>(+84) 028 3823 4568</p>
+						</div>
+					</div>
+
+					<div class="contact-info-item">
+						<div class="contact-info-icon"><i class="fa fa-envelope"></i></div>
+						<div class="contact-info-content">
+							<h6>Email</h6>
+							<a href="mailto:info@saobacday.com.vn">info@saobacday.com.vn</a><br>
+							<a href="mailto:tuvanduan@saobacday.com.vn">tuvanduan@saobacday.com.vn</a>
+						</div>
+					</div>
+
+					<div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 24px; margin-top: 8px;">
+						<h6 style="color: var(--accent-light); font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 14px;">Giờ Làm Việc</h6>
+						<ul class="hours-list">
+							<li><span>Thứ 2 – Thứ 6</span> <span class="open">07:30 – 17:30</span></li>
+							<li><span>Thứ 7</span> <span class="open">07:30 – 12:00</span></li>
+							<li><span>Chủ Nhật</span> <span class="closed">Nghỉ</span></li>
+						</ul>
+					</div>
+
+					<div class="contact-social">
+						<a href="#"><i class="fa fa-facebook"></i></a>
+						<a href="#"><i class="fa fa-youtube"></i></a>
+						<a href="#"><i class="fa fa-linkedin"></i></a>
+						<a href="#"><i class="fa fa-instagram"></i></a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+<!-- MAP -->
+<div class="map">
+	<iframe
+		src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.4940554660714!2d106.69975991526323!3d10.773657161783258!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752f4a7f87f253%3A0x5d3b61f38c7e56b3!2zTMOqIEzhu6NpLCBC4bq_biBOZ2jDqSwgUXXhuq1uIDEsIFRow6BuaCBwaOG7kSBI4buTIENow60gTWluaCwgVmnhu4d0IE5hbQ!5e0!3m2!1svi!2s!4v1620000000000!5m2!1svi!2s"
+		allowfullscreen="" aria-hidden="false" tabindex="0" title="Bản đồ Sao Bắc Đẩu">
+	</iframe>
+</div>
+
+<!-- FAQ -->
+<section class="faq-section">
+	<div class="container">
+		<div class="section-title text-center wow zoomIn">
+			<h2>Câu Hỏi Thường Gặp</h2>
+			<p>Những thắc mắc phổ biến từ khách hàng của chúng tôi</p>
+		</div>
+		<div class="row">
+			<div class="col-lg-8 offset-lg-2">
+				<div class="faq-item open">
+					<div class="faq-question">Quy trình ký kết hợp đồng và thi công diễn ra như thế nào? <i class="fa fa-chevron-down"></i></div>
+					<div class="faq-answer">Sau khi khảo sát và tư vấn miễn phí, chúng tôi sẽ lập báo giá chi tiết trong vòng 3–5 ngày làm việc. Khi hai bên thống nhất, hợp đồng được ký kết với đầy đủ điều khoản về tiến độ, chất lượng và thanh toán. Quá trình thi công được giám sát liên tục và có biên bản nghiệm thu từng giai đoạn.</div>
+				</div>
+				<div class="faq-item">
+					<div class="faq-question">Sao Bắc Đẩu có chính sách bảo hành như thế nào? <i class="fa fa-chevron-down"></i></div>
+					<div class="faq-answer">Chúng tôi áp dụng chế độ bảo hành từ 24 đến 60 tháng tùy theo loại hạng mục (phần thô, hoàn thiện, M&E). Trong thời gian bảo hành, mọi phát sinh liên quan đến lỗi thi công được xử lý miễn phí trong vòng 48 giờ.</div>
+				</div>
+				<div class="faq-item">
+					<div class="faq-question">Công ty có thể thi công ở các tỉnh thành khác ngoài TP.HCM không? <i class="fa fa-chevron-down"></i></div>
+					<div class="faq-answer">Có. Sao Bắc Đẩu hiện có văn phòng tại TP.HCM và Hà Nội, đồng thời có năng lực thi công trên toàn quốc bao gồm các tỉnh miền Trung, Tây Nguyên và Đồng bằng Sông Cửu Long.</div>
+				</div>
+				<div class="faq-item">
+					<div class="faq-question">Chi phí tư vấn thiết kế và báo giá có mất phí không? <i class="fa fa-chevron-down"></i></div>
+					<div class="faq-answer">Hoàn toàn miễn phí. Chúng tôi cung cấp dịch vụ tư vấn ban đầu và báo giá sơ bộ miễn phí. Chi phí thiết kế chi tiết sẽ được thỏa thuận riêng và thường được tính vào giá trị hợp đồng thi công.</div>
+				</div>
+				<div class="faq-item">
+					<div class="faq-question">Hình thức thanh toán được áp dụng như thế nào? <i class="fa fa-chevron-down"></i></div>
+					<div class="faq-answer">Thanh toán theo tiến độ thi công, thường chia làm 3–5 đợt tương ứng với các giai đoạn: Ký hợp đồng → Hoàn thành phần móng → Hoàn thành phần thô → Hoàn thiện → Bàn giao. Tỷ lệ cụ thể được thỏa thuận trong hợp đồng.</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+	// FAQ accordion
+	var faqRoot = document.querySelector('.faq-section');
+	if (faqRoot) {
+		faqRoot.addEventListener('click', function (e) {
+			var q = e.target.closest('.faq-question');
+			if (!q) return;
+			var parent = q.closest('.faq-item');
+			if (!parent) return;
+			Array.prototype.slice.call(faqRoot.querySelectorAll('.faq-item')).forEach(function (el) {
+				if (el !== parent) el.classList.remove('open');
+			});
+			parent.classList.toggle('open');
+		});
+	}
+
+	// Form submit demo
+	var form = document.getElementById('contact-form');
+	var success = document.getElementById('form-success');
+	if (form && success) {
+		form.addEventListener('submit', function (e) {
+			e.preventDefault();
+			success.style.display = 'block';
+			form.reset();
+			var y = success.getBoundingClientRect().top + window.scrollY - 100;
+			window.scrollTo({ top: y, behavior: 'smooth' });
+		});
+	}
+});
+</script>
+
+{% endblock %}

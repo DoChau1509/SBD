@@ -1,0 +1,165 @@
+
+/* Contact Info Cards */
+.contact-area { padding: 90px 0; }
+.contact-info-card {
+	background: var(--primary);
+	border-radius: 8px;
+	padding: 40px 32px;
+	height: 100%;
+}
+.contact-info-card h4 {
+	color: var(--white);
+	font-size: 22px; margin-bottom: 32px;
+	padding-bottom: 16px;
+	border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+.contact-info-item {
+	display: flex; gap: 16px;
+	margin-bottom: 28px;
+	align-items: flex-start;
+}
+.contact-info-icon {
+	width: 44px; height: 44px; flex-shrink: 0;
+	background: rgba(201,150,62,0.15);
+	border: 1px solid rgba(201,150,62,0.3);
+	border-radius: 8px;
+	display: flex; align-items: center; justify-content: center;
+	font-size: 16px; color: var(--accent);
+}
+.contact-info-content h6 {
+	color: var(--accent-light);
+	font-family: 'Be Vietnam Pro', sans-serif;
+	font-size: 11px; font-weight: 700;
+	letter-spacing: 1.5px; text-transform: uppercase;
+	margin-bottom: 6px;
+}
+.contact-info-content p, .contact-info-content a {
+	color: rgba(255,255,255,0.75);
+	font-size: 14px; line-height: 1.7;
+	margin: 0; text-decoration: none;
+}
+.contact-info-content a:hover { color: var(--accent-light); }
+
+/* Working Hours */
+.hours-list { padding: 0; margin: 0; }
+.hours-list li {
+	list-style: none;
+	display: flex; justify-content: space-between;
+	color: rgba(255,255,255,0.65);
+	font-size: 14px;
+	padding: 8px 0;
+	border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.hours-list li:last-child { border: none; }
+.hours-list li .open { color: #5dd87e; font-weight: 600; }
+.hours-list li .closed { color: #ff7c7c; font-weight: 600; }
+
+/* Social icons in contact */
+.contact-social { margin-top: 24px; }
+.contact-social a {
+	display: inline-flex; align-items: center; justify-content: center;
+	width: 38px; height: 38px;
+	border-radius: 8px;
+	background: rgba(255,255,255,0.08);
+	color: rgba(255,255,255,0.65);
+	font-size: 15px;
+	margin-right: 8px;
+	text-decoration: none;
+	transition: all 0.3s;
+}
+.contact-social a:hover { background: var(--accent); color: var(--white); }
+
+/* Form */
+.contact-form-wrap {
+	background: var(--white);
+	border-radius: 8px;
+	padding: 48px 40px;
+	box-shadow: 0 8px 40px rgba(26,46,74,0.1);
+}
+.contact-form-wrap h3 {
+	font-size: 26px; color: var(--primary);
+	margin-bottom: 8px;
+}
+.contact-form-wrap > p {
+	color: var(--text-muted); font-size: 15px;
+	margin-bottom: 32px;
+}
+.form-group { margin-bottom: 20px; }
+.form-group label {
+	font-size: 12px; font-weight: 700;
+	letter-spacing: 1px; text-transform: uppercase;
+	color: var(--text-muted);
+	display: block; margin-bottom: 8px;
+}
+.form-control {
+	border: 1px solid rgba(26,46,74,0.15) !important;
+	border-radius: 4px !important;
+	padding: 12px 16px !important;
+	font-size: 14px !important;
+	color: var(--text-dark) !important;
+	background: var(--light-bg) !important;
+	transition: border-color 0.3s, background 0.3s !important;
+	font-family: 'Be Vietnam Pro', sans-serif !important;
+}
+.form-control:focus {
+	outline: none !important;
+	border-color: var(--accent) !important;
+	background: var(--white) !important;
+	box-shadow: 0 0 0 3px rgba(201,150,62,0.12) !important;
+}
+.form-control::placeholder { color: #aab0be !important; }
+textarea.form-control { resize: vertical; min-height: 140px; }
+.btn-submit {
+	background: var(--primary);
+	color: var(--white);
+	padding: 14px 36px;
+	border: none; border-radius: 4px;
+	font-size: 14px; font-weight: 700;
+	letter-spacing: 1px; text-transform: uppercase;
+	cursor: pointer;
+	transition: all 0.3s;
+	display: inline-flex; align-items: center; gap: 10px;
+	font-family: 'Be Vietnam Pro', sans-serif;
+}
+.btn-submit:hover { background: var(--accent); }
+.form-row-half { display: flex; gap: 20px; }
+.form-row-half .form-group { flex: 1; }
+.form-note { font-size: 12px; color: var(--text-muted); margin-top: 12px; }
+
+/* Form success/error */
+.form-success {
+	display: none;
+	background: #e8f8ee; border: 1px solid #5dd87e;
+	border-radius: 4px; padding: 16px 20px;
+	color: #2a7a45; font-size: 14px; margin-top: 16px;
+}
+
+/* Map */
+.map { height: 450px; overflow: hidden; }
+.map iframe { width: 100%; height: 100%; border: none; display: block; }
+
+/* FAQ Section */
+.faq-section { padding: 80px 0; background: var(--light-bg); }
+.faq-item {
+	background: var(--white);
+	border-radius: 8px;
+	margin-bottom: 12px;
+	overflow: hidden;
+	box-shadow: 0 2px 10px rgba(26,46,74,0.05);
+}
+.faq-question {
+	padding: 18px 24px;
+	font-size: 15px; font-weight: 600;
+	color: var(--primary);
+	cursor: pointer;
+	display: flex; justify-content: space-between; align-items: center;
+	user-select: none;
+}
+.faq-question i { color: var(--accent); transition: transform 0.3s; font-size: 12px; }
+.faq-item.open .faq-question i { transform: rotate(180deg); }
+.faq-answer {
+	display: none;
+	padding: 0 24px 18px;
+	font-size: 14px; color: var(--text-muted); line-height: 1.8;
+}
+.faq-item.open .faq-answer { display: block; }

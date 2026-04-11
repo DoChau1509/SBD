@@ -1,0 +1,187 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+	/* Filter tabs */
+	.filter-wrap { margin-bottom: 40px; }
+	.portfolio-filters {
+		padding: 0; list-style: none;
+		display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;
+	}
+	.portfolio-filters li {
+		padding: 9px 24px;
+		border-radius: 4px;
+		font-size: 13px; font-weight: 600;
+		letter-spacing: 1px; text-transform: uppercase;
+		cursor: pointer;
+		border: 1px solid rgba(26,46,74,0.2);
+		color: var(--text-muted);
+		transition: all 0.3s;
+		user-select: none;
+	}
+	.portfolio-filters li.active,
+	.portfolio-filters li:hover {
+		background: var(--primary);
+		color: var(--white);
+		border-color: var(--primary);
+	}
+
+	/* Project Cards */
+	.projects-section { padding: 90px 0; background: var(--light-bg); }
+	.project-item {
+		position: relative; overflow: hidden;
+		border-radius: 8px;
+		height: 280px;
+		box-shadow: 0 4px 20px rgba(26,46,74,0.1);
+		background: var(--white);
+	}
+	.project-item a { position:absolute; inset:0; text-decoration:none; }
+
+	.project-item .thumb {
+		position: absolute;
+		inset: 0;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background: radial-gradient(900px 300px at 20% 15%, rgba(201, 150, 62, 0.35) 0%, transparent 60%),
+					linear-gradient(135deg, rgba(8, 28, 50, 0.96) 0%, rgba(26, 60, 94, 0.96) 60%, rgba(201, 150, 62, 0.22) 100%);
+		color: rgba(255,255,255,0.92);
+		transition: transform 0.55s ease;
+	}
+	.project-item .thumb img { width: 100%; height: 100%; object-fit: cover; display:block; }
+	.project-item .thumb i { font-size: 54px; opacity: 0.92; }
+	.project-item:hover .thumb { transform: scale(1.06); }
+
+	.project-item-overlay {
+		position: absolute; inset: 0;
+		background: linear-gradient(to top, rgba(26,46,74,0.94) 0%, rgba(26,46,74,0.25) 62%, transparent 100%);
+		display: flex; flex-direction: column;
+		justify-content: flex-end; padding: 22px;
+	}
+	.project-item-overlay .category {
+		font-size: 11px; font-weight: 800;
+		letter-spacing: 2px; text-transform: uppercase;
+		color: var(--accent-light); margin-bottom: 8px;
+	}
+	.project-item-overlay h4 { color: var(--white); font-size: 18px; margin: 0 0 8px; }
+	.project-item-overlay p {
+		color: rgba(255,255,255,0.70);
+		font-size: 13px;
+		margin: 0;
+		line-height: 1.6;
+	}
+	.project-item-overlay .meta {
+		margin-top: 10px;
+		color: rgba(255,255,255,0.60);
+		font-size: 12.5px;
+		display: flex;
+		align-items: center;
+		gap: 10px;
+	}
+</style>
+
+<!-- PAGE HEADER -->
+<section class="section-top">
+	<div class="container">
+		<div class="col-lg-10 offset-lg-1 col-xs-12 text-center">
+			<div class="section-top-title wow fadeInRight" data-wow-duration="1s" data-wow-delay="0.3s">
+				<h1>Dự Án</h1>
+				<p>Các dự án được cập nhật từ hệ thống quản trị</p>
+				<div class="breadcrumb-nav">
+					<a href="{% url 'home' %}">Trang Chủ</a>
+					<span>/</span>
+					<strong>Dự Án</strong>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+<!-- PROJECTS -->
+<section class="projects-section">
+	<div class="container">
+		<div class="section-title text-center wow zoomIn">
+			<h2>Danh Sách Dự Án</h2>
+			<p>Lọc theo danh mục để tìm các dự án phù hợp</p>
+		</div>
+
+		<div class="filter-wrap text-center wow fadeInUp">
+			<ul class="portfolio-filters" id="filter-list">
+				<li class="active" data-filter="all">Tất Cả</li>
+				{% for c in categories %}
+					<li data-filter="cat-{{ c.id }}">{{ c.name }}</li>
+				{% endfor %}
+			</ul>
+		</div>
+
+		<div class="row portfolio-items-list" id="projects-grid">
+			{% for p in projects %}
+				<div class="col-lg-4 col-md-6 mix cat-{{ p.category_id }} wow fadeInUp" data-wow-delay="0.1s">
+					<div class="project-item">
+						<a href="{% url 'project_detail' p.id %}" aria-label="Xem chi tiết {{ p.name }}">
+							<div class="thumb" aria-hidden="true">
+								{% if p.image %}
+									<img src="{{ p.image.url }}" alt="{{ p.name }}">
+								{% else %}
+									<i class="fa fa-building-o"></i>
+								{% endif %}
+							</div>
+							<div class="project-item-overlay">
+								<div class="category">{{ p.category.name }}</div>
+								<h4>{{ p.name }}</h4>
+								<p>{{ p.description|default:""|truncatechars:110 }}</p>
+								<div class="meta">
+									<span><i class="fa fa-calendar-o"></i> {{ p.created_at|date:"d/m/Y" }}</span>
+									<span><i class="fa fa-arrow-right"></i> Xem chi tiết</span>
+								</div>
+							</div>
+						</a>
+					</div>
+				</div>
+			{% empty %}
+				<div class="col-12">
+					<div class="text-center text-muted" style="padding: 40px 0;">
+						Chưa có dự án nào.
+					</div>
+				</div>
+			{% endfor %}
+		</div>
+	</div>
+</section>
+
+<!-- CTA -->
+<section style="background: linear-gradient(135deg, var(--accent) 0%, #b5832e 100%); padding: 80px 0; text-align: center;">
+	<div class="container">
+		<h2 style="color: var(--white); font-size: 38px; margin-bottom: 16px;">Có Dự Án Cần Thi Công?</h2>
+		<p style="color: rgba(255,255,255,0.85); font-size: 17px; margin-bottom: 32px;">Liên hệ ngay để nhận tư vấn miễn phí và báo giá chi tiết từ đội ngũ chuyên gia của chúng tôi.</p>
+		<a href="{% url 'contact' %}" class="btn-cta" style="background: var(--white); color: var(--accent); padding: 14px 36px; border-radius: 4px; font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; text-decoration: none; display: inline-block; transition: all 0.3s;">Gửi Yêu Cầu Tư Vấn</a>
+	</div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+	var filterList = document.getElementById('filter-list');
+	var grid = document.getElementById('projects-grid');
+	if (!filterList || !grid) return;
+
+	var items = Array.prototype.slice.call(grid.querySelectorAll('.mix'));
+	filterList.addEventListener('click', function (e) {
+		var li = e.target.closest('li[data-filter]');
+		if (!li) return;
+
+		Array.prototype.slice.call(filterList.querySelectorAll('li')).forEach(function (el) {
+			el.classList.remove('active');
+		});
+		li.classList.add('active');
+
+		var filter = li.getAttribute('data-filter');
+		items.forEach(function (item) {
+			var show = (filter === 'all') || item.classList.contains(filter);
+			item.style.display = show ? '' : 'none';
+		});
+	});
+});
+</script>
+
+{% endblock %}
+
