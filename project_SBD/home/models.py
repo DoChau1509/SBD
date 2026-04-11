@@ -46,3 +46,29 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+
+
+# 11/4/2026: Hoàng
+class PostCategory(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    slug = models.SlugField(blank=True, null=True, unique=True)
+    is_hidden = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.name
+
+
+class Post(models.Model):
+    title = models.CharField(max_length=200)
+    summary = models.TextField(blank=True)
+    content = models.TextField()
+    image = models.ImageField(upload_to='posts/', blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    category = models.ForeignKey(
+        PostCategory,
+        on_delete=models.PROTECT,
+        related_name='posts',
+    )
+
+    def __str__(self):
+        return self.title

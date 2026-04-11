@@ -10,6 +10,8 @@ urlpatterns = [
     path('project/<int:id>/', views.project_detail, name='project_detail'),
     path('product/', views.product_public, name='product'),
     path('product/<int:id>/', views.product_detail, name='product_detail'),
+    path('post/', views.post_public, name='post'),
+    path('post/<int:id>/', views.post_detail, name='post_detail'),
 
     # AUTH
     path('login/', views.login_view, name='login'),
@@ -31,6 +33,12 @@ urlpatterns = [
     path('product/edit/<int:id>/', views.product_update, name='product_edit'),
     path('product/delete/<int:id>/', views.product_delete, name='product_delete'),
 
+    # post
+    path('posts/', views.post_list, name='post_list'),
+    path('post/add/', views.post_create, name='post_add'),
+    path('post/edit/<int:id>/', views.post_update, name='post_edit'),
+    path('post/delete/<int:id>/', views.post_delete, name='post_delete'),
+
     # project category
     path('project-category/', views.project_category_list, name='project_category_list'),
     path('project-category/add/', views.project_category_create, name='project_category_add'),
@@ -42,4 +50,10 @@ urlpatterns = [
     path('product-category/add/', views.product_category_create, name='product_category_add'),
     path('product-category/edit/<int:id>/', views.product_category_update, name='product_category_edit'),
     path('product-category/delete/<int:id>/', views.product_category_delete, name='product_category_delete'),
+
+    # post category
+    path('post-category/', views.post_category_list, name='post_category_list'),
+    path('post-category/add/', views.post_category_create, name='post_category_add'),
+    path('post-category/edit/<int:id>/', views.post_category_update, name='post_category_edit'),
+    path('post-category/delete/<int:id>/', views.post_category_delete, name='post_category_delete'),
 ]

@@ -15,6 +15,8 @@ from .models import (
     ProductCategory,
     Project,
     ProjectCategory,
+    Post,
+    PostCategory,
 )
 
 
@@ -48,6 +50,11 @@ def _is_management_path(path: str) -> bool:
         "/product/delete",
         "/project-category",
         "/product-category",
+        "/posts",
+        "/post/add",
+        "/post/edit",
+        "/post/delete",
+        "/post-category",
     )
     return path.startswith(management_prefixes)
 
@@ -96,6 +103,12 @@ def _get_default_product_category():
     )
     return category
 
+def _get_default_post_category():
+    category, _ = PostCategory.objects.get_or_create(
+        name="Chưa phân loại",
+        defaults={"slug": "uncategorized-post", "is_hidden": True},
+    )
+    return category
 
 @staff_required
 def project_create(request):
@@ -317,6 +330,149 @@ def product_delete(request, id):
     product.delete()
     return redirect("product_list")
 
+# ====================== CRUD POST ======================
+@staff_required
+def post_list(request):
+    posts = Post.objects.select_related("category").all().order_by("-id")
+    return render(request, "home/post_list.html", {"posts": posts})
+
+
+def post_public(request):
+    categories = PostCategory.objects.filter(is_hidden=False).order_by("name")
+    posts = Post.objects.select_related("category").all().order_by("-created_at", "-id")
+    return render(
+        request,
+        "home/post.html",
+        {"posts": posts, "categories": categories},
+    )
+
+
+def post_detail(request, id):
+    post = get_object_or_404(Post.objects.select_related("category"), id=id)
+    return render(request, "home/post_detail.html", {"post": post})
+
+
+@staff_required
+def post_create(request):
+    categories = PostCategory.objects.filter(is_hidden=False).order_by("name")
+
+    if request.method == "POST":
+        category_id = request.POST.get("category")
+        category = None
+        if category_id:
+            category = PostCategory.objects.filter(id=category_id).first()
+        if category is None:
+            category = _get_default_post_category()
+
+        Post.objects.create(
+            title=request.POST.get("title"),
+            summary=request.POST.get("summary", ""),
+            content=request.POST.get("content"),
+            image=request.FILES.get("image"),
+            category=category,
+        )
+        return redirect("post_list")
+
+    return render(request, "home/post_form.html", {"categories": categories})
+
+
+@staff_required
+def post_update(request, id):
+    post = get_object_or_404(Post, id=id)
+    categories = PostCategory.objects.filter(is_hidden=False).order_by("name")
+
+    if request.method == "POST":
+        post.title = request.POST.get("title")
+        post.summary = request.POST.get("summary", "")
+        post.content = request.POST.get("content")
+
+        category_id = request.POST.get("category")
+        if category_id:
+            category = PostCategory.objects.filter(id=category_id).first()
+            if category is not None:
+                post.category = category
+
+        if "image" in request.FILES:
+            post.image = request.FILES["image"]
+
+        post.save()
+        return redirect("post_list")
+
+    return render(
+        request,
+        "home/post_form.html",
+        {"post": post, "categories": categories},
+    )
+
+
+@staff_required
+def post_delete(request, id):
+    post = get_object_or_404(Post, id=id)
+    post.delete()
+    return redirect("post_list")
+
+
+@staff_required
+def post_category_list(request):
+    categories = PostCategory.objects.all().order_by("name")
+    error = request.GET.get("error")
+    return render(
+        request,
+        "home/post_category_list.html",
+        {"categories": categories, "error": error},
+    )
+
+
+@staff_required
+def post_category_create(request):
+    if request.method == "POST":
+        name = (request.POST.get("name") or "").strip()
+        slug = (request.POST.get("slug") or "").strip() or None
+        is_hidden = request.POST.get("is_hidden") == "on"
+
+        if not slug and name:
+            slug = slugify(name) or None
+
+        if name:
+            PostCategory.objects.create(name=name, slug=slug, is_hidden=is_hidden)
+            return redirect("post_category_list")
+
+    return render(request, "home/post_category_form.html", {"title": "Thêm danh mục bài viết"})
+
+
+@staff_required
+def post_category_update(request, id):
+    category = get_object_or_404(PostCategory, id=id)
+
+    if request.method == "POST":
+        name = (request.POST.get("name") or "").strip()
+        slug = (request.POST.get("slug") or "").strip() or None
+        is_hidden = request.POST.get("is_hidden") == "on"
+
+        if not slug and name:
+            slug = slugify(name) or None
+
+        category.name = name or category.name
+        category.slug = slug
+        category.is_hidden = is_hidden
+        category.save()
+        return redirect("post_category_list")
+
+    return render(
+        request,
+        "home/post_category_form.html",
+        {"title": "Sửa danh mục bài viết", "category": category},
+    )
+
+
+@staff_required
+def post_category_delete(request, id):
+    category = get_object_or_404(PostCategory, id=id)
+    try:
+        category.delete()
+    except ProtectedError:
+        return redirect("post_category_list" + "?error=Không thể xóa danh mục đang được sử dụng.")
+    return redirect("post_category_list")
 
 # ====================== CRUD CATEGORIES ======================
 @staff_required
