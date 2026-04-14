@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+/* Badge fix */
+.badge-success {
+    background: #28a745;
+}
+
+.badge-secondary {
+    background: #6c757d;
+}
+</style>
+<div class="container" style="margin-top:100px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+        <h2 style="margin:0;">Quản lý FAQ</h2>
+        <a href="{% url 'faq_add' %}" class="btn btn-primary">+ Thêm câu hỏi</a>
+    </div>
+
+    {% if error %}
+        <div class="alert alert-danger">{{ error }}</div>
+    {% endif %}
+
+    <table class="table table-bordered table-hover">
+        <thead class="thead-dark">
+            <tr>
+                <th>#</th>
+                <th>Câu hỏi</th>
+                <th>Thứ tự</th>
+                <th>Hiển thị</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for faq in faqs %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ faq.question }}</td>
+                <td>{{ faq.order }}</td>
+                <td>
+                    {% if faq.is_active %}
+                        <span class="badge badge-success">Hiện</span>
+                    {% else %}
+                        <span class="badge badge-secondary">Ẩn</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{% url 'faq_edit' faq.id %}" class="btn btn-sm btn-warning">Sửa</a>
+                    <a href="{% url 'faq_delete' faq.id %}"
+                       class="btn btn-sm btn-danger"
+                       onclick="return confirm('Xóa câu hỏi này?')">Xóa</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5" class="text-center">Chưa có câu hỏi nào.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{% url 'dashboard' %}" class="btn btn-secondary">Quay lại Dashboard</a>
+</div>
+{% endblock %}

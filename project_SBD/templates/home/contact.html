@@ -169,36 +169,28 @@
 
 <!-- FAQ -->
 <section class="faq-section">
-	<div class="container">
-		<div class="section-title text-center wow zoomIn">
-			<h2>Câu Hỏi Thường Gặp</h2>
-			<p>Những thắc mắc phổ biến từ khách hàng của chúng tôi</p>
-		</div>
-		<div class="row">
-			<div class="col-lg-8 offset-lg-2">
-				<div class="faq-item open">
-					<div class="faq-question">Quy trình ký kết hợp đồng và thi công diễn ra như thế nào? <i class="fa fa-chevron-down"></i></div>
-					<div class="faq-answer">Sau khi khảo sát và tư vấn miễn phí, chúng tôi sẽ lập báo giá chi tiết trong vòng 3–5 ngày làm việc. Khi hai bên thống nhất, hợp đồng được ký kết với đầy đủ điều khoản về tiến độ, chất lượng và thanh toán. Quá trình thi công được giám sát liên tục và có biên bản nghiệm thu từng giai đoạn.</div>
-				</div>
-				<div class="faq-item">
-					<div class="faq-question">Sao Bắc Đẩu có chính sách bảo hành như thế nào? <i class="fa fa-chevron-down"></i></div>
-					<div class="faq-answer">Chúng tôi áp dụng chế độ bảo hành từ 24 đến 60 tháng tùy theo loại hạng mục (phần thô, hoàn thiện, M&E). Trong thời gian bảo hành, mọi phát sinh liên quan đến lỗi thi công được xử lý miễn phí trong vòng 48 giờ.</div>
-				</div>
-				<div class="faq-item">
-					<div class="faq-question">Công ty có thể thi công ở các tỉnh thành khác ngoài TP.HCM không? <i class="fa fa-chevron-down"></i></div>
-					<div class="faq-answer">Có. Sao Bắc Đẩu hiện có văn phòng tại TP.HCM và Hà Nội, đồng thời có năng lực thi công trên toàn quốc bao gồm các tỉnh miền Trung, Tây Nguyên và Đồng bằng Sông Cửu Long.</div>
-				</div>
-				<div class="faq-item">
-					<div class="faq-question">Chi phí tư vấn thiết kế và báo giá có mất phí không? <i class="fa fa-chevron-down"></i></div>
-					<div class="faq-answer">Hoàn toàn miễn phí. Chúng tôi cung cấp dịch vụ tư vấn ban đầu và báo giá sơ bộ miễn phí. Chi phí thiết kế chi tiết sẽ được thỏa thuận riêng và thường được tính vào giá trị hợp đồng thi công.</div>
-				</div>
-				<div class="faq-item">
-					<div class="faq-question">Hình thức thanh toán được áp dụng như thế nào? <i class="fa fa-chevron-down"></i></div>
-					<div class="faq-answer">Thanh toán theo tiến độ thi công, thường chia làm 3–5 đợt tương ứng với các giai đoạn: Ký hợp đồng → Hoàn thành phần móng → Hoàn thành phần thô → Hoàn thiện → Bàn giao. Tỷ lệ cụ thể được thỏa thuận trong hợp đồng.</div>
-				</div>
-			</div>
-		</div>
-	</div>
+    <div class="container">
+        <div class="section-title text-center wow zoomIn">
+            <h2>Câu Hỏi Thường Gặp</h2>
+            <p>Những thắc mắc phổ biến từ khách hàng của chúng tôi</p>
+        </div>
+        <div class="row">
+            <div class="col-lg-8 offset-lg-2">
+
+                {% for faq in faqs %}
+                <div class="faq-item {% if forloop.first %}open{% endif %}">
+                    <div class="faq-question">
+                        {{ faq.question }} <i class="fa fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">{{ faq.answer }}</div>
+                </div>
+                {% empty %}
+                <p class="text-center text-muted">Chưa có câu hỏi nào.</p>
+                {% endfor %}
+
+            </div>
+        </div>
+    </div>
 </section>
 
 <script>

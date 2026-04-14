@@ -72,3 +72,17 @@ class Post(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class FAQ(models.Model):
+    question = models.CharField(max_length=500, verbose_name="Câu hỏi")
+    answer = models.TextField(verbose_name="Câu trả lời")
+    order = models.PositiveIntegerField(default=0, verbose_name="Thứ tự")
+    is_active = models.BooleanField(default=True, verbose_name="Hiển thị")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['order', 'created_at']
+
+    def __str__(self):
+        return self.question

@@ -17,6 +17,7 @@ from .models import (
     ProjectCategory,
     Post,
     PostCategory,
+    FAQ,
 )
 
 
@@ -67,9 +68,9 @@ def home(request):
 def about(request):
     return render(request, 'home/about.html')
 
-
 def contact(request):
-    return render(request, 'home/contact.html')
+    faqs = FAQ.objects.filter(is_active=True).order_by('order', 'created_at')
+    return render(request, 'home/contact.html', {'faqs': faqs})
 
 
 def project(request):
@@ -599,3 +600,57 @@ def product_category_delete(request, id):
     except ProtectedError:
         return redirect("product_category_list" + "?error=Không thể xóa danh mục đang được sử dụng.")
     return redirect("product_category_list")
+
+# ====================== CRUD FAQ ======================
+@staff_required
+def faq_list(request):
+    faqs = FAQ.objects.all()
+    error = request.GET.get("error")
+    return render(request, "home/faq_list.html", {"faqs": faqs, "error": error})
+
+
+@staff_required
+def faq_create(request):
+    if request.method == "POST":
+        question = (request.POST.get("question") or "").strip()
+        answer = (request.POST.get("answer") or "").strip()
+        order = request.POST.get("order") or 0
+        is_active = request.POST.get("is_active") == "on"
+
+        if question and answer:
+            FAQ.objects.create(
+                question=question,
+                answer=answer,
+                order=int(order),
+                is_active=is_active,
+            )
+            return redirect("faq_list")
+
+    return render(request, "home/faq_form.html", {"title": "Thêm câu hỏi mới"})
+
+
+@staff_required
+def faq_update(request, id):
+    faq = get_object_or_404(FAQ, id=id)
+
+    if request.method == "POST":
+        question = (request.POST.get("question") or "").strip()
+        answer = (request.POST.get("answer") or "").strip()
+        order = request.POST.get("order") or 0
+        is_active = request.POST.get("is_active") == "on"
+
+        faq.question = question or faq.question
+        faq.answer = answer or faq.answer
+        faq.order = int(order)
+        faq.is_active = is_active
+        faq.save()
+        return redirect("faq_list")
+
+    return render(request, "home/faq_form.html", {"title": "Sửa câu hỏi", "faq": faq})
+
+
+@staff_required
+def faq_delete(request, id):
+    faq = get_object_or_404(FAQ, id=id)
+    faq.delete()
+    return redirect("faq_list")

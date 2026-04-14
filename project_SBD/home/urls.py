@@ -56,4 +56,10 @@ urlpatterns = [
     path('post-category/add/', views.post_category_create, name='post_category_add'),
     path('post-category/edit/<int:id>/', views.post_category_update, name='post_category_edit'),
     path('post-category/delete/<int:id>/', views.post_category_delete, name='post_category_delete'),
+
+    # faq
+    path('faqs/', views.faq_list, name='faq_list'),
+    path('faq/add/', views.faq_create, name='faq_add'),
+    path('faq/edit/<int:id>/', views.faq_update, name='faq_edit'),
+    path('faq/delete/<int:id>/', views.faq_delete, name='faq_delete'),
 ]
