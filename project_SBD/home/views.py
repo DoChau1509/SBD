@@ -18,6 +18,7 @@ from .models import (
     Post,
     PostCategory,
     FAQ,
+    LeadershipMember,
 )
 
 
@@ -56,6 +57,7 @@ def _is_management_path(path: str) -> bool:
         "/post/edit",
         "/post/delete",
         "/post-category",
+        "/leadership",
     )
     return path.startswith(management_prefixes)
 
@@ -66,7 +68,8 @@ def home(request):
 
 
 def about(request):
-    return render(request, 'home/about.html')
+    leadership_members = LeadershipMember.objects.filter(is_active=True).order_by('order', 'created_at')
+    return render(request, 'home/about.html', {'leadership_members': leadership_members})
 
 def contact(request):
     faqs = FAQ.objects.filter(is_active=True).order_by('order', 'created_at')
@@ -654,3 +657,93 @@ def faq_delete(request, id):
     faq = get_object_or_404(FAQ, id=id)
     faq.delete()
     return redirect("faq_list")
+
+
+##############################
+# ====================== CRUD LEADERSHIP ======================
+@staff_required
+def leadership_list(request):
+    leadership_members = LeadershipMember.objects.all().order_by('order', 'created_at')
+    error = request.GET.get("error")
+    return render(
+        request,
+        "home/leadership_list.html",
+        {"leadership_members": leadership_members, "error": error},
+    )
+
+
+@staff_required
+def leadership_create(request):
+    if request.method == "POST":
+        full_name = (request.POST.get("full_name") or "").strip()
+        role = (request.POST.get("role") or "").strip()
+        bio = (request.POST.get("bio") or "").strip()
+        initials = (request.POST.get("initials") or "").strip()
+        linkedin_url = (request.POST.get("linkedin_url") or "").strip()
+        facebook_url = (request.POST.get("facebook_url") or "").strip()
+        instagram_url = (request.POST.get("instagram_url") or "").strip()
+        order = request.POST.get("order") or 0
+        is_active = request.POST.get("is_active") == "on"
+        image = request.FILES.get("image")
+
+        if full_name and role and bio:
+            LeadershipMember.objects.create(
+                full_name=full_name,
+                role=role,
+                bio=bio,
+                image=image,
+                initials=initials,
+                linkedin_url=linkedin_url,
+                facebook_url=facebook_url,
+                instagram_url=instagram_url,
+                order=int(order),
+                is_active=is_active,
+            )
+            return redirect("leadership_list")
+
+    return render(request, "home/leadership_form.html", {"title": "Thêm thành viên ban lãnh đạo"})
+
+
+@staff_required
+def leadership_update(request, id):
+    leadership_member = get_object_or_404(LeadershipMember, id=id)
+
+    if request.method == "POST":
+        full_name = (request.POST.get("full_name") or "").strip()
+        role = (request.POST.get("role") or "").strip()
+        bio = (request.POST.get("bio") or "").strip()
+        initials = (request.POST.get("initials") or "").strip()
+        linkedin_url = (request.POST.get("linkedin_url") or "").strip()
+        facebook_url = (request.POST.get("facebook_url") or "").strip()
+        instagram_url = (request.POST.get("instagram_url") or "").strip()
+        order = request.POST.get("order") or 0
+        is_active = request.POST.get("is_active") == "on"
+
+        leadership_member.full_name = full_name or leadership_member.full_name
+        leadership_member.role = role or leadership_member.role
+        leadership_member.bio = bio or leadership_member.bio
+        leadership_member.initials = initials
+        leadership_member.linkedin_url = linkedin_url
+        leadership_member.facebook_url = facebook_url
+        leadership_member.instagram_url = instagram_url
+        leadership_member.order = int(order)
+        leadership_member.is_active = is_active
+
+        if "image" in request.FILES:
+            leadership_member.image = request.FILES["image"]
+
+        leadership_member.save()
+        return redirect("leadership_list")
+
+    return render(
+        request,
+        "home/leadership_form.html",
+        {"title": "Sửa thành viên ban lãnh đạo", "leadership_member": leadership_member},
+    )
+
+
+@staff_required
+def leadership_delete(request, id):
+    leadership_member = get_object_or_404(LeadershipMember, id=id)
+    leadership_member.delete()
+    return redirect("leadership_list")

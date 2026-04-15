@@ -1,0 +1,129 @@
+{% extends 'base.html' %} {% block content %}
+<div class="container" style="margin-top: 100px">
+  <h2>{{ title }}</h2>
+
+  <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <div class="form-group">
+      <label>Họ và tên *</label>
+      <input
+        type="text"
+        name="full_name"
+        class="form-control"
+        value="{{ leadership_member.full_name|default:'' }}"
+        required
+      />
+    </div>
+
+    <div class="form-group">
+      <label>Chức vụ *</label>
+      <input
+        type="text"
+        name="role"
+        class="form-control"
+        value="{{ leadership_member.role|default:'' }}"
+        required
+      />
+    </div>
+
+    <div class="form-group">
+      <label>Mô tả ngắn *</label>
+      <textarea name="bio" class="form-control" rows="5" required>
+{{ leadership_member.bio|default:'' }}</textarea
+      >
+    </div>
+
+    <div class="form-group">
+      <label>Ảnh</label>
+      <input type="file" name="image" class="form-control" />
+      {% if leadership_member.image %}
+      <div style="margin-top: 10px">
+        <img
+          src="{{ leadership_member.image.url }}"
+          alt="{{ leadership_member.full_name }}"
+          width="120"
+          style="border-radius: 8px"
+        />
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="form-group">
+      <label>Chữ viết tắt</label>
+      <input
+        type="text"
+        name="initials"
+        class="form-control"
+        value="{{ leadership_member.initials|default:'' }}"
+        placeholder="Ví dụ: NT, HH, MA"
+      />
+    </div>
+
+    <div class="form-group">
+      <label>LinkedIn URL</label>
+      <input
+        type="url"
+        name="linkedin_url"
+        class="form-control"
+        value="{{ leadership_member.linkedin_url|default:'' }}"
+      />
+    </div>
+
+    <div class="form-group">
+      <label>Facebook URL</label>
+      <input
+        type="url"
+        name="facebook_url"
+        class="form-control"
+        value="{{ leadership_member.facebook_url|default:'' }}"
+      />
+    </div>
+
+    <div class="form-group">
+      <label>Instagram URL</label>
+      <input
+        type="url"
+        name="instagram_url"
+        class="form-control"
+        value="{{ leadership_member.instagram_url|default:'' }}"
+      />
+    </div>
+
+    <div class="form-group">
+      <label>Thứ tự hiển thị</label>
+      <input
+        type="number"
+        name="order"
+        class="form-control"
+        value="{{ leadership_member.order|default:'0' }}"
+        min="0"
+      />
+    </div>
+
+    <div class="form-group form-check">
+      <input
+        type="checkbox"
+        name="is_active"
+        class="form-check-input"
+        id="is_active"
+        {%
+        if
+        leadership_member.is_active
+        or
+        not
+        leadership_member
+        %}checked{%
+        endif
+        %}
+      />
+      <label class="form-check-label" for="is_active"
+        >Hiển thị trên website</label
+      >
+    </div>
+
+    <button type="submit" class="btn btn-primary">Lưu</button>
+    <a href="{% url 'leadership_list' %}" class="btn btn-secondary">Hủy</a>
+  </form>
+</div>
+{% endblock %}

@@ -86,3 +86,23 @@ class FAQ(models.Model):
 
     def __str__(self):
         return self.question
+    
+###### Trịnh gia đạt làm phần dữ liệu, thêm xóa sửa phần ban lãnh đạo trong trang giới thiệu
+class LeadershipMember(models.Model):
+    full_name = models.CharField(max_length=150, verbose_name="Họ và tên")
+    role = models.CharField(max_length=150, verbose_name="Chức vụ")
+    bio = models.TextField(verbose_name="Mô tả ngắn")
+    image = models.ImageField(upload_to='leadership/', blank=True, null=True, verbose_name="Ảnh")
+    initials = models.CharField(max_length=10, blank=True, verbose_name="Chữ viết tắt")
+    linkedin_url = models.URLField(blank=True, verbose_name="LinkedIn URL")
+    facebook_url = models.URLField(blank=True, verbose_name="Facebook URL")
+    instagram_url = models.URLField(blank=True, verbose_name="Instagram URL")
+    order = models.PositiveIntegerField(default=0, verbose_name="Thứ tự hiển thị")
+    is_active = models.BooleanField(default=True, verbose_name="Hiển thị")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['order', 'created_at']
+
+    def __str__(self):
+        return self.full_name

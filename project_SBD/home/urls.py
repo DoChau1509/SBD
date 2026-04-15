@@ -62,4 +62,10 @@ urlpatterns = [
     path('faq/add/', views.faq_create, name='faq_add'),
     path('faq/edit/<int:id>/', views.faq_update, name='faq_edit'),
     path('faq/delete/<int:id>/', views.faq_delete, name='faq_delete'),
+
+    # leadership
+    path('leadership/', views.leadership_list, name='leadership_list'),
+    path('leadership/add/', views.leadership_create, name='leadership_add'),
+    path('leadership/edit/<int:id>/', views.leadership_update, name='leadership_edit'),
+    path('leadership/delete/<int:id>/', views.leadership_delete, name='leadership_delete'),
 ]
