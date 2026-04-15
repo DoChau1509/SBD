@@ -19,6 +19,7 @@ from .models import (
     PostCategory,
     FAQ,
     LeadershipMember,
+    AboutStatement,
 )
 
 
@@ -58,27 +59,48 @@ def _is_management_path(path: str) -> bool:
         "/post/delete",
         "/post-category",
         "/leadership",
+        "/about-statements",
     )
     return path.startswith(management_prefixes)
 
 
 # ====================== PUBLIC PAGES ======================
 def home(request):
-    return render(request, 'home/home.html')
+    return render(request, "home/home.html")
 
 
 def about(request):
-    leadership_members = LeadershipMember.objects.filter(is_active=True).order_by('order', 'created_at')
-    return render(request, 'home/about.html', {'leadership_members': leadership_members})
+    leadership_members = LeadershipMember.objects.filter(is_active=True).order_by(
+        "order", "created_at"
+    )
+    vision_statements = AboutStatement.objects.filter(
+        statement_type="vision", is_active=True
+    ).order_by("order", "created_at")
+    mission_statements = AboutStatement.objects.filter(
+        statement_type="mission", is_active=True
+    ).order_by("order", "created_at")
+
+    return render(
+        request,
+        "home/about.html",
+        {
+            "leadership_members": leadership_members,
+            "vision_statements": vision_statements,
+            "mission_statements": mission_statements,
+        },
+    )
+
 
 def contact(request):
-    faqs = FAQ.objects.filter(is_active=True).order_by('order', 'created_at')
-    return render(request, 'home/contact.html', {'faqs': faqs})
+    faqs = FAQ.objects.filter(is_active=True).order_by("order", "created_at")
+    return render(request, "home/contact.html", {"faqs": faqs})
 
 
 def project(request):
     categories = ProjectCategory.objects.filter(is_hidden=False).order_by("name")
-    projects = Project.objects.select_related("category").all().order_by("-created_at", "-id")
+    projects = (
+        Project.objects.select_related("category").all().order_by("-created_at", "-id")
+    )
     return render(
         request,
         "home/project.html",
@@ -88,7 +110,7 @@ def project(request):
 
 def project_detail(request, id):
     project = get_object_or_404(Project, id=id)
-    return render(request, 'home/project_detail.html', {'project': project})
+    return render(request, "home/project_detail.html", {"project": project})
 
 
 # ====================== CRUD PROJECT ======================
@@ -107,6 +129,7 @@ def _get_default_product_category():
     )
     return category
 
+
 def _get_default_post_category():
     category, _ = PostCategory.objects.get_or_create(
         name="Chưa phân loại",
@@ -114,11 +137,12 @@ def _get_default_post_category():
     )
     return category
 
+
 @staff_required
 def project_create(request):
     categories = ProjectCategory.objects.filter(is_hidden=False).order_by("name")
 
-    if request.method == 'POST':
+    if request.method == "POST":
         category_id = request.POST.get("category")
         category = None
         if category_id:
@@ -127,14 +151,14 @@ def project_create(request):
             category = _get_default_project_category()
 
         Project.objects.create(
-            name=request.POST.get('name'),
-            description=request.POST.get('description'),
-            image=request.FILES.get('image'),
+            name=request.POST.get("name"),
+            description=request.POST.get("description"),
+            image=request.FILES.get("image"),
             category=category,
         )
-        return redirect('dashboard')
+        return redirect("dashboard")
 
-    return render(request, 'home/project_form.html', {"categories": categories})
+    return render(request, "home/project_form.html", {"categories": categories})
 
 
 @staff_required
@@ -142,9 +166,9 @@ def project_update(request, id):
     project = get_object_or_404(Project, id=id)
     categories = ProjectCategory.objects.filter(is_hidden=False).order_by("name")
 
-    if request.method == 'POST':
-        project.name = request.POST.get('name')
-        project.description = request.POST.get('description')
+    if request.method == "POST":
+        project.name = request.POST.get("name")
+        project.description = request.POST.get("description")
 
         category_id = request.POST.get("category")
         if category_id:
@@ -152,15 +176,15 @@ def project_update(request, id):
             if category is not None:
                 project.category = category
 
-        if 'image' in request.FILES:
-            project.image = request.FILES['image']
-        project.save() 
-        return redirect('dashboard')
+        if "image" in request.FILES:
+            project.image = request.FILES["image"]
+        project.save()
+        return redirect("dashboard")
 
     return render(
         request,
-        'home/project_form.html',
-        {'project': project, "categories": categories},
+        "home/project_form.html",
+        {"project": project, "categories": categories},
     )
 
 
@@ -168,7 +192,7 @@ def project_update(request, id):
 def project_delete(request, id):
     project = get_object_or_404(Project, id=id)
     project.delete()
-    return redirect('dashboard')
+    return redirect("dashboard")
 
 
 # ====================== AUTH ======================
@@ -178,8 +202,8 @@ def login_view(request):
             return redirect("dashboard")
         return redirect("home")
 
-    next_url = request.GET.get('next') or request.POST.get('next')
-    if request.method == 'POST':
+    next_url = request.GET.get("next") or request.POST.get("next")
+    if request.method == "POST":
         form = LoginForm(request, data=request.POST)
         if form.is_valid():
             user = form.get_user()
@@ -189,11 +213,18 @@ def login_view(request):
             if next_url:
                 next_path = urlparse(next_url).path
 
-            if next_url and url_has_allowed_host_and_scheme(
-                next_url,
-                allowed_hosts={request.get_host()},
-                require_https=request.is_secure(),
-            ) and ((user.is_staff or user.is_superuser) or not _is_management_path(next_path)):
+            if (
+                next_url
+                and url_has_allowed_host_and_scheme(
+                    next_url,
+                    allowed_hosts={request.get_host()},
+                    require_https=request.is_secure(),
+                )
+                and (
+                    (user.is_staff or user.is_superuser)
+                    or not _is_management_path(next_path)
+                )
+            ):
                 return redirect(next_url)
 
             if user.is_staff or user.is_superuser:
@@ -201,10 +232,15 @@ def login_view(request):
             return redirect("home")
     else:
         form = LoginForm(request)
-    return render(request, 'accounts/login.html', {
-        'form': form,
-        'next': next_url,
-    })
+    return render(
+        request,
+        "accounts/login.html",
+        {
+            "form": form,
+            "next": next_url,
+        },
+    )
+
 
 def register_view(request):
     if request.user.is_authenticated:
@@ -225,11 +261,15 @@ def register_view(request):
             if next_url:
                 next_path = urlparse(next_url).path
 
-            if next_url and url_has_allowed_host_and_scheme(
-                next_url,
-                allowed_hosts={request.get_host()},
-                require_https=request.is_secure(),
-            ) and not _is_management_path(next_path):
+            if (
+                next_url
+                and url_has_allowed_host_and_scheme(
+                    next_url,
+                    allowed_hosts={request.get_host()},
+                    require_https=request.is_secure(),
+                )
+                and not _is_management_path(next_path)
+            ):
                 return redirect(next_url)
             return redirect("home")
     else:
@@ -248,11 +288,14 @@ def logout_view(request):
 
     return render(request, "accounts/logout.html")
 
+
 @staff_required
 def dashboard(request):
-    projects = Project.objects.all().order_by('-id')
+    projects = Project.objects.all().order_by("-id")
     products = Product.objects.all().order_by("-id")
-    return render(request, 'home/dashboard.html', {'projects': projects, "products": products})
+    return render(
+        request, "home/dashboard.html", {"projects": projects, "products": products}
+    )
 
 
 # ====================== CRUD PRODUCT ======================
@@ -264,7 +307,9 @@ def product_list(request):
 
 def product_public(request):
     categories = ProductCategory.objects.filter(is_hidden=False).order_by("name")
-    products = Product.objects.select_related("category").all().order_by("-created_at", "-id")
+    products = (
+        Product.objects.select_related("category").all().order_by("-created_at", "-id")
+    )
     return render(
         request,
         "home/product.html",
@@ -333,6 +378,7 @@ def product_delete(request, id):
     product = get_object_or_404(Product, id=id)
     product.delete()
     return redirect("product_list")
+
 
 # ====================== CRUD POST ======================
 @staff_required
@@ -441,7 +487,9 @@ def post_category_create(request):
             PostCategory.objects.create(name=name, slug=slug, is_hidden=is_hidden)
             return redirect("post_category_list")
 
-    return render(request, "home/post_category_form.html", {"title": "Thêm danh mục bài viết"})
+    return render(
+        request, "home/post_category_form.html", {"title": "Thêm danh mục bài viết"}
+    )
 
 
 @staff_required
@@ -475,8 +523,11 @@ def post_category_delete(request, id):
     try:
         category.delete()
     except ProtectedError:
-        return redirect("post_category_list" + "?error=Không thể xóa danh mục đang được sử dụng.")
+        return redirect(
+            "post_category_list" + "?error=Không thể xóa danh mục đang được sử dụng."
+        )
     return redirect("post_category_list")
+
 
 # ====================== CRUD CATEGORIES ======================
 @staff_required
@@ -504,7 +555,9 @@ def project_category_create(request):
             ProjectCategory.objects.create(name=name, slug=slug, is_hidden=is_hidden)
             return redirect("project_category_list")
 
-    return render(request, "home/project_category_form.html", {"title": "Thêm danh mục dự án"})
+    return render(
+        request, "home/project_category_form.html", {"title": "Thêm danh mục dự án"}
+    )
 
 
 @staff_required
@@ -538,7 +591,9 @@ def project_category_delete(request, id):
     try:
         category.delete()
     except ProtectedError:
-        return redirect("project_category_list" + "?error=Không thể xóa danh mục đang được sử dụng.")
+        return redirect(
+            "project_category_list" + "?error=Không thể xóa danh mục đang được sử dụng."
+        )
     return redirect("project_category_list")
 
 
@@ -567,7 +622,9 @@ def product_category_create(request):
             ProductCategory.objects.create(name=name, slug=slug, is_hidden=is_hidden)
             return redirect("product_category_list")
 
-    return render(request, "home/product_category_form.html", {"title": "Thêm danh mục sản phẩm"})
+    return render(
+        request, "home/product_category_form.html", {"title": "Thêm danh mục sản phẩm"}
+    )
 
 
 @staff_required
@@ -601,8 +658,11 @@ def product_category_delete(request, id):
     try:
         category.delete()
     except ProtectedError:
-        return redirect("product_category_list" + "?error=Không thể xóa danh mục đang được sử dụng.")
+        return redirect(
+            "product_category_list" + "?error=Không thể xóa danh mục đang được sử dụng."
+        )
     return redirect("product_category_list")
+
 
 # ====================== CRUD FAQ ======================
 @staff_required
@@ -663,7 +723,7 @@ def faq_delete(request, id):
 # ====================== CRUD LEADERSHIP ======================
 @staff_required
 def leadership_list(request):
-    leadership_members = LeadershipMember.objects.all().order_by('order', 'created_at')
+    leadership_members = LeadershipMember.objects.all().order_by("order", "created_at")
     error = request.GET.get("error")
     return render(
         request,
@@ -701,7 +761,9 @@ def leadership_create(request):
             )
             return redirect("leadership_list")
 
-    return render(request, "home/leadership_form.html", {"title": "Thêm thành viên ban lãnh đạo"})
+    return render(
+        request, "home/leadership_form.html", {"title": "Thêm thành viên ban lãnh đạo"}
+    )
 
 
 @staff_required
@@ -738,7 +800,10 @@ def leadership_update(request, id):
     return render(
         request,
         "home/leadership_form.html",
-        {"title": "Sửa thành viên ban lãnh đạo", "leadership_member": leadership_member},
+        {
+            "title": "Sửa thành viên ban lãnh đạo",
+            "leadership_member": leadership_member,
+        },
     )
 
 
@@ -747,3 +812,81 @@ def leadership_delete(request, id):
     leadership_member = get_object_or_404(LeadershipMember, id=id)
     leadership_member.delete()
     return redirect("leadership_list")
+
+
+# ====================== CRUD ABOUT STATEMENTS ======================
+@staff_required
+def statement_list(request):
+    statements = AboutStatement.objects.all().order_by(
+        "statement_type", "order", "created_at"
+    )
+    error = request.GET.get("error")
+    return render(
+        request,
+        "home/about_statement_list.html",
+        {"statements": statements, "error": error},
+    )
+
+
+@staff_required
+def statement_create(request):
+    if request.method == "POST":
+        title = (request.POST.get("title") or "").strip()
+        statement_type = (request.POST.get("statement_type") or "").strip()
+        content = (request.POST.get("content") or "").strip()
+        icon = (request.POST.get("icon") or "fa-star").strip()
+        order = request.POST.get("order") or 0
+        is_active = request.POST.get("is_active") == "on"
+
+        if title and statement_type in {"vision", "mission"} and content:
+            AboutStatement.objects.create(
+                title=title,
+                statement_type=statement_type,
+                content=content,
+                icon=icon or "fa-star",
+                order=int(order),
+                is_active=is_active,
+            )
+            return redirect("statement_list")
+
+    return render(
+        request, "home/about_statement_form.html", {"title": "Thêm tầm nhìn / sứ mệnh"}
+    )
+
+
+@staff_required
+def statement_update(request, id):
+    statement = get_object_or_404(AboutStatement, id=id)
+
+    if request.method == "POST":
+        title = (request.POST.get("title") or "").strip()
+        statement_type = (request.POST.get("statement_type") or "").strip()
+        content = (request.POST.get("content") or "").strip()
+        icon = (request.POST.get("icon") or "fa-star").strip()
+        order = request.POST.get("order") or 0
+        is_active = request.POST.get("is_active") == "on"
+
+        if statement_type not in {"vision", "mission"}:
+            statement_type = statement.statement_type
+
+        statement.title = title or statement.title
+        statement.statement_type = statement_type
+        statement.content = content or statement.content
+        statement.icon = icon or "fa-star"
+        statement.order = int(order)
+        statement.is_active = is_active
+        statement.save()
+        return redirect("statement_list")
+
+    return render(
+        request,
+        "home/about_statement_form.html",
+        {"title": "Sửa tầm nhìn / sứ mệnh", "statement": statement},
+    )
+
+
+@staff_required
+def statement_delete(request, id):
+    statement = get_object_or_404(AboutStatement, id=id)
+    statement.delete()
+    return redirect("statement_list")

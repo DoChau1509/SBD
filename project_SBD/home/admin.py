@@ -1,5 +1,15 @@
 from django.contrib import admin
-from .models import Product, ProductCategory, Project, ProjectCategory, Post, PostCategory,FAQ,LeadershipMember
+from .models import (
+    Product,
+    ProductCategory,
+    Project,
+    ProjectCategory,
+    Post,
+    PostCategory,
+    FAQ,
+    LeadershipMember,
+    AboutStatement,
+)
 
 # Register your models here.
 admin.site.register(Project)
@@ -13,3 +23,5 @@ admin.site.register(PostCategory)
 ########################
 admin.site.register(FAQ)
 admin.site.register(LeadershipMember)
+#################
+admin.site.register(AboutStatement)

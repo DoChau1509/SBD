@@ -100,28 +100,44 @@
       <h2>Tầm Nhìn & Sứ Mệnh</h2>
     </div>
     <div class="row">
+      {% for item in vision_statements %}
+      <div class="col-lg-4 col-md-6 mb-4 wow fadeInUp" data-wow-delay="0.1s">
+        <div class="vm-card">
+          <div class="icon">
+            <i class="fa {{ item.icon|default:'fa-eye' }}"></i>
+          </div>
+          <h4>{{ item.title }}</h4>
+          <p>{{ item.content }}</p>
+        </div>
+      </div>
+      {% empty %}
       <div class="col-lg-4 col-md-6 mb-4 wow fadeInUp" data-wow-delay="0.1s">
         <div class="vm-card">
           <div class="icon"><i class="fa fa-eye"></i></div>
           <h4>Tầm Nhìn</h4>
-          <p>
-            Trở thành tập đoàn xây dựng đa ngành hàng đầu Đông Nam Á vào năm
-            2035, được nhận diện bởi các công trình mang dấu ấn kiến trúc đặc
-            sắc và chất lượng bền vững.
-          </p>
+          <p>Chưa có dữ liệu tầm nhìn.</p>
         </div>
       </div>
+      {% endfor %} {% for item in mission_statements %}
+      <div class="col-lg-4 col-md-6 mb-4 wow fadeInUp" data-wow-delay="0.2s">
+        <div class="vm-card">
+          <div class="icon">
+            <i class="fa {{ item.icon|default:'fa-rocket' }}"></i>
+          </div>
+          <h4>{{ item.title }}</h4>
+          <p>{{ item.content }}</p>
+        </div>
+      </div>
+      {% empty %}
       <div class="col-lg-4 col-md-6 mb-4 wow fadeInUp" data-wow-delay="0.2s">
         <div class="vm-card">
           <div class="icon"><i class="fa fa-rocket"></i></div>
           <h4>Sứ Mệnh</h4>
-          <p>
-            Cung cấp dịch vụ xây dựng toàn diện, chất lượng cao với chi phí tối
-            ưu, góp phần phát triển hạ tầng đất nước và nâng cao chất lượng sống
-            cho cộng đồng.
-          </p>
+          <p>Chưa có dữ liệu sứ mệnh.</p>
         </div>
       </div>
+      {% endfor %}
+
       <div class="col-lg-4 col-md-6 mb-4 wow fadeInUp" data-wow-delay="0.3s">
         <div class="vm-card">
           <div class="icon"><i class="fa fa-heart"></i></div>

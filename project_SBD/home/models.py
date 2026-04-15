@@ -1,5 +1,6 @@
 from django.db import models
 
+
 class ProjectCategory(models.Model):
     name = models.CharField(max_length=100, unique=True)
     slug = models.SlugField(blank=True, null=True, unique=True)
@@ -21,12 +22,12 @@ class ProductCategory(models.Model):
 class Project(models.Model):
     name = models.CharField(max_length=200)
     description = models.TextField()
-    image = models.ImageField(upload_to='projects/')
+    image = models.ImageField(upload_to="projects/")
     created_at = models.DateTimeField(auto_now_add=True)
     category = models.ForeignKey(
         ProjectCategory,
         on_delete=models.PROTECT,
-        related_name='projects',
+        related_name="projects",
     )
 
     def __str__(self):
@@ -36,12 +37,12 @@ class Project(models.Model):
 class Product(models.Model):
     name = models.CharField(max_length=200)
     description = models.TextField(blank=True)
-    image = models.ImageField(upload_to='products/', blank=True, null=True)
+    image = models.ImageField(upload_to="products/", blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     category = models.ForeignKey(
         ProductCategory,
         on_delete=models.PROTECT,
-        related_name='products',
+        related_name="products",
     )
 
     def __str__(self):
@@ -62,12 +63,12 @@ class Post(models.Model):
     title = models.CharField(max_length=200)
     summary = models.TextField(blank=True)
     content = models.TextField()
-    image = models.ImageField(upload_to='posts/', blank=True, null=True)
+    image = models.ImageField(upload_to="posts/", blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     category = models.ForeignKey(
         PostCategory,
         on_delete=models.PROTECT,
-        related_name='posts',
+        related_name="posts",
     )
 
     def __str__(self):
@@ -82,17 +83,20 @@ class FAQ(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ['order', 'created_at']
+        ordering = ["order", "created_at"]
 
     def __str__(self):
         return self.question
-    
+
+
 ###### Trịnh gia đạt làm phần dữ liệu, thêm xóa sửa phần ban lãnh đạo trong trang giới thiệu
 class LeadershipMember(models.Model):
     full_name = models.CharField(max_length=150, verbose_name="Họ và tên")
     role = models.CharField(max_length=150, verbose_name="Chức vụ")
     bio = models.TextField(verbose_name="Mô tả ngắn")
-    image = models.ImageField(upload_to='leadership/', blank=True, null=True, verbose_name="Ảnh")
+    image = models.ImageField(
+        upload_to="leadership/", blank=True, null=True, verbose_name="Ảnh"
+    )
     initials = models.CharField(max_length=10, blank=True, verbose_name="Chữ viết tắt")
     linkedin_url = models.URLField(blank=True, verbose_name="LinkedIn URL")
     facebook_url = models.URLField(blank=True, verbose_name="Facebook URL")
@@ -102,7 +106,39 @@ class LeadershipMember(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ['order', 'created_at']
+        ordering = ["order", "created_at"]
 
     def __str__(self):
         return self.full_name
+
+
+###Nguyễn Tấn Hoàng
+class AboutStatement(models.Model):
+    STATEMENT_TYPE_CHOICES = (
+        ("vision", "Tầm nhìn"),
+        ("mission", "Sứ mệnh"),
+    )
+
+    title = models.CharField(max_length=150, verbose_name="Tiêu đề")
+    statement_type = models.CharField(
+        max_length=20,
+        choices=STATEMENT_TYPE_CHOICES,
+        verbose_name="Loại nội dung",
+    )
+    content = models.TextField(verbose_name="Nội dung")
+    icon = models.CharField(
+        max_length=50,
+        blank=True,
+        default="fa-star",
+        verbose_name="Icon Font Awesome",
+        help_text="Ví dụ: fa-eye, fa-rocket",
+    )
+    order = models.PositiveIntegerField(default=0, verbose_name="Thứ tự hiển thị")
+    is_active = models.BooleanField(default=True, verbose_name="Hiển thị")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["statement_type", "order", "created_at"]
+
+    def __str__(self):
+        return f"{self.get_statement_type_display()} - {self.title}"
