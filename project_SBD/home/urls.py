@@ -107,4 +107,9 @@ urlpatterns = [
         views.statement_delete,
         name="statement_delete",
     ),
+    # certificate
+    path('certificates/', views.certificate_list, name='certificate_list'),
+    path('certificate/add/', views.certificate_create, name='certificate_add'),
+    path('certificate/edit/<int:id>/', views.certificate_update, name='certificate_edit'),
+    path('certificate/delete/<int:id>/', views.certificate_delete, name='certificate_delete'),
 ]

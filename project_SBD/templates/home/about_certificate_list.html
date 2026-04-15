@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container" style="margin-top:100px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+        <h2 style="margin:0;">Quản lý Chứng Chỉ & Năng Lực</h2>
+        <a href="{% url 'certificate_add' %}" class="btn btn-primary">+ Thêm chứng chỉ</a>
+    </div>
+
+    <table class="table table-bordered table-hover">
+        <thead class="thead-dark">
+            <tr>
+                <th>#</th>
+                <th>Icon</th>
+                <th>Tiêu đề</th>
+                <th>Cột</th>
+                <th>Thứ tự</th>
+                <th>Hiển thị</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cert in certs %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td><i class="fa {{ cert.icon }}"></i></td>
+                <td>{{ cert.title }}</td>
+                <td>{{ cert.get_side_display }}</td>
+                <td>{{ cert.order }}</td>
+                <td>
+                    {% if cert.is_active %}
+                        <span class="badge badge-success">Hiện</span>
+                    {% else %}
+                        <span class="badge badge-secondary">Ẩn</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{% url 'certificate_edit' cert.id %}" class="btn btn-sm btn-warning">Sửa</a>
+                    <a href="{% url 'certificate_delete' cert.id %}"
+                       class="btn btn-sm btn-danger"
+                       onclick="return confirm('Xóa chứng chỉ này?')">Xóa</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="7" class="text-center">Chưa có chứng chỉ nào.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{% url 'dashboard' %}" class="btn btn-secondary">Quay lại Dashboard</a>
+</div>
+{% endblock %}
