@@ -143,35 +143,74 @@ class AboutStatement(models.Model):
     def __str__(self):
         return f"{self.get_statement_type_display()} - {self.title}"
 
+
 # chứng chỉ và năng lực
 class Certificate(models.Model):
     ICON_CHOICES = [
-        ('fa-certificate', 'Giấy chứng nhận'),
-        ('fa-shield', 'Shield'),
-        ('fa-leaf', 'Leaf'),
-        ('fa-building-o', 'Building'),
-        ('fa-trophy', 'Trophy'),
-        ('fa-star', 'Star'),
-        ('fa-check-circle', 'Check Circle'),
-        ('fa-globe', 'Globe'),
+        ("fa-certificate", "Giấy chứng nhận"),
+        ("fa-shield", "Shield"),
+        ("fa-leaf", "Leaf"),
+        ("fa-building-o", "Building"),
+        ("fa-trophy", "Trophy"),
+        ("fa-star", "Star"),
+        ("fa-check-circle", "Check Circle"),
+        ("fa-globe", "Globe"),
     ]
     SIDE_CHOICES = [
-        ('left', 'Trái'),
-        ('right', 'Phải'),
+        ("left", "Trái"),
+        ("right", "Phải"),
     ]
 
     title = models.CharField(max_length=300, verbose_name="Tiêu đề")
     description = models.TextField(verbose_name="Mô tả")
-    icon = models.CharField(max_length=50, choices=ICON_CHOICES, default='fa-certificate', verbose_name="Icon")
-    image = models.ImageField(upload_to='certificates/', blank=True, null=True, verbose_name="Hình ảnh chứng chỉ")
-    side = models.CharField(max_length=10, choices=SIDE_CHOICES, default='left', verbose_name="Cột")
+    icon = models.CharField(
+        max_length=50,
+        choices=ICON_CHOICES,
+        default="fa-certificate",
+        verbose_name="Icon",
+    )
+    image = models.ImageField(
+        upload_to="certificates/",
+        blank=True,
+        null=True,
+        verbose_name="Hình ảnh chứng chỉ",
+    )
+    side = models.CharField(
+        max_length=10, choices=SIDE_CHOICES, default="left", verbose_name="Cột"
+    )
     order = models.PositiveIntegerField(default=0, verbose_name="Thứ tự")
     is_active = models.BooleanField(default=True, verbose_name="Hiển thị")
     created_at = models.DateTimeField(auto_now_add=True)
 
-
     class Meta:
-        ordering = ['side', 'order', 'created_at']
+        ordering = ["side", "order", "created_at"]
 
     def __str__(self):
         return self.title
+
+
+class ContactInfo(models.Model):
+    branch_name = models.CharField(
+        max_length=150, verbose_name="Tên chi nhánh / văn phòng"
+    )
+    address = models.TextField(verbose_name="Địa chỉ")
+    phone = models.CharField(max_length=50, verbose_name="Số điện thoại")
+    fax = models.CharField(max_length=50, blank=True, verbose_name="Fax")
+    email = models.EmailField(blank=True, verbose_name="Email")
+    working_hours = models.CharField(
+        max_length=255, blank=True, verbose_name="Giờ làm việc"
+    )
+    map_embed_url = models.URLField(blank=True, verbose_name="Link Google Maps Embed")
+    facebook_url = models.URLField(blank=True, verbose_name="Facebook URL")
+    youtube_url = models.URLField(blank=True, verbose_name="YouTube URL")
+    linkedin_url = models.URLField(blank=True, verbose_name="LinkedIn URL")
+    instagram_url = models.URLField(blank=True, verbose_name="Instagram URL")
+    order = models.PositiveIntegerField(default=0, verbose_name="Thứ tự hiển thị")
+    is_active = models.BooleanField(default=True, verbose_name="Hiển thị")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["order", "created_at"]
+
+    def __str__(self):
+        return self.branch_name

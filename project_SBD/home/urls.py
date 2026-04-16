@@ -108,8 +108,27 @@ urlpatterns = [
         name="statement_delete",
     ),
     # certificate
-    path('certificates/', views.certificate_list, name='certificate_list'),
-    path('certificate/add/', views.certificate_create, name='certificate_add'),
-    path('certificate/edit/<int:id>/', views.certificate_update, name='certificate_edit'),
-    path('certificate/delete/<int:id>/', views.certificate_delete, name='certificate_delete'),
+    path("certificates/", views.certificate_list, name="certificate_list"),
+    path("certificate/add/", views.certificate_create, name="certificate_add"),
+    path(
+        "certificate/edit/<int:id>/", views.certificate_update, name="certificate_edit"
+    ),
+    path(
+        "certificate/delete/<int:id>/",
+        views.certificate_delete,
+        name="certificate_delete",
+    ),
+    # contact info
+    path("contact-infos/", views.contact_info_list, name="contact_info_list"),
+    path("contact-info/add/", views.contact_info_create, name="contact_info_add"),
+    path(
+        "contact-info/edit/<int:id>/",
+        views.contact_info_update,
+        name="contact_info_edit",
+    ),
+    path(
+        "contact-info/delete/<int:id>/",
+        views.contact_info_delete,
+        name="contact_info_delete",
+    ),
 ]

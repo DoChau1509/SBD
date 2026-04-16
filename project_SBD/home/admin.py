@@ -9,6 +9,7 @@ from .models import (
     FAQ,
     LeadershipMember,
     AboutStatement,
+    ContactInfo,
 )
 
 # Register your models here.
@@ -25,3 +26,5 @@ admin.site.register(FAQ)
 admin.site.register(LeadershipMember)
 #################
 admin.site.register(AboutStatement)
+
+admin.site.register(ContactInfo)

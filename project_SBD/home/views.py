@@ -21,6 +21,7 @@ from .models import (
     LeadershipMember,
     AboutStatement,
     Certificate,
+    ContactInfo,
 )
 
 
@@ -61,6 +62,10 @@ def _is_management_path(path: str) -> bool:
         "/post-category",
         "/leadership",
         "/about-statements",
+        "/contact-infos",
+        "/contact-info/add",
+        "/contact-info/edit",
+        "/contact-info/delete",
     )
     return path.startswith(management_prefixes)
 
@@ -80,8 +85,12 @@ def about(request):
     mission_statements = AboutStatement.objects.filter(
         statement_type="mission", is_active=True
     ).order_by("order", "created_at")
-    certs_left = Certificate.objects.filter(is_active=True, side='left').order_by('order')
-    certs_right = Certificate.objects.filter(is_active=True, side='right').order_by('order')
+    certs_left = Certificate.objects.filter(is_active=True, side="left").order_by(
+        "order"
+    )
+    certs_right = Certificate.objects.filter(is_active=True, side="right").order_by(
+        "order"
+    )
 
     return render(
         request,
@@ -98,7 +107,20 @@ def about(request):
 
 def contact(request):
     faqs = FAQ.objects.filter(is_active=True).order_by("order", "created_at")
-    return render(request, "home/contact.html", {"faqs": faqs})
+    contact_infos = ContactInfo.objects.filter(is_active=True).order_by(
+        "order", "created_at"
+    )
+    main_contact = contact_infos.first()
+
+    return render(
+        request,
+        "home/contact.html",
+        {
+            "faqs": faqs,
+            "contact_infos": contact_infos,
+            "main_contact": main_contact,
+        },
+    )
 
 
 def project(request):
@@ -896,6 +918,7 @@ def statement_delete(request, id):
     statement.delete()
     return redirect("statement_list")
 
+
 # ====================== CRUD CERTIFICATE ======================
 @staff_required
 def certificate_list(request):
@@ -915,18 +938,25 @@ def certificate_create(request):
 
         if title and description:
             Certificate.objects.create(
-                title=title, description=description,
-                icon=icon, side=side,
-                order=int(order), is_active=is_active,
+                title=title,
+                description=description,
+                icon=icon,
+                side=side,
+                order=int(order),
+                is_active=is_active,
                 image=request.FILES.get("image"),
             )
             return redirect("certificate_list")
 
-    return render(request, "home/about_certificate_form.html", {
-        "title": "Thêm chứng chỉ mới",
-        "icon_choices": Certificate.ICON_CHOICES,
-        "side_choices": Certificate.SIDE_CHOICES,
-    })
+    return render(
+        request,
+        "home/about_certificate_form.html",
+        {
+            "title": "Thêm chứng chỉ mới",
+            "icon_choices": Certificate.ICON_CHOICES,
+            "side_choices": Certificate.SIDE_CHOICES,
+        },
+    )
 
 
 @staff_required
@@ -935,7 +965,9 @@ def certificate_update(request, id):
 
     if request.method == "POST":
         cert.title = (request.POST.get("title") or "").strip() or cert.title
-        cert.description = (request.POST.get("description") or "").strip() or cert.description
+        cert.description = (
+            request.POST.get("description") or ""
+        ).strip() or cert.description
         cert.icon = request.POST.get("icon") or cert.icon
         cert.side = request.POST.get("side") or cert.side
         cert.order = int(request.POST.get("order") or 0)
@@ -945,12 +977,16 @@ def certificate_update(request, id):
         cert.save()
         return redirect("certificate_list")
 
-    return render(request, "home/about_certificate_form.html", {
-        "title": "Sửa chứng chỉ",
-        "cert": cert,
-        "icon_choices": Certificate.ICON_CHOICES,
-        "side_choices": Certificate.SIDE_CHOICES,
-    })
+    return render(
+        request,
+        "home/about_certificate_form.html",
+        {
+            "title": "Sửa chứng chỉ",
+            "cert": cert,
+            "icon_choices": Certificate.ICON_CHOICES,
+            "side_choices": Certificate.SIDE_CHOICES,
+        },
+    )
 
 
 @staff_required
@@ -958,3 +994,96 @@ def certificate_delete(request, id):
     cert = get_object_or_404(Certificate, id=id)
     cert.delete()
     return redirect("certificate_list")
+
+
+# ====================== CRUD CONTACT INFO ======================
+@staff_required
+def contact_info_list(request):
+    contact_infos = ContactInfo.objects.all().order_by("order", "created_at")
+    return render(
+        request, "home/contact_info_list.html", {"contact_infos": contact_infos}
+    )
+
+
+@staff_required
+def contact_info_create(request):
+    if request.method == "POST":
+        branch_name = (request.POST.get("branch_name") or "").strip()
+        address = (request.POST.get("address") or "").strip()
+        phone = (request.POST.get("phone") or "").strip()
+        fax = (request.POST.get("fax") or "").strip()
+        email = (request.POST.get("email") or "").strip()
+        working_hours = (request.POST.get("working_hours") or "").strip()
+        map_embed_url = (request.POST.get("map_embed_url") or "").strip()
+        facebook_url = (request.POST.get("facebook_url") or "").strip()
+        youtube_url = (request.POST.get("youtube_url") or "").strip()
+        linkedin_url = (request.POST.get("linkedin_url") or "").strip()
+        instagram_url = (request.POST.get("instagram_url") or "").strip()
+        order = int(request.POST.get("order") or 0)
+        is_active = request.POST.get("is_active") == "on"
+
+        if branch_name and address and phone:
+            ContactInfo.objects.create(
+                branch_name=branch_name,
+                address=address,
+                phone=phone,
+                fax=fax,
+                email=email,
+                working_hours=working_hours,
+                map_embed_url=map_embed_url,
+                facebook_url=facebook_url,
+                youtube_url=youtube_url,
+                linkedin_url=linkedin_url,
+                instagram_url=instagram_url,
+                order=order,
+                is_active=is_active,
+            )
+            return redirect("contact_info_list")
+
+    return render(
+        request, "home/contact_info_form.html", {"title": "Thêm thông tin liên lạc"}
+    )
+
+
+@staff_required
+def contact_info_update(request, id):
+    contact_info = get_object_or_404(ContactInfo, id=id)
+
+    if request.method == "POST":
+        contact_info.branch_name = (
+            request.POST.get("branch_name") or ""
+        ).strip() or contact_info.branch_name
+        contact_info.address = (
+            request.POST.get("address") or ""
+        ).strip() or contact_info.address
+        contact_info.phone = (
+            request.POST.get("phone") or ""
+        ).strip() or contact_info.phone
+        contact_info.fax = (request.POST.get("fax") or "").strip()
+        contact_info.email = (request.POST.get("email") or "").strip()
+        contact_info.working_hours = (request.POST.get("working_hours") or "").strip()
+        contact_info.map_embed_url = (request.POST.get("map_embed_url") or "").strip()
+        contact_info.facebook_url = (request.POST.get("facebook_url") or "").strip()
+        contact_info.youtube_url = (request.POST.get("youtube_url") or "").strip()
+        contact_info.linkedin_url = (request.POST.get("linkedin_url") or "").strip()
+        contact_info.instagram_url = (request.POST.get("instagram_url") or "").strip()
+        contact_info.order = int(request.POST.get("order") or 0)
+        contact_info.is_active = request.POST.get("is_active") == "on"
+        contact_info.save()
+        return redirect("contact_info_list")
+
+    return render(
+        request,
+        "home/contact_info_form.html",
+        {
+            "title": "Sửa thông tin liên lạc",
+            "contact_info": contact_info,
+        },
+    )
+
+
+@staff_required
+def contact_info_delete(request, id):
+    contact_info = get_object_or_404(ContactInfo, id=id)
+    contact_info.delete()
+    return redirect("contact_info_list")
