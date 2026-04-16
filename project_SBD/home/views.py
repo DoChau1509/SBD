@@ -20,6 +20,7 @@ from .models import (
     FAQ,
     LeadershipMember,
     AboutStatement,
+    Certificate,
 )
 
 
@@ -79,6 +80,8 @@ def about(request):
     mission_statements = AboutStatement.objects.filter(
         statement_type="mission", is_active=True
     ).order_by("order", "created_at")
+    certs_left = Certificate.objects.filter(is_active=True, side='left').order_by('order')
+    certs_right = Certificate.objects.filter(is_active=True, side='right').order_by('order')
 
     return render(
         request,
@@ -87,6 +90,8 @@ def about(request):
             "leadership_members": leadership_members,
             "vision_statements": vision_statements,
             "mission_statements": mission_statements,
+            "certs_left": certs_left,
+            "certs_right": certs_right,
         },
     )
 
@@ -890,3 +895,66 @@ def statement_delete(request, id):
     statement = get_object_or_404(AboutStatement, id=id)
     statement.delete()
     return redirect("statement_list")
+
+# ====================== CRUD CERTIFICATE ======================
+@staff_required
+def certificate_list(request):
+    certs = Certificate.objects.all()
+    return render(request, "home/about_certificate_list.html", {"certs": certs})
+
+
+@staff_required
+def certificate_create(request):
+    if request.method == "POST":
+        title = (request.POST.get("title") or "").strip()
+        description = (request.POST.get("description") or "").strip()
+        icon = request.POST.get("icon") or "fa-certificate"
+        side = request.POST.get("side") or "left"
+        order = request.POST.get("order") or 0
+        is_active = request.POST.get("is_active") == "on"
+
+        if title and description:
+            Certificate.objects.create(
+                title=title, description=description,
+                icon=icon, side=side,
+                order=int(order), is_active=is_active,
+                image=request.FILES.get("image"),
+            )
+            return redirect("certificate_list")
+
+    return render(request, "home/about_certificate_form.html", {
+        "title": "Thêm chứng chỉ mới",
+        "icon_choices": Certificate.ICON_CHOICES,
+        "side_choices": Certificate.SIDE_CHOICES,
+    })
+
+
+@staff_required
+def certificate_update(request, id):
+    cert = get_object_or_404(Certificate, id=id)
+
+    if request.method == "POST":
+        cert.title = (request.POST.get("title") or "").strip() or cert.title
+        cert.description = (request.POST.get("description") or "").strip() or cert.description
+        cert.icon = request.POST.get("icon") or cert.icon
+        cert.side = request.POST.get("side") or cert.side
+        cert.order = int(request.POST.get("order") or 0)
+        cert.is_active = request.POST.get("is_active") == "on"
+        if "image" in request.FILES:
+            cert.image = request.FILES["image"]
+        cert.save()
+        return redirect("certificate_list")
+
+    return render(request, "home/about_certificate_form.html", {
+        "title": "Sửa chứng chỉ",
+        "cert": cert,
+        "icon_choices": Certificate.ICON_CHOICES,
+        "side_choices": Certificate.SIDE_CHOICES,
+    })
+
+
+@staff_required
+def certificate_delete(request, id):
+    cert = get_object_or_404(Certificate, id=id)
+    cert.delete()
+    return redirect("certificate_list")

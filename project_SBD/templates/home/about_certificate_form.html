@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container" style="margin-top:100px; max-width: 700px;">
+    <h2>{{ title }}</h2>
+    <form method="POST" enctype="multipart/form-data">  {# ← bắt buộc có enctype #}
+        {% csrf_token %}
+        <div class="form-group">
+            <label>Tiêu đề *</label>
+            <input type="text" name="title" class="form-control"
+                   value="{{ cert.title|default:'' }}" required>
+        </div>
+        <div class="form-group">
+            <label>Mô tả *</label>
+            <textarea name="description" class="form-control" rows="3" required>{{ cert.description|default:'' }}</textarea>
+        </div>
+        <div class="form-group">
+            <label>Icon</label>
+            <select name="icon" class="form-control">
+                {% for value, label in icon_choices %}
+                <option value="{{ value }}" {% if cert.icon == value %}selected{% endif %}>
+                    {{ label }} ({{ value }})
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Cột hiển thị</label>
+            <select name="side" class="form-control">
+                {% for value, label in side_choices %}
+                <option value="{{ value }}" {% if cert.side == value %}selected{% endif %}>
+                    {{ label }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Thứ tự</label>
+            <input type="number" name="order" class="form-control"
+                   value="{{ cert.order|default:'0' }}" min="0">
+        </div>
+
+        <!-- ====== UPLOAD ẢNH ====== -->
+        <div class="form-group">
+            <label>Hình ảnh chứng chỉ</label>
+            {% if cert.image %}
+            <div style="margin-bottom: 10px;">
+                <img src="{{ cert.image.url }}" alt="Ảnh hiện tại"
+                     style="max-width: 200px; max-height: 150px; border: 1px solid #ddd; border-radius: 6px; padding: 4px;">
+                <p style="font-size: 12px; color: #888; margin-top: 4px;">Ảnh hiện tại — chọn file mới để thay thế</p>
+            </div>
+            {% endif %}
+            <input type="file" name="image" class="form-control-file" accept="image/*">
+        </div>
+        <!-- ========================================= -->
+
+        <div class="form-group form-check">
+            <input type="checkbox" name="is_active" class="form-check-input" id="is_active"
+                   {% if cert.is_active or not cert %}checked{% endif %}>
+            <label class="form-check-label" for="is_active">Hiển thị trên website</label>
+        </div>
+        <button type="submit" class="btn btn-primary">Lưu</button>
+        <a href="{% url 'certificate_list' %}" class="btn btn-secondary">Hủy</a>
+    </form>
+</div>
+{% endblock %}
