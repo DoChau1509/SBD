@@ -10,6 +10,7 @@ from functools import wraps
 from urllib.parse import urlparse
 from .forms import UserRegistrationForm, LoginForm
 
+
 from .models import (
     Product,
     ProductCategory,
@@ -1008,77 +1009,77 @@ def contact_info_list(request):
 @staff_required
 def contact_info_create(request):
     if request.method == "POST":
-        branch_name = (request.POST.get("branch_name") or "").strip()
-        address = (request.POST.get("address") or "").strip()
-        phone = (request.POST.get("phone") or "").strip()
-        fax = (request.POST.get("fax") or "").strip()
-        email = (request.POST.get("email") or "").strip()
-        working_hours = (request.POST.get("working_hours") or "").strip()
-        map_embed_url = (request.POST.get("map_embed_url") or "").strip()
-        facebook_url = (request.POST.get("facebook_url") or "").strip()
-        youtube_url = (request.POST.get("youtube_url") or "").strip()
-        linkedin_url = (request.POST.get("linkedin_url") or "").strip()
-        instagram_url = (request.POST.get("instagram_url") or "").strip()
-        order = int(request.POST.get("order") or 0)
-        is_active = request.POST.get("is_active") == "on"
+        branch_name = request.POST.get("branch_name", "").strip()
+        address = request.POST.get("address", "").strip()
+        phone = request.POST.get("phone", "").strip()
+        fax = request.POST.get("fax", "").strip()
+        email = request.POST.get("email", "").strip()
+        working_hours = request.POST.get("working_hours", "").strip()
+        map_embed_url = request.POST.get("map_embed_url", "").strip()
+        facebook_url = request.POST.get("facebook_url", "").strip()
+        youtube_url = request.POST.get("youtube_url", "").strip()
+        linkedin_url = request.POST.get("linkedin_url", "").strip()
+        instagram_url = request.POST.get("instagram_url", "").strip()
+        order = request.POST.get("order", 0)
 
-        if branch_name and address and phone:
-            ContactInfo.objects.create(
-                branch_name=branch_name,
-                address=address,
-                phone=phone,
-                fax=fax,
-                email=email,
-                working_hours=working_hours,
-                map_embed_url=map_embed_url,
-                facebook_url=facebook_url,
-                youtube_url=youtube_url,
-                linkedin_url=linkedin_url,
-                instagram_url=instagram_url,
-                order=order,
-                is_active=is_active,
-            )
-            return redirect("contact_info_list")
+        posted_is_active = request.POST.get("is_active")
+        if posted_is_active is None:
+            is_active = True
+        else:
+            is_active = posted_is_active == "on"
 
-    return render(
-        request, "home/contact_info_form.html", {"title": "Thêm thông tin liên lạc"}
-    )
+        ContactInfo.objects.create(
+            branch_name=branch_name,
+            address=address,
+            phone=phone,
+            fax=fax,
+            email=email,
+            working_hours=working_hours,
+            map_embed_url=map_embed_url,
+            facebook_url=facebook_url,
+            youtube_url=youtube_url,
+            linkedin_url=linkedin_url,
+            instagram_url=instagram_url,
+            order=order or 0,
+            is_active=is_active,
+        )
+
+        messages.success(request, "Thêm thông tin liên hệ thành công.")
+        return redirect("contact_info_list")
+
+    return render(request, "home/contact_info_form.html")
 
 
 @staff_required
-def contact_info_update(request, id):
-    contact_info = get_object_or_404(ContactInfo, id=id)
+def contact_info_update(request, pk):
+    contact_info = get_object_or_404(ContactInfo, pk=pk)
 
     if request.method == "POST":
-        contact_info.branch_name = (
-            request.POST.get("branch_name") or ""
-        ).strip() or contact_info.branch_name
-        contact_info.address = (
-            request.POST.get("address") or ""
-        ).strip() or contact_info.address
-        contact_info.phone = (
-            request.POST.get("phone") or ""
-        ).strip() or contact_info.phone
-        contact_info.fax = (request.POST.get("fax") or "").strip()
-        contact_info.email = (request.POST.get("email") or "").strip()
-        contact_info.working_hours = (request.POST.get("working_hours") or "").strip()
-        contact_info.map_embed_url = (request.POST.get("map_embed_url") or "").strip()
-        contact_info.facebook_url = (request.POST.get("facebook_url") or "").strip()
-        contact_info.youtube_url = (request.POST.get("youtube_url") or "").strip()
-        contact_info.linkedin_url = (request.POST.get("linkedin_url") or "").strip()
-        contact_info.instagram_url = (request.POST.get("instagram_url") or "").strip()
-        contact_info.order = int(request.POST.get("order") or 0)
-        contact_info.is_active = request.POST.get("is_active") == "on"
+        contact_info.branch_name = request.POST.get("branch_name", "").strip()
+        contact_info.address = request.POST.get("address", "").strip()
+        contact_info.phone = request.POST.get("phone", "").strip()
+        contact_info.fax = request.POST.get("fax", "").strip()
+        contact_info.email = request.POST.get("email", "").strip()
+        contact_info.working_hours = request.POST.get("working_hours", "").strip()
+        contact_info.map_embed_url = request.POST.get("map_embed_url", "").strip()
+        contact_info.facebook_url = request.POST.get("facebook_url", "").strip()
+        contact_info.youtube_url = request.POST.get("youtube_url", "").strip()
+        contact_info.linkedin_url = request.POST.get("linkedin_url", "").strip()
+        contact_info.instagram_url = request.POST.get("instagram_url", "").strip()
+        contact_info.order = request.POST.get("order", 0) or 0
+
+        posted_is_active = request.POST.get("is_active")
+        if posted_is_active is not None:
+            contact_info.is_active = posted_is_active == "on"
+
         contact_info.save()
+        messages.success(request, "Cập nhật thông tin liên hệ thành công.")
         return redirect("contact_info_list")
 
     return render(
         request,
         "home/contact_info_form.html",
-        {
-            "title": "Sửa thông tin liên lạc",
-            "contact_info": contact_info,
-        },
+        {"contact_info": contact_info},
     )
 
 
@@ -1086,4 +1087,20 @@ def contact_info_update(request, id):
 def contact_info_delete(request, id):
     contact_info = get_object_or_404(ContactInfo, id=id)
     contact_info.delete()
+    return redirect("contact_info_list")
+
+
+@staff_required
+def contact_info_toggle_status(request, pk):
+    contact_info = get_object_or_404(ContactInfo, pk=pk)
+
+    if request.method == "POST":
+        contact_info.is_active = not contact_info.is_active
+        contact_info.save()
+
+        if contact_info.is_active:
+            messages.success(request, f"Đã hiển thị: {contact_info.branch_name}")
+        else:
+            messages.success(request, f"Đã ẩn: {contact_info.branch_name}")
+
     return redirect("contact_info_list")

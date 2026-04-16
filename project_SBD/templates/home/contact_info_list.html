@@ -44,11 +44,20 @@
         <td>{{ info.email|default:"-" }}</td>
         <td>{{ info.order }}</td>
         <td>
-          {% if info.is_active %}
-          <span class="badge badge-success">Hiện</span>
-          {% else %}
-          <span class="badge badge-secondary">Ẩn</span>
-          {% endif %}
+          <form
+            method="post"
+            action="{% url 'contact_info_toggle_status' info.id %}"
+            style="display: inline-block; margin: 0"
+          >
+            {% csrf_token %}
+            <button
+              type="submit"
+              class="btn btn-sm {% if info.is_active %}btn-success{% else %}btn-secondary{% endif %}"
+              style="min-width: 70px"
+            >
+              {% if info.is_active %}Hiện{% else %}Ẩn{% endif %}
+            </button>
+          </form>
         </td>
         <td>
           <a

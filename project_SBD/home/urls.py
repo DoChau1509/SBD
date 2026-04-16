@@ -122,7 +122,7 @@ urlpatterns = [
     path("contact-infos/", views.contact_info_list, name="contact_info_list"),
     path("contact-info/add/", views.contact_info_create, name="contact_info_add"),
     path(
-        "contact-info/edit/<int:id>/",
+        "contact-info/edit/<int:pk>/",
         views.contact_info_update,
         name="contact_info_edit",
     ),
@@ -130,5 +130,10 @@ urlpatterns = [
         "contact-info/delete/<int:id>/",
         views.contact_info_delete,
         name="contact_info_delete",
+    ),
+    path(
+        "contact-info/<int:pk>/toggle-status/",
+        views.contact_info_toggle_status,
+        name="contact_info_toggle_status",
     ),
 ]

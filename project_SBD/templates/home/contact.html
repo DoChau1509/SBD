@@ -284,11 +284,10 @@
     </div>
   </div>
 </section>
-
-{% if main_contact and main_contact.map_embed_url %}
+{% if main_contact and main_contact.map_display_url %}
 <div class="map">
   <iframe
-    src="{{ main_contact.map_embed_url }}"
+    src="{{ main_contact.map_display_url }}"
     allowfullscreen=""
     aria-hidden="false"
     tabindex="0"
@@ -296,7 +295,6 @@
   ></iframe>
 </div>
 {% endif %}
-
 <!-- FAQ -->
 <section class="faq-section">
   <div class="container">

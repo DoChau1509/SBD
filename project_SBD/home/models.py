@@ -201,7 +201,10 @@ class ContactInfo(models.Model):
     working_hours = models.CharField(
         max_length=255, blank=True, verbose_name="Giờ làm việc"
     )
+
+    # Giữ lại field này để dùng khi cần, nhưng từ giờ có thể để trống
     map_embed_url = models.URLField(blank=True, verbose_name="Link Google Maps Embed")
+
     facebook_url = models.URLField(blank=True, verbose_name="Facebook URL")
     youtube_url = models.URLField(blank=True, verbose_name="YouTube URL")
     linkedin_url = models.URLField(blank=True, verbose_name="LinkedIn URL")
@@ -215,18 +218,20 @@ class ContactInfo(models.Model):
 
     @property
     def map_display_url(self):
+        # Nếu admin có nhập link embed chuẩn thì dùng luôn
         raw_url = (self.map_embed_url or "").strip()
         if raw_url and ("/maps/embed" in raw_url or "output=embed" in raw_url):
             return raw_url
 
+        # Nếu không có link map, chỉ cần dùng địa chỉ
         query = (self.address or "").strip()
-        if not query:
-            query = raw_url
-
         if not query:
             return ""
 
-        return f"https://www.google.com/maps?q={quote_plus(query)}&output=embed"
+        return (
+            "https://maps.google.com/maps?"
+            f"q={quote_plus(query)}&t=&z=15&ie=UTF8&iwloc=&output=embed"
+        )
 
     def __str__(self):
         return self.branch_name
