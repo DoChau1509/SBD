@@ -131,4 +131,5 @@ urlpatterns = [
         views.contact_info_delete,
         name="contact_info_delete",
     ),
+    path("notifications/", views.notifications, name="notifications"),
 ]

@@ -10,6 +10,8 @@ from .models import (
     LeadershipMember,
     AboutStatement,
     ContactInfo,
+    Notification,
+    Consultation
 )
 
 # Register your models here.
@@ -28,3 +30,5 @@ admin.site.register(LeadershipMember)
 admin.site.register(AboutStatement)
 
 admin.site.register(ContactInfo)
+admin.site.register(Notification)
+admin.site.register(Consultation)

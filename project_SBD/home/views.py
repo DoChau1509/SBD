@@ -22,6 +22,8 @@ from .models import (
     AboutStatement,
     Certificate,
     ContactInfo,
+    Consultation,
+    Notification
 )
 
 
@@ -1087,3 +1089,11 @@ def contact_info_delete(request, id):
     contact_info = get_object_or_404(ContactInfo, id=id)
     contact_info.delete()
     return redirect("contact_info_list")
+
+#noti
+@login_required
+def notifications(request):
+    notifications = request.user.notifications.all()
+    return render(request, "home/notifications.html", {
+        "notifications": notifications
+    })
