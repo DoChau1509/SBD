@@ -23,6 +23,8 @@ from .models import (
     AboutStatement,
     Certificate,
     ContactInfo,
+    Consultation,
+    Notification
 )
 
 
@@ -1089,6 +1091,7 @@ def contact_info_delete(request, id):
     contact_info.delete()
     return redirect("contact_info_list")
 
+<<<<<<< HEAD
 
 @staff_required
 def contact_info_toggle_status(request, pk):
@@ -1104,3 +1107,12 @@ def contact_info_toggle_status(request, pk):
             messages.success(request, f"Đã ẩn: {contact_info.branch_name}")
 
     return redirect("contact_info_list")
+=======
+#noti
+@login_required
+def notifications(request):
+    notifications = request.user.notifications.all()
+    return render(request, "home/notifications.html", {
+        "notifications": notifications
+    })
+>>>>>>> 9e5cc321be4652ef35a3ecfd69e1431f574437d1
