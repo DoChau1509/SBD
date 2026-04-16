@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 
 class ProjectCategory(models.Model):
@@ -214,3 +215,70 @@ class ContactInfo(models.Model):
 
     def __str__(self):
         return self.branch_name
+
+class Consultation(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    content = models.TextField()
+
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('processing', 'Processing'),
+        ('done', 'Done'),
+    ]
+
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+
+    handled_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='handled_consultations'
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+class Notification(models.Model):
+
+    NOTIFICATION_TYPES = [
+        ('consult', 'Consultation'),
+        ('answer', 'Answer')
+    ]
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='notifications'
+    )
+
+    message = models.TextField()
+
+    notification_type = models.CharField(
+        max_length=20,
+        choices=NOTIFICATION_TYPES
+    )
+
+    # 🔥 liên kết tới yêu cầu
+    consultation = models.ForeignKey(
+        Consultation,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True
+    )
+
+    is_read = models.BooleanField(default=False)
+
+    link = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True
+    )
+
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created']
+
+    def __str__(self):
+        return f"{self.user.username} - {self.message[:30]}"
