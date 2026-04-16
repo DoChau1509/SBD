@@ -304,29 +304,33 @@
                 href="{{ site_contact.facebook_url }}"
                 target="_blank"
                 rel="noopener noreferrer"
-                ><i class="fa fa-facebook"></i
-              ></a>
+              >
+                <i class="fa fa-facebook"></i>
+              </a>
               {% endif %} {% if site_contact and site_contact.youtube_url %}
               <a
                 href="{{ site_contact.youtube_url }}"
                 target="_blank"
                 rel="noopener noreferrer"
-                ><i class="fa fa-youtube"></i
-              ></a>
+              >
+                <i class="fa fa-youtube"></i>
+              </a>
               {% endif %} {% if site_contact and site_contact.linkedin_url %}
               <a
                 href="{{ site_contact.linkedin_url }}"
                 target="_blank"
                 rel="noopener noreferrer"
-                ><i class="fa fa-linkedin"></i
-              ></a>
+              >
+                <i class="fa fa-linkedin"></i>
+              </a>
               {% endif %} {% if site_contact and site_contact.instagram_url %}
               <a
                 href="{{ site_contact.instagram_url }}"
                 target="_blank"
                 rel="noopener noreferrer"
-                ><i class="fa fa-instagram"></i
-              ></a>
+              >
+                <i class="fa fa-instagram"></i>
+              </a>
               {% endif %}
             </div>
           </div>
@@ -361,18 +365,21 @@
             <ul class="footer-contact-info">
               {% if site_contact %}
               <li>
-                <i class="fa fa-map-marker"></i> {{
-                site_contact.address|linebreaksbr }}
-              </li>
-              <li><i class="fa fa-phone"></i> {{ site_contact.phone }}</li>
-              <li>
-                <i class="fa fa-envelope"></i> {{
-                site_contact.email|default:"Chưa cập nhật" }}
+                <i class="fa fa-map-marker"></i>
+                {{ site_contact.address|linebreaksbr }}
               </li>
               <li>
-                <i class="fa fa-clock-o"></i> {{
-                site_contact.working_hours|default:"Chưa cập nhật giờ làm việc"
-                }}
+                <i class="fa fa-phone"></i>
+                {{ site_contact.phone }}
+              </li>
+              <li>
+                <i class="fa fa-envelope"></i>
+                {{ site_contact.email|default:"Chưa cập nhật" }}
+              </li>
+              <li>
+                <i class="fa fa-clock-o"></i>
+                {{ site_contact.working_hours|default:"Chưa cập nhật giờ làm
+                việc"|linebreaksbr }}
               </li>
               {% else %}
               <li><i class="fa fa-map-marker"></i> Chưa cập nhật địa chỉ</li>

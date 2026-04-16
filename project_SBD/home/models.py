@@ -1,4 +1,5 @@
 from django.db import models
+from urllib.parse import quote_plus
 
 
 class ProjectCategory(models.Model):
@@ -211,6 +212,21 @@ class ContactInfo(models.Model):
 
     class Meta:
         ordering = ["order", "created_at"]
+
+    @property
+    def map_display_url(self):
+        raw_url = (self.map_embed_url or "").strip()
+        if raw_url and ("/maps/embed" in raw_url or "output=embed" in raw_url):
+            return raw_url
+
+        query = (self.address or "").strip()
+        if not query:
+            query = raw_url
+
+        if not query:
+            return ""
+
+        return f"https://www.google.com/maps?q={quote_plus(query)}&output=embed"
 
     def __str__(self):
         return self.branch_name
