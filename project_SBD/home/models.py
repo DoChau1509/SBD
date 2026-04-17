@@ -238,8 +238,28 @@ class ContactInfo(models.Model):
         return self.branch_name
 
 class Consultation(models.Model):
+    PROJECT_TYPE_CHOICES = [
+        ("dan-dung", "Xây dựng Dân dụng (Nhà ở, Biệt thự, Chung cư)"),
+        ("cong-nghiep", "Xây dựng Công nghiệp (Nhà máy, Kho xưởng)"),
+        ("thuong-mai", "Xây dựng Thương mại (Văn phòng, TTTM)"),
+        ("ha-tang", "Hạ tầng Kỹ thuật (Đường, Cầu, Cống)"),
+        ("noi-that", "Thi công Nội thất"),
+        ("thiet-ke", "Thiết kế Kiến trúc & Kết cấu"),
+        ("khac", "Khác"),
+    ]
+
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    content = models.TextField()
+    full_name = models.CharField(max_length=150, blank=True, default="")
+    phone = models.CharField(max_length=50, default="")
+    email = models.EmailField(blank=True)
+    project_type = models.CharField(
+        max_length=50,
+        default="",
+        choices=PROJECT_TYPE_CHOICES,
+    )
+    subject = models.CharField(max_length=255, default="")
+    budget = models.CharField(max_length=100, blank=True, default="")
+    content = models.TextField(blank=True)
 
     STATUS_CHOICES = [
         ('pending', 'Pending'),
@@ -259,7 +279,14 @@ class Consultation(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
+
+    class Meta:
+        ordering = ["-created_at", "-id"]
+
+    def __str__(self):
+        return self.subject or f"Yeu cau #{self.pk}"
+
+
 class Notification(models.Model):
 
     NOTIFICATION_TYPES = [

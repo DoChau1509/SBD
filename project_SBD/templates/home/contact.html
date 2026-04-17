@@ -41,6 +41,12 @@
             Vui lòng cung cấp thông tin dự án để chúng tôi tư vấn chính xác
             nhất.
           </p>
+          {% if not user.is_authenticated %}
+          <div class="alert alert-warning">
+            Bạn cần <a href="{% url 'login' %}?next={% url 'contact' %}">đăng nhập</a>
+            để gửi yêu cầu và nhận thông báo xử lý.
+          </div>
+          {% endif %}
 
           <form
             id="contact-form"
@@ -58,6 +64,7 @@
                   name="name"
                   class="form-control"
                   placeholder="Nguyễn Văn A"
+                  value="{{ request.POST.name|default:user.get_full_name|default:user.username }}"
                   required
                 />
               </div>
@@ -69,6 +76,7 @@
                   name="phone"
                   class="form-control"
                   placeholder="0901 234 567"
+                  value="{{ request.POST.phone }}"
                   required
                 />
               </div>
@@ -81,30 +89,21 @@
                 name="email"
                 class="form-control"
                 placeholder="example@email.com"
+                value="{{ request.POST.email|default:user.email }}"
               />
             </div>
 
             <div class="form-group">
               <label>Loại Dự Án *</label>
               <select name="project_type" class="form-control" required>
-                <option value="" disabled selected>
+                <option value="" disabled {% if not request.POST.project_type %}selected{% endif %}>
                   -- Chọn loại dự án --
                 </option>
-                <option value="dan-dung">
-                  Xây dựng Dân dụng (Nhà ở, Biệt thự, Chung cư)
+                {% for value, label in project_type_choices %}
+                <option value="{{ value }}" {% if request.POST.project_type == value %}selected{% endif %}>
+                  {{ label }}
                 </option>
-                <option value="cong-nghiep">
-                  Xây dựng Công nghiệp (Nhà máy, Kho xưởng)
-                </option>
-                <option value="thuong-mai">
-                  Xây dựng Thương mại (Văn phòng, TTTM)
-                </option>
-                <option value="ha-tang">
-                  Hạ tầng Kỹ thuật (Đường, Cầu, Cống)
-                </option>
-                <option value="noi-that">Thi công Nội thất</option>
-                <option value="thiet-ke">Thiết kế Kiến trúc & Kết cấu</option>
-                <option value="khac">Khác</option>
+                {% endfor %}
               </select>
             </div>
 
@@ -115,6 +114,7 @@
                 name="subject"
                 class="form-control"
                 placeholder="Ví dụ: Tư vấn xây dựng nhà xưởng 5000m²"
+                value="{{ request.POST.subject }}"
                 required
               />
             </div>
@@ -126,20 +126,20 @@
                 name="message"
                 class="form-control"
                 placeholder="Mô tả chi tiết về dự án, quy mô, địa điểm, yêu cầu đặc biệt..."
-              ></textarea>
+              >{{ request.POST.message }}</textarea>
             </div>
 
             <div class="form-group">
               <label>Ngân Sách Dự Kiến</label>
               <select name="budget" class="form-control">
-                <option value="" disabled selected>
+                <option value="" {% if not request.POST.budget %}selected{% endif %}>
                   -- Chọn ngân sách (không bắt buộc) --
                 </option>
-                <option>Dưới 1 tỷ VNĐ</option>
-                <option>1 – 5 tỷ VNĐ</option>
-                <option>5 – 20 tỷ VNĐ</option>
-                <option>20 – 100 tỷ VNĐ</option>
-                <option>Trên 100 tỷ VNĐ</option>
+                {% for budget in budget_choices %}
+                <option value="{{ budget }}" {% if request.POST.budget == budget %}selected{% endif %}>
+                  {{ budget }}
+                </option>
+                {% endfor %}
               </select>
             </div>
 
@@ -151,11 +151,6 @@
               * Thông tin bắt buộc. Chúng tôi cam kết bảo mật thông tin của bạn.
             </p>
 
-            <div class="form-success" id="form-success">
-              <i class="fa fa-check-circle"></i>
-              Cảm ơn bạn! Chúng tôi đã nhận được yêu cầu và sẽ liên hệ lại trong
-              24 giờ làm việc.
-            </div>
           </form>
         </div>
       </div>
@@ -282,6 +277,75 @@
         {% endfor %}
       </div>
     </div>
+
+    {% if user.is_authenticated %}
+    <div class="row mt-5">
+      <div class="col-12">
+        <div
+          style="
+            background: #fff;
+            border-radius: 20px;
+            padding: 28px;
+            box-shadow: 0 18px 40px rgba(19, 39, 63, 0.08);
+          "
+        >
+          <div class="d-flex justify-content-between align-items-center flex-wrap mb-3">
+            <div>
+              <h3 style="margin-bottom: 6px">Yêu Cầu Của Bạn</h3>
+              <p class="text-muted mb-0">
+                Theo dõi tiến độ xử lý các yêu cầu tư vấn đã gửi.
+              </p>
+            </div>
+            <a href="{% url 'notifications' %}" class="btn btn-outline-primary">
+              Xem thông báo
+            </a>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table table-bordered align-middle mb-0">
+              <thead>
+                <tr>
+                  <th>Tiêu đề</th>
+                  <th>Loại dự án</th>
+                  <th>Trạng thái</th>
+                  <th>Người xử lý</th>
+                  <th>Ngày gửi</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for consultation in user_consultations %}
+                <tr>
+                  <td>
+                    <strong>{{ consultation.subject }}</strong>
+                    {% if consultation.content %}
+                    <div class="text-muted" style="font-size: 13px">
+                      {{ consultation.content|truncatechars:80 }}
+                    </div>
+                    {% endif %}
+                  </td>
+                  <td>{{ consultation.get_project_type_display|default:consultation.project_type }}</td>
+                  <td>
+                    <span class="badge bg-{% if consultation.status == 'done' %}success{% elif consultation.status == 'processing' %}warning{% else %}secondary{% endif %}">
+                      {{ consultation.get_status_display }}
+                    </span>
+                  </td>
+                  <td>{{ consultation.handled_by.username|default:"Chưa có" }}</td>
+                  <td>{{ consultation.created_at|date:"d/m/Y H:i" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="5" class="text-center text-muted">
+                    Bạn chưa gửi yêu cầu tư vấn nào.
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
   </div>
 </section>
 {% if main_contact and main_contact.map_display_url %}
@@ -340,17 +404,6 @@
       });
     }
 
-    var form = document.getElementById("contact-form");
-    var success = document.getElementById("form-success");
-    if (form && success) {
-      form.addEventListener("submit", function (e) {
-        e.preventDefault();
-        success.style.display = "block";
-        form.reset();
-        var y = success.getBoundingClientRect().top + window.scrollY - 100;
-        window.scrollTo({ top: y, behavior: "smooth" });
-      });
-    }
   });
 </script>
 

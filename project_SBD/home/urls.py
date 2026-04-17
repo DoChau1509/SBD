@@ -136,5 +136,21 @@ urlpatterns = [
         views.contact_info_toggle_status,
         name="contact_info_toggle_status",
     ),
+    path("consultations/", views.consultation_list, name="consultation_list"),
+    path(
+        "consultations/<int:id>/",
+        views.consultation_detail,
+        name="consultation_detail",
+    ),
     path("notifications/", views.notifications, name="notifications"),
+    path(
+        "notifications/<int:id>/read/",
+        views.notification_read,
+        name="notification_read",
+    ),
+    path(
+        "notifications/mark-all-read/",
+        views.notification_mark_all_read,
+        name="notification_mark_all_read",
+    ),
 ]

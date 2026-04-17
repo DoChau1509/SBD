@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container" style="margin-top: 100px">
+  <div class="d-flex justify-content-between align-items-center flex-wrap mb-4">
+    <div>
+      <h2 class="mb-1">Quản lý yêu cầu tư vấn</h2>
+      <p class="text-muted mb-0">Theo dõi yêu cầu mới và cập nhật trạng thái xử lý.</p>
+    </div>
+    <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">Về dashboard</a>
+  </div>
+
+  <div class="mb-3 d-flex gap-2 flex-wrap">
+    <a href="{% url 'consultation_list' %}" class="btn btn-{% if not status_filter %}primary{% else %}outline-primary{% endif %}">
+      Tất cả
+    </a>
+    {% for value, label in status_choices %}
+    <a
+      href="{% url 'consultation_list' %}?status={{ value }}"
+      class="btn btn-{% if status_filter == value %}primary{% else %}outline-primary{% endif %}"
+    >
+      {{ label }}
+    </a>
+    {% endfor %}
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-bordered align-middle">
+      <thead>
+        <tr>
+          <th>Khách hàng</th>
+          <th>Tiêu đề</th>
+          <th>Điện thoại</th>
+          <th>Trạng thái</th>
+          <th>Người xử lý</th>
+          <th>Ngày gửi</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for consultation in consultations %}
+        <tr>
+          <td>
+            <strong>{{ consultation.full_name }}</strong>
+            <div class="text-muted">{{ consultation.user.username }}</div>
+          </td>
+          <td>{{ consultation.subject }}</td>
+          <td>{{ consultation.phone }}</td>
+          <td>
+            <span class="badge badge-{% if consultation.status == 'done' %}success{% elif consultation.status == 'processing' %}warning{% else %}secondary{% endif %}">
+              {{ consultation.get_status_display }}
+            </span>
+          </td>
+          <td>{{ consultation.handled_by.username|default:"Chưa có" }}</td>
+          <td>{{ consultation.created_at|date:"d/m/Y H:i" }}</td>
+          <td>
+            <a href="{% url 'consultation_detail' consultation.id %}" class="btn btn-sm btn-primary">
+              Xem
+            </a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="7" class="text-center text-muted">
+            Chưa có yêu cầu tư vấn nào.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

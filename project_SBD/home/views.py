@@ -1,9 +1,11 @@
 # views.py
 from django.contrib import messages
+from django.contrib.auth import get_user_model
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.db.models.deletion import ProtectedError
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
 from django.utils.text import slugify
 from django.utils.http import url_has_allowed_host_and_scheme
 from functools import wraps
@@ -26,6 +28,20 @@ from .models import (
     Consultation,
     Notification
 )
+
+User = get_user_model()
+
+CONSULTATION_PROJECT_TYPES = Consultation.PROJECT_TYPE_CHOICES
+
+CONSULTATION_BUDGET_CHOICES = [
+    "Dưới 1 tỷ VNĐ",
+    "1 – 5 tỷ VNĐ",
+    "5 – 20 tỷ VNĐ",
+    "20 – 100 tỷ VNĐ",
+    "Trên 100 tỷ VNĐ",
+]
+
+CONSULTATION_STATUS_LABELS = dict(Consultation.STATUS_CHOICES)
 
 
 def staff_required(view_func):
@@ -73,6 +89,54 @@ def _is_management_path(path: str) -> bool:
     return path.startswith(management_prefixes)
 
 
+def _get_staff_recipients():
+    return User.objects.filter(is_active=True).filter(
+        is_staff=True
+    ) | User.objects.filter(is_active=True, is_superuser=True)
+
+
+def _create_notification(user, message, notification_type, consultation=None, link=""):
+    return Notification.objects.create(
+        user=user,
+        message=message,
+        notification_type=notification_type,
+        consultation=consultation,
+        link=link or "",
+    )
+
+
+def _notify_new_consultation(consultation):
+    consultation_link = reverse("consultation_detail", args=[consultation.id])
+    recipients = _get_staff_recipients().exclude(id=consultation.user_id).distinct()
+
+    for recipient in recipients:
+        _create_notification(
+            user=recipient,
+            message=(
+                f"Có yêu cầu tư vấn mới từ {consultation.full_name} - "
+                f"{consultation.subject}"
+            ),
+            notification_type="consult",
+            consultation=consultation,
+            link=consultation_link,
+        )
+
+
+def _notify_consultation_status_change(consultation):
+    status_text = CONSULTATION_STATUS_LABELS.get(consultation.status, consultation.status)
+    handled_by = consultation.handled_by.username if consultation.handled_by else "nhân viên"
+    _create_notification(
+        user=consultation.user,
+        message=(
+            f"Yêu cầu tư vấn '{consultation.subject}' của bạn đã được cập nhật "
+            f"sang trạng thái {status_text} bởi {handled_by}."
+        ),
+        notification_type="answer",
+        consultation=consultation,
+        link=reverse("contact"),
+    )
+
+
 # ====================== PUBLIC PAGES ======================
 def home(request):
     return render(request, "home/home.html")
@@ -114,6 +178,51 @@ def contact(request):
         "order", "created_at"
     )
     main_contact = contact_infos.first()
+    user_consultations = Consultation.objects.none()
+
+    if request.user.is_authenticated:
+        user_consultations = Consultation.objects.filter(user=request.user).select_related(
+            "handled_by"
+        )
+
+    if request.method == "POST":
+        if not request.user.is_authenticated:
+            messages.warning(
+                request,
+                "Bạn cần đăng nhập để gửi yêu cầu tư vấn và nhận thông báo xử lý.",
+            )
+            return redirect(f"{reverse('login')}?next={request.path}")
+
+        full_name = (request.POST.get("name") or "").strip()
+        phone = (request.POST.get("phone") or "").strip()
+        email = (request.POST.get("email") or "").strip()
+        project_type = (request.POST.get("project_type") or "").strip()
+        subject = (request.POST.get("subject") or "").strip()
+        content = (request.POST.get("message") or "").strip()
+        budget = (request.POST.get("budget") or "").strip()
+        valid_project_types = {value for value, _ in CONSULTATION_PROJECT_TYPES}
+
+        if not all([full_name, phone, project_type, subject]):
+            messages.error(request, "Vui lòng nhập đầy đủ các trường bắt buộc.")
+        elif project_type not in valid_project_types:
+            messages.error(request, "Loại dự án không hợp lệ.")
+        else:
+            consultation = Consultation.objects.create(
+                user=request.user,
+                full_name=full_name,
+                phone=phone,
+                email=email,
+                project_type=project_type,
+                subject=subject,
+                budget=budget,
+                content=content,
+            )
+            _notify_new_consultation(consultation)
+            messages.success(
+                request,
+                "Đã gửi yêu cầu tư vấn thành công. Bạn sẽ nhận được thông báo khi yêu cầu được xử lý.",
+            )
+            return redirect("contact")
 
     return render(
         request,
@@ -122,6 +231,10 @@ def contact(request):
             "faqs": faqs,
             "contact_infos": contact_infos,
             "main_contact": main_contact,
+            "project_type_choices": CONSULTATION_PROJECT_TYPES,
+            "budget_choices": CONSULTATION_BUDGET_CHOICES,
+            "user_consultations": user_consultations,
+            "status_labels": CONSULTATION_STATUS_LABELS,
         },
     )
 
@@ -323,8 +436,17 @@ def logout_view(request):
 def dashboard(request):
     projects = Project.objects.all().order_by("-id")
     products = Product.objects.all().order_by("-id")
+    consultations_pending = Consultation.objects.filter(status="pending").count()
+    consultations_processing = Consultation.objects.filter(status="processing").count()
     return render(
-        request, "home/dashboard.html", {"projects": projects, "products": products}
+        request,
+        "home/dashboard.html",
+        {
+            "projects": projects,
+            "products": products,
+            "consultations_pending": consultations_pending,
+            "consultations_processing": consultations_processing,
+        },
     )
 
 
@@ -1106,10 +1228,103 @@ def contact_info_toggle_status(request, pk):
             messages.success(request, f"Đã ẩn: {contact_info.branch_name}")
 
     return redirect("contact_info_list")
-#noti
+
+
+@staff_required
+def consultation_list(request):
+    consultations = Consultation.objects.select_related("user", "handled_by").all()
+    status_filter = (request.GET.get("status") or "").strip()
+
+    if status_filter in CONSULTATION_STATUS_LABELS:
+        consultations = consultations.filter(status=status_filter)
+
+    return render(
+        request,
+        "home/consultation_list.html",
+        {
+            "consultations": consultations,
+            "status_filter": status_filter,
+            "status_choices": Consultation.STATUS_CHOICES,
+        },
+    )
+
+
+@staff_required
+def consultation_detail(request, id):
+    consultation = get_object_or_404(
+        Consultation.objects.select_related("user", "handled_by"),
+        id=id,
+    )
+
+    if request.method == "POST":
+        new_status = (request.POST.get("status") or "").strip()
+        valid_statuses = {value for value, _ in Consultation.STATUS_CHOICES}
+
+        if new_status not in valid_statuses:
+            messages.error(request, "Trạng thái không hợp lệ.")
+        else:
+            status_changed = consultation.status != new_status
+            consultation.status = new_status
+            consultation.handled_by = request.user
+            consultation.save()
+
+            Notification.objects.filter(
+                consultation=consultation,
+                user=request.user,
+                notification_type="consult",
+                is_read=False,
+            ).update(is_read=True)
+
+            if status_changed:
+                _notify_consultation_status_change(consultation)
+                messages.success(request, "Đã cập nhật trạng thái yêu cầu tư vấn.")
+            else:
+                messages.success(request, "Đã cập nhật người xử lý yêu cầu tư vấn.")
+
+            return redirect("consultation_detail", id=consultation.id)
+
+    return render(
+        request,
+        "home/consultation_detail.html",
+        {
+            "consultation": consultation,
+            "status_choices": Consultation.STATUS_CHOICES,
+        },
+    )
+
+
 @login_required
 def notifications(request):
-    notifications = request.user.notifications.all()
-    return render(request, "home/notifications.html", {
-        "notifications": notifications
-    })
+    user_notifications = request.user.notifications.select_related("consultation")
+    return render(
+        request,
+        "home/notifications.html",
+        {"notifications": user_notifications},
+    )
+
+
+@login_required
+def notification_read(request, id):
+    notification = get_object_or_404(
+        Notification.objects.select_related("consultation"),
+        id=id,
+        user=request.user,
+    )
+    notification.is_read = True
+    notification.save(update_fields=["is_read"])
+
+    if notification.link:
+        return redirect(notification.link)
+
+    if notification.consultation_id:
+        if request.user.is_staff or request.user.is_superuser:
+            return redirect("consultation_detail", id=notification.consultation_id)
+        return redirect("contact")
+
+    return redirect("notifications")
+
+
+@login_required
+def notification_mark_all_read(request):
+    request.user.notifications.filter(is_read=False).update(is_read=True)
+    return redirect("notifications")

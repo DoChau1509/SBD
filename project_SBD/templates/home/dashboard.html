@@ -40,6 +40,14 @@
     <a href="{% url 'contact_info_list' %}" class="btn btn-outline-info"
       >Quản lý Liên Hệ</a
     >
+    <a href="{% url 'consultation_list' %}" class="btn btn-outline-danger">
+      Yêu cầu tư vấn
+      {% if consultations_pending %}
+      ({{ consultations_pending }} mới)
+      {% elif consultations_processing %}
+      ({{ consultations_processing }} đang xử lý)
+      {% endif %}
+    </a>
   </div>
 
   <table class="table table-bordered">

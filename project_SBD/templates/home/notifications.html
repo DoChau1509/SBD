@@ -1,87 +1,45 @@
 {% extends 'base.html' %}
 {% load humanize %}
 
-{% block body %}
-
-<div class="container py-4" style="max-width:700px;">
-
-    <div class="mb-4 d-flex justify-content-between align-items-center">
-        <div>
-            <h3 class="fw-bold">
-                <i class="bi bi-bell"></i> Notifications
-            </h3>
-            <p class="text-muted mb-0">
-                Your recent activities
-            </p>
-        </div>
-
-        {% comment %} {% if notifications %}
-        <a href="{% url 'shops:mark_all_notifications_read' %}"
-           class="btn btn-sm btn-outline-primary rounded-pill">
-           Mark all as read
-        </a>
-        {% endif %} {% endcomment %}
+{% block content %}
+<div class="container" style="margin-top: 100px; max-width: 900px">
+  <div class="d-flex justify-content-between align-items-center flex-wrap mb-4">
+    <div>
+      <h2 class="mb-1">Thông báo</h2>
+      <p class="text-muted mb-0">Các cập nhật mới nhất về yêu cầu tư vấn của bạn.</p>
     </div>
+    {% if notifications %}
+    <a href="{% url 'notification_mark_all_read' %}" class="btn btn-outline-primary">
+      Đánh dấu tất cả đã đọc
+    </a>
+    {% endif %}
+  </div>
 
-    <div class="card border-0 shadow-sm rounded-4">
-
-        <div class="list-group list-group-flush">
-
-            {% for n in notifications %}
-
-            <div class="list-group-item d-flex justify-content-between align-items-start
-                        {% if not n.is_read %}bg-light{% endif %}">
-
-                <div>
-
-                    <a href="{% url 'shops:read_notification' n.id %}"
-                       class="text-decoration-none">
-
-                        <div class="fw-semibold
-                            {% if not n.is_read %}text-dark{% else %}text-muted{% endif %}">
-
-                            {{ n.message }}
-
-                        </div>
-
-                    </a>
-
-                    <small class="text-muted">
-                        {{ n.created|naturaltime }}
-                    </small>
-
-                </div>
-
-                <div class="d-flex gap-2">
-
-                    <!-- delete notification -->
-                    <a href="{% url 'shops:delete_notification' n.id %}"
-                       class="btn btn-sm btn-outline-danger rounded-pill">
-                        <i class="bi bi-trash"></i>
-                    </a>
-
-                </div>
-
+  <div class="card border-0 shadow-sm">
+    <div class="list-group list-group-flush">
+      {% for n in notifications %}
+      <a
+        href="{% url 'notification_read' n.id %}"
+        class="list-group-item list-group-item-action {% if not n.is_read %}bg-light{% endif %}"
+      >
+        <div class="d-flex justify-content-between align-items-start gap-3">
+          <div>
+            <div class="font-weight-bold {% if n.is_read %}text-muted{% endif %}">
+              {{ n.message }}
             </div>
-
-            {% empty %}
-
-            <div class="text-center p-5">
-
-                <i class="bi bi-bell-slash fs-1 text-muted"></i>
-
-                <p class="text-muted mt-3">
-                    No notifications
-                </p>
-
-            </div>
-
-            {% endfor %}
-
+            <small class="text-muted">{{ n.created|naturaltime }}</small>
+          </div>
+          {% if not n.is_read %}
+          <span class="badge badge-primary">Mới</span>
+          {% endif %}
         </div>
-
+      </a>
+      {% empty %}
+      <div class="p-5 text-center text-muted">
+        Bạn chưa có thông báo nào.
+      </div>
+      {% endfor %}
     </div>
-
+  </div>
 </div>
-
 {% endblock %}
