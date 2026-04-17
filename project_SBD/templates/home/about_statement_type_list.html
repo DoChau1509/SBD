@@ -6,9 +6,6 @@
   .badge-secondary {
     background: #6c757d;
   }
-  .statement-preview-icon {
-    font-size: 20px;
-  }
 </style>
 
 <div class="container" style="margin-top: 100px">
@@ -22,15 +19,13 @@
       flex-wrap: wrap;
     "
   >
-    <h2 style="margin: 0">
-      Quản lý nội dung Tầm nhìn / Sứ mệnh / Giá trị cốt lõi
-    </h2>
+    <h2 style="margin: 0">Quản lý loại nội dung</h2>
     <div class="d-flex flex-wrap" style="gap: 8px">
-      <a href="{% url 'statement_type_list' %}" class="btn btn-outline-primary"
-        >Quản lý loại nội dung</a
+      <a href="{% url 'statement_list' %}" class="btn btn-outline-primary"
+        >Quản lý nội dung</a
       >
-      <a href="{% url 'statement_add' %}" class="btn btn-primary"
-        >+ Thêm nội dung</a
+      <a href="{% url 'statement_type_add' %}" class="btn btn-primary"
+        >+ Thêm loại</a
       >
     </div>
   </div>
@@ -43,33 +38,22 @@
     <thead class="thead-dark">
       <tr>
         <th>#</th>
-        <th>Loại</th>
-        <th>Tiêu đề hiển thị</th>
-        <th>Icon</th>
+        <th>Tên loại</th>
+        <th>Slug</th>
         <th>Thứ tự</th>
         <th>Hiển thị</th>
         <th>Hành động</th>
       </tr>
     </thead>
     <tbody>
-      {% for statement in statements %}
+      {% for item in statement_types %}
       <tr>
         <td>{{ forloop.counter }}</td>
-        <td>{{ statement.statement_type.name }}</td>
-        <td>{{ statement.display_title }}</td>
+        <td>{{ item.name }}</td>
+        <td>{{ item.slug }}</td>
+        <td>{{ item.order }}</td>
         <td>
-          <div class="d-flex align-items-center" style="gap: 8px">
-            <i
-              class="{{ statement.icon_css_class }} statement-preview-icon"
-            ></i>
-            <span
-              >{{ statement.icon|default:'(đang dùng icon mặc định)' }}</span
-            >
-          </div>
-        </td>
-        <td>{{ statement.order }}</td>
-        <td>
-          {% if statement.is_active %}
+          {% if item.is_active %}
           <span class="badge badge-success">Hiện</span>
           {% else %}
           <span class="badge badge-secondary">Ẩn</span>
@@ -77,21 +61,21 @@
         </td>
         <td>
           <a
-            href="{% url 'statement_edit' statement.id %}"
+            href="{% url 'statement_type_edit' item.id %}"
             class="btn btn-sm btn-warning"
             >Sửa</a
           >
           <a
-            href="{% url 'statement_delete' statement.id %}"
+            href="{% url 'statement_type_delete' item.id %}"
             class="btn btn-sm btn-danger"
-            onclick="return confirm('Xóa nội dung này?');"
+            onclick="return confirm('Xóa loại nội dung này?');"
             >Xóa</a
           >
         </td>
       </tr>
       {% empty %}
       <tr>
-        <td colspan="7" class="text-center">Chưa có nội dung nào.</td>
+        <td colspan="6" class="text-center">Chưa có loại nội dung nào.</td>
       </tr>
       {% endfor %}
     </tbody>

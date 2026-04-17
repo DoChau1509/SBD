@@ -96,6 +96,27 @@ urlpatterns = [
     path(
         "leadership/delete/<int:id>/", views.leadership_delete, name="leadership_delete"
     ),
+    # about statement types
+    path(
+        "about-statement-types/",
+        views.statement_type_list,
+        name="statement_type_list",
+    ),
+    path(
+        "about-statement-types/add/",
+        views.statement_type_create,
+        name="statement_type_add",
+    ),
+    path(
+        "about-statement-types/edit/<int:id>/",
+        views.statement_type_update,
+        name="statement_type_edit",
+    ),
+    path(
+        "about-statement-types/delete/<int:id>/",
+        views.statement_type_delete,
+        name="statement_type_delete",
+    ),
     # about statements
     path("about-statements/", views.statement_list, name="statement_list"),
     path("about-statements/add/", views.statement_create, name="statement_add"),

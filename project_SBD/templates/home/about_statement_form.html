@@ -1,7 +1,32 @@
 {% extends 'base.html' %} {% block content %}
-<div class="container" style="margin-top: 100px">
-  <h2>{{ title }}</h2>
+<div class="container" style="margin-top: 100px; max-width: 1000px">
+  <div
+    style="
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    "
+  >
+    <h2 style="margin: 0">{{ title }}</h2>
+    <a href="{% url 'statement_type_add' %}" class="btn btn-outline-primary"
+      >+ Thêm loại mới</a
+    >
+  </div>
 
+  {% if error %}
+  <div class="alert alert-danger">{{ error }}</div>
+  {% endif %} {% if not types %}
+  <div class="alert alert-warning">
+    Bạn chưa có loại nội dung nào. Hãy tạo loại trước rồi mới thêm nội dung.
+  </div>
+  <a href="{% url 'statement_type_add' %}" class="btn btn-primary"
+    >Tạo loại nội dung</a
+  >
+  <a href="{% url 'statement_list' %}" class="btn btn-secondary">Quay lại</a>
+  {% else %}
   <form method="POST">
     {% csrf_token %}
 
@@ -9,42 +34,39 @@
       <label>Loại nội dung *</label>
       <select name="statement_type" class="form-control" required>
         <option value="">-- Chọn loại --</option>
+        {% for item in types %}
         <option
-          value="vision"
+          value="{{ item.id }}"
           {%
           if
-          statement.statement_type=""
-          ="vision"
+          statement.statement_type_id=""
+          ="item.id"
+          or
+          statement.statement_type.id=""
+          ="item.id"
           %}selected{%
           endif
           %}
         >
-          Tầm nhìn
+          {{ item.name }}
         </option>
-        <option
-          value="mission"
-          {%
-          if
-          statement.statement_type=""
-          ="mission"
-          %}selected{%
-          endif
-          %}
-        >
-          Sứ mệnh
-        </option>
+        {% endfor %}
       </select>
     </div>
 
     <div class="form-group">
-      <label>Tiêu đề *</label>
+      <label>Tiêu đề hiển thị</label>
       <input
         type="text"
         name="title"
         class="form-control"
         value="{{ statement.title|default:'' }}"
-        required
+        placeholder="Có thể để trống để dùng tên loại nội dung"
       />
+      <small class="form-text text-muted"
+        >Ví dụ: Tầm nhìn, Sứ mệnh, Giá trị cốt lõi. Nếu để trống, website sẽ tự
+        dùng tên loại.</small
+      >
     </div>
 
     <div class="form-group">
@@ -55,17 +77,20 @@
     </div>
 
     <div class="form-group">
-      <label>Icon Font Awesome</label>
+      <label>Icon Font Awesome / Icon URL</label>
       <input
         type="text"
         name="icon"
         class="form-control"
-        value="{{ statement.icon|default:'fa-star' }}"
-        placeholder="Ví dụ: fa-eye hoặc fa-rocket"
+        value="{{ statement.icon|default:'' }}"
+        placeholder="Ví dụ: fa-eye hoặc fa-solid fa-eye hoặc cart-arrow-down hoặc URL Font Awesome"
       />
-      <small class="form-text text-muted"
-        >Chỉ nhập phần class icon, ví dụ: fa-eye, fa-rocket, fa-heart</small
-      >
+      <small class="form-text text-muted">
+        Bạn có thể nhập class icon hoặc dán link icon từ Font Awesome. Ví dụ:
+        <code>fa-eye</code>, <code>fa-solid fa-heart</code>,
+        <code>cart-arrow-down</code>
+        hoặc link từ trang Font Awesome.
+      </small>
     </div>
 
     <div class="form-group">
@@ -103,5 +128,6 @@
     <button type="submit" class="btn btn-primary">Lưu</button>
     <a href="{% url 'statement_list' %}" class="btn btn-secondary">Hủy</a>
   </form>
+  {% endif %}
 </div>
 {% endblock %}

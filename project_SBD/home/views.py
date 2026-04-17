@@ -22,11 +22,12 @@ from .models import (
     PostCategory,
     FAQ,
     LeadershipMember,
+    AboutStatementType,
     AboutStatement,
     Certificate,
     ContactInfo,
     Consultation,
-    Notification
+    Notification,
 )
 
 User = get_user_model()
@@ -123,8 +124,12 @@ def _notify_new_consultation(consultation):
 
 
 def _notify_consultation_status_change(consultation):
-    status_text = CONSULTATION_STATUS_LABELS.get(consultation.status, consultation.status)
-    handled_by = consultation.handled_by.username if consultation.handled_by else "nhân viên"
+    status_text = CONSULTATION_STATUS_LABELS.get(
+        consultation.status, consultation.status
+    )
+    handled_by = (
+        consultation.handled_by.username if consultation.handled_by else "nhân viên"
+    )
     _create_notification(
         user=consultation.user,
         message=(
@@ -141,21 +146,20 @@ def _notify_consultation_status_change(consultation):
 def home(request):
     projects = Project.objects.filter(is_featured=True)
 
-    return render(request, 'home/home.html', {
-        'projects': projects
-    })
+    return render(request, "home/home.html", {"projects": projects})
 
 
 def about(request):
     leadership_members = LeadershipMember.objects.filter(is_active=True).order_by(
         "order", "created_at"
     )
-    vision_statements = AboutStatement.objects.filter(
-        statement_type="vision", is_active=True
-    ).order_by("order", "created_at")
-    mission_statements = AboutStatement.objects.filter(
-        statement_type="mission", is_active=True
-    ).order_by("order", "created_at")
+    about_statements = (
+        AboutStatement.objects.filter(is_active=True, statement_type__is_active=True)
+        .select_related("statement_type")
+        .order_by(
+            "statement_type__order", "statement_type__created_at", "order", "created_at"
+        )
+    )
     certs_left = Certificate.objects.filter(is_active=True, side="left").order_by(
         "order"
     )
@@ -168,8 +172,7 @@ def about(request):
         "home/about.html",
         {
             "leadership_members": leadership_members,
-            "vision_statements": vision_statements,
-            "mission_statements": mission_statements,
+            "about_statements": about_statements,
             "certs_left": certs_left,
             "certs_right": certs_right,
         },
@@ -185,9 +188,9 @@ def contact(request):
     user_consultations = Consultation.objects.none()
 
     if request.user.is_authenticated:
-        user_consultations = Consultation.objects.filter(user=request.user).select_related(
-            "handled_by"
-        )
+        user_consultations = Consultation.objects.filter(
+            user=request.user
+        ).select_related("handled_by")
 
     if request.method == "POST":
         if not request.user.is_authenticated:
@@ -970,11 +973,139 @@ def leadership_delete(request, id):
     return redirect("leadership_list")
 
 
+# ====================== CRUD ABOUT STATEMENTS TYPE ======================
+@staff_required
+def statement_type_list(request):
+    statement_types = AboutStatementType.objects.all().order_by("order", "created_at")
+    error = request.GET.get("error")
+    return render(
+        request,
+        "home/about_statement_type_list.html",
+        {"statement_types": statement_types, "error": error},
+    )
+
+
+@staff_required
+def statement_type_create(request):
+    if request.method == "POST":
+        name = (request.POST.get("name") or "").strip()
+        order = request.POST.get("order") or 0
+        is_active = request.POST.get("is_active") == "on"
+
+        if not name:
+            return render(
+                request,
+                "home/about_statement_type_form.html",
+                {
+                    "title": "Thêm loại nội dung",
+                    "error": "Bạn cần nhập tên loại.",
+                    "statement_type": {
+                        "name": name,
+                        "order": order,
+                        "is_active": is_active,
+                    },
+                },
+            )
+
+        if AboutStatementType.objects.filter(name__iexact=name).exists():
+            return render(
+                request,
+                "home/about_statement_type_form.html",
+                {
+                    "title": "Thêm loại nội dung",
+                    "error": "Loại nội dung này đã tồn tại.",
+                    "statement_type": {
+                        "name": name,
+                        "order": order,
+                        "is_active": is_active,
+                    },
+                },
+            )
+
+        AboutStatementType.objects.create(
+            name=name,
+            order=int(order),
+            is_active=is_active,
+        )
+        return redirect("statement_type_list")
+
+    return render(
+        request,
+        "home/about_statement_type_form.html",
+        {"title": "Thêm loại nội dung"},
+    )
+
+
+@staff_required
+def statement_type_update(request, id):
+    statement_type = get_object_or_404(AboutStatementType, id=id)
+
+    if request.method == "POST":
+        name = (request.POST.get("name") or "").strip()
+        order = request.POST.get("order") or 0
+        is_active = request.POST.get("is_active") == "on"
+
+        if not name:
+            return render(
+                request,
+                "home/about_statement_type_form.html",
+                {
+                    "title": "Sửa loại nội dung",
+                    "error": "Bạn cần nhập tên loại.",
+                    "statement_type": statement_type,
+                },
+            )
+
+        duplicate = AboutStatementType.objects.filter(name__iexact=name).exclude(
+            id=statement_type.id
+        )
+        if duplicate.exists():
+            return render(
+                request,
+                "home/about_statement_type_form.html",
+                {
+                    "title": "Sửa loại nội dung",
+                    "error": "Loại nội dung này đã tồn tại.",
+                    "statement_type": statement_type,
+                },
+            )
+
+        statement_type.name = name
+        statement_type.slug = ""
+        statement_type.order = int(order)
+        statement_type.is_active = is_active
+        statement_type.save()
+        return redirect("statement_type_list")
+
+    return render(
+        request,
+        "home/about_statement_type_form.html",
+        {"title": "Sửa loại nội dung", "statement_type": statement_type},
+    )
+
+
+@staff_required
+def statement_type_delete(request, id):
+    statement_type = get_object_or_404(AboutStatementType, id=id)
+
+    try:
+        statement_type.delete()
+    except ProtectedError:
+        error = "Không thể xóa loại nội dung này vì vẫn còn nội dung đang sử dụng."
+        return redirect(f"{reverse('statement_type_list')}?error={error}")
+
+    return redirect("statement_type_list")
+
+
 # ====================== CRUD ABOUT STATEMENTS ======================
 @staff_required
 def statement_list(request):
-    statements = AboutStatement.objects.all().order_by(
-        "statement_type", "order", "created_at"
+    statements = (
+        AboutStatement.objects.select_related("statement_type")
+        .all()
+        .order_by(
+            "statement_type__order", "statement_type__created_at", "order", "created_at"
+        )
     )
     error = request.GET.get("error")
     return render(
@@ -986,49 +1117,90 @@ def statement_list(request):
 
 @staff_required
 def statement_create(request):
+    statement_types = AboutStatementType.objects.all().order_by("order", "created_at")
+
     if request.method == "POST":
         title = (request.POST.get("title") or "").strip()
-        statement_type = (request.POST.get("statement_type") or "").strip()
+        statement_type_id = (request.POST.get("statement_type") or "").strip()
         content = (request.POST.get("content") or "").strip()
-        icon = (request.POST.get("icon") or "fa-star").strip()
+        icon = (request.POST.get("icon") or "").strip()
         order = request.POST.get("order") or 0
         is_active = request.POST.get("is_active") == "on"
 
-        if title and statement_type in {"vision", "mission"} and content:
-            AboutStatement.objects.create(
-                title=title,
-                statement_type=statement_type,
-                content=content,
-                icon=icon or "fa-star",
-                order=int(order),
-                is_active=is_active,
+        if not statement_type_id or not content:
+            return render(
+                request,
+                "home/about_statement_form.html",
+                {
+                    "title": "Thêm nội dung",
+                    "types": statement_types,
+                    "error": "Bạn cần chọn loại và nhập nội dung.",
+                    "statement": {
+                        "title": title,
+                        "content": content,
+                        "icon": icon,
+                        "order": order,
+                        "is_active": is_active,
+                        "statement_type_id": statement_type_id,
+                    },
+                },
             )
-            return redirect("statement_list")
+
+        statement_type = get_object_or_404(AboutStatementType, id=statement_type_id)
+
+        AboutStatement.objects.create(
+            title=title,
+            statement_type=statement_type,
+            content=content,
+            icon=icon,
+            order=int(order),
+            is_active=is_active,
+        )
+        return redirect("statement_list")
 
     return render(
-        request, "home/about_statement_form.html", {"title": "Thêm tầm nhìn / sứ mệnh"}
+        request,
+        "home/about_statement_form.html",
+        {
+            "title": "Thêm nội dung",
+            "types": statement_types,
+        },
     )
 
 
 @staff_required
 def statement_update(request, id):
-    statement = get_object_or_404(AboutStatement, id=id)
+    statement = get_object_or_404(
+        AboutStatement.objects.select_related("statement_type"), id=id
+    )
+    statement_types = AboutStatementType.objects.all().order_by("order", "created_at")
 
     if request.method == "POST":
         title = (request.POST.get("title") or "").strip()
-        statement_type = (request.POST.get("statement_type") or "").strip()
+        statement_type_id = (request.POST.get("statement_type") or "").strip()
         content = (request.POST.get("content") or "").strip()
-        icon = (request.POST.get("icon") or "fa-star").strip()
+        icon = (request.POST.get("icon") or "").strip()
         order = request.POST.get("order") or 0
         is_active = request.POST.get("is_active") == "on"
 
-        if statement_type not in {"vision", "mission"}:
-            statement_type = statement.statement_type
+        if not statement_type_id or not content:
+            return render(
+                request,
+                "home/about_statement_form.html",
+                {
+                    "title": "Sửa nội dung",
+                    "statement": statement,
+                    "types": statement_types,
+                    "error": "Bạn cần chọn loại và nhập nội dung.",
+                },
+            )
 
-        statement.title = title or statement.title
+        statement_type = get_object_or_404(AboutStatementType, id=statement_type_id)
+
+        statement.title = title
         statement.statement_type = statement_type
-        statement.content = content or statement.content
-        statement.icon = icon or "fa-star"
+        statement.content = content
+        statement.icon = icon
         statement.order = int(order)
         statement.is_active = is_active
         statement.save()
@@ -1037,7 +1209,11 @@ def statement_update(request, id):
     return render(
         request,
         "home/about_statement_form.html",
-        {"title": "Sửa tầm nhìn / sứ mệnh", "statement": statement},
+        {
+            "title": "Sửa nội dung",
+            "statement": statement,
+            "types": statement_types,
+        },
     )
 
 

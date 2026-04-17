@@ -11,7 +11,7 @@ from .models import (
     AboutStatement,
     ContactInfo,
     Notification,
-    Consultation
+    Consultation,
 )
 
 admin.site.register(ProjectCategory)
@@ -30,8 +30,9 @@ admin.site.register(ContactInfo)
 admin.site.register(Notification)
 admin.site.register(Consultation)
 
+
 @admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
-    list_display = ('name', 'category', 'is_featured')
-    list_filter = ('is_featured', 'category')
-    list_editable = ('is_featured',)
+    list_display = ("name", "category", "is_featured")
+    list_filter = ("is_featured", "category")
+    list_editable = ("is_featured",)
