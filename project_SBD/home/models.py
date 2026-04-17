@@ -1,9 +1,6 @@
 from django.db import models
-<<<<<<< HEAD
 from urllib.parse import quote_plus
-=======
 from django.contrib.auth.models import User
->>>>>>> 9e5cc321be4652ef35a3ecfd69e1431f574437d1
 
 
 class ProjectCategory(models.Model):

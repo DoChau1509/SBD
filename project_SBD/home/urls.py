@@ -131,13 +131,10 @@ urlpatterns = [
         views.contact_info_delete,
         name="contact_info_delete",
     ),
-<<<<<<< HEAD
     path(
         "contact-info/<int:pk>/toggle-status/",
         views.contact_info_toggle_status,
         name="contact_info_toggle_status",
     ),
-=======
     path("notifications/", views.notifications, name="notifications"),
->>>>>>> 9e5cc321be4652ef35a3ecfd69e1431f574437d1
 ]
