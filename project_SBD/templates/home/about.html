@@ -2,317 +2,317 @@
 
 <!-- PAGE HEADER -->
 <section class="section-top">
-    <div class="container">
-        <div class="col-lg-10 offset-lg-1 col-xs-12 text-center">
-            <div
-                    class="section-top-title wow fadeInRight"
-                    data-wow-duration="1s"
-                    data-wow-delay="0.3s"
-            >
-                <h1>Giới Thiệu Công Ty</h1>
-                <p>Xây dựng niềm tin — Kiến tạo tương lai</p>
-                <div class="breadcrumb-nav">
-                    <a href="{% url 'home' %}">Trang Chủ</a>
-                    <span>/</span>
-                    <strong>Giới Thiệu</strong>
-                </div>
-            </div>
+  <div class="container">
+    <div class="col-lg-10 offset-lg-1 col-xs-12 text-center">
+      <div
+        class="section-top-title wow fadeInRight"
+        data-wow-duration="1s"
+        data-wow-delay="0.3s"
+      >
+        <h1>Giới Thiệu Công Ty</h1>
+        <p>Xây dựng niềm tin — Kiến tạo tương lai</p>
+        <div class="breadcrumb-nav">
+          <a href="{% url 'home' %}">Trang Chủ</a>
+          <span>/</span>
+          <strong>Giới Thiệu</strong>
         </div>
+      </div>
     </div>
+  </div>
 </section>
 
 <!-- ABOUT INTRO -->
 <section class="about-intro">
-    <div class="container">
-        <div class="row align-items-center">
-            <div class="col-lg-6 wow fadeInLeft" style="padding-bottom: 30px">
-                <div class="about-img-wrap">
-                    <div class="about-media" role="img" aria-label="Sao Bắc Đẩu Construction">
-                        <div class="about-media-inner">
-                            {% if intro %}
-                                <div class="kicker">{{ intro.kicker }}</div>
-                                <div class="title">{{ intro.brand_name }}</div>
-                                <div class="sub">{{ intro.slogan }}</div>
-                                <div class="highlights">
-                                    {% if intro.highlight_1 %}<div><i class="fa fa-check-circle"></i> {{ intro.highlight_1 }}</div>{% endif %}
-                                    {% if intro.highlight_2 %}<div><i class="fa fa-check-circle"></i> {{ intro.highlight_2 }}</div>{% endif %}
-                                    {% if intro.highlight_3 %}<div><i class="fa fa-check-circle"></i> {{ intro.highlight_3 }}</div>{% endif %}
-                                </div>
-                            {% else %}
-                                <div class="kicker">Thành lập 2009</div>
-                                <div class="title">Sao Bắc Đẩu</div>
-                                <div class="sub">Chất lượng — Uy tín — Bền vững</div>
-                            {% endif %}
-                        </div>
-                    </div>
-                    <div class="about-img-badge">
-                        <div class="num">{{ intro.badge_number|default:"500+" }}</div>
-                        <div class="txt">{{ intro.badge_text|default:"Dự Án Hoàn Thành" }}</div>
-                    </div>
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-6 wow fadeInLeft" style="padding-bottom: 30px">
+        <div class="about-img-wrap">
+          <div
+            class="about-media"
+            role="img"
+            aria-label="Sao Bắc Đẩu Construction"
+          >
+            <div class="about-media-inner">
+              {% if intro %}
+              <div class="kicker">{{ intro.kicker }}</div>
+              <div class="title">{{ intro.brand_name }}</div>
+              <div class="sub">{{ intro.slogan }}</div>
+              <div class="highlights">
+                {% if intro.highlight_1 %}
+                <div>
+                  <i class="fa fa-check-circle"></i> {{ intro.highlight_1 }}
                 </div>
-            </div>
-
-            <div class="col-lg-6 wow fadeInRight" style="padding-left: 50px">
-                {% if intro %}
-                    <h2>{{ intro.heading }}</h2>
-                    {% if intro.paragraph_1 %}<p>{{ intro.paragraph_1 }}</p>{% endif %}
-                    {% if intro.paragraph_2 %}<p>{{ intro.paragraph_2 }}</p>{% endif %}
-                    <ul>
-                        {% for bullet in intro.get_bullets %}
-                        <li><i class="fa fa-check-circle"></i> {{ bullet }}</li>
-                        {% endfor %}
-                    </ul>
+                {% endif %} {% if intro.highlight_2 %}
+                <div>
+                  <i class="fa fa-check-circle"></i> {{ intro.highlight_2 }}
+                </div>
+                {% endif %} {% if intro.highlight_3 %}
+                <div>
+                  <i class="fa fa-check-circle"></i> {{ intro.highlight_3 }}
+                </div>
                 {% endif %}
-                <a href="{% url 'contact' %}" class="btn-primary-custom">Liên Hệ Tư Vấn</a>
+              </div>
+              {% else %}
+              <div class="kicker">Thành lập 2009</div>
+              <div class="title">Sao Bắc Đẩu</div>
+              <div class="sub">Chất lượng — Uy tín — Bền vững</div>
+              {% endif %}
             </div>
+          </div>
+          <div class="about-img-badge">
+            <div class="num">{{ intro.badge_number|default:"500+" }}</div>
+            <div class="txt">
+              {{ intro.badge_text|default:"Dự Án Hoàn Thành" }}
+            </div>
+          </div>
         </div>
+      </div>
+
+      <div class="col-lg-6 wow fadeInRight" style="padding-left: 50px">
+        {% if intro %}
+        <h2>{{ intro.heading }}</h2>
+        {% if intro.paragraph_1 %}
+        <p>{{ intro.paragraph_1 }}</p>
+        {% endif %} {% if intro.paragraph_2 %}
+        <p>{{ intro.paragraph_2 }}</p>
+        {% endif %}
+        <ul>
+          {% for bullet in intro.get_bullets %}
+          <li><i class="fa fa-check-circle"></i> {{ bullet }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+        <a href="{% url 'contact' %}" class="btn-primary-custom"
+          >Liên Hệ Tư Vấn</a
+        >
+      </div>
     </div>
+  </div>
 </section>
 
 <!-- VISION MISSION -->
 <section class="vm-section">
-    <div class="container">
-        <div class="section-title text-center wow zoomIn">
-            <h2>Tầm Nhìn & Sứ Mệnh</h2>
-        </div>
-        <div class="row">
-            {% for item in vision_statements %}
-            <div class="col-lg-4 col-md-6 mb-4 wow fadeInUp" data-wow-delay="0.1s">
-                <div class="vm-card">
-                    <div class="icon">
-                        <i class="fa {{ item.icon|default:'fa-eye' }}"></i>
-                    </div>
-                    <h4>{{ item.title }}</h4>
-                    <p>{{ item.content }}</p>
-                </div>
-            </div>
-            {% empty %}
-            <div class="col-lg-4 col-md-6 mb-4 wow fadeInUp" data-wow-delay="0.1s">
-                <div class="vm-card">
-                    <div class="icon"><i class="fa fa-eye"></i></div>
-                    <h4>Tầm Nhìn</h4>
-                    <p>Chưa có dữ liệu tầm nhìn.</p>
-                </div>
-            </div>
-            {% endfor %} {% for item in mission_statements %}
-            <div class="col-lg-4 col-md-6 mb-4 wow fadeInUp" data-wow-delay="0.2s">
-                <div class="vm-card">
-                    <div class="icon">
-                        <i class="fa {{ item.icon|default:'fa-rocket' }}"></i>
-                    </div>
-                    <h4>{{ item.title }}</h4>
-                    <p>{{ item.content }}</p>
-                </div>
-            </div>
-            {% empty %}
-            <div class="col-lg-4 col-md-6 mb-4 wow fadeInUp" data-wow-delay="0.2s">
-                <div class="vm-card">
-                    <div class="icon"><i class="fa fa-rocket"></i></div>
-                    <h4>Sứ Mệnh</h4>
-                    <p>Chưa có dữ liệu sứ mệnh.</p>
-                </div>
-            </div>
-            {% endfor %}
-
-            <div class="col-lg-4 col-md-6 mb-4 wow fadeInUp" data-wow-delay="0.3s">
-                <div class="vm-card">
-                    <div class="icon"><i class="fa fa-heart"></i></div>
-                    <h4>Giá Trị Cốt Lõi</h4>
-                    <p>
-                        Chính trực — Chuyên nghiệp — Sáng tạo — Bền vững. Chúng tôi xây
-                        không chỉ những tòa nhà, mà còn xây dựng lòng tin và các mối quan hệ
-                        đối tác lâu dài.
-                    </p>
-                </div>
-            </div>
-        </div>
+  <div class="container">
+    <div class="section-title text-center wow zoomIn">
+      <h2>Tầm Nhìn, Sứ Mệnh & Giá Trị Cốt Lõi</h2>
     </div>
+    <div class="row">
+      {% for item in about_statements %}
+      <div class="col-lg-4 col-md-6 mb-4 wow fadeInUp" data-wow-delay="0.1s">
+        <div class="vm-card">
+          <div class="icon">
+            <i class="{{ item.icon_css_class }}"></i>
+          </div>
+          <h4>{{ item.display_title }}</h4>
+          <p>{{ item.content }}</p>
+        </div>
+      </div>
+      {% empty %}
+      <div class="col-lg-4 col-md-6 mb-4 wow fadeInUp" data-wow-delay="0.1s">
+        <div class="vm-card">
+          <div class="icon"><i class="fa-solid fa-star"></i></div>
+          <h4>Chưa có dữ liệu</h4>
+          <p>Hiện chưa có nội dung tầm nhìn, sứ mệnh hoặc giá trị cốt lõi.</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
 </section>
 
 <!-- NUMBERS -->
 <section class="numbers-section">
-    <div class="container">
-        <div class="row">
-            <div
-                    class="col-lg-3 col-md-6 number-divider wow fadeInUp"
-                    data-wow-delay="0.1s"
-            >
-                <div class="number-item">
-                    <div class="num">500+</div>
-                    <div class="label">Dự Án Hoàn Thành</div>
-                </div>
-            </div>
-            <div
-                    class="col-lg-3 col-md-6 number-divider wow fadeInUp"
-                    data-wow-delay="0.2s"
-            >
-                <div class="number-item">
-                    <div class="num">15+</div>
-                    <div class="label">Năm Kinh Nghiệm</div>
-                </div>
-            </div>
-            <div
-                    class="col-lg-3 col-md-6 number-divider wow fadeInUp"
-                    data-wow-delay="0.3s"
-            >
-                <div class="number-item">
-                    <div class="num">200+</div>
-                    <div class="label">Kỹ Sư & Chuyên Gia</div>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.4s">
-                <div class="number-item">
-                    <div class="num">50+</div>
-                    <div class="label">Đối Tác Chiến Lược</div>
-                </div>
-            </div>
+  <div class="container">
+    <div class="row">
+      <div
+        class="col-lg-3 col-md-6 number-divider wow fadeInUp"
+        data-wow-delay="0.1s"
+      >
+        <div class="number-item">
+          <div class="num">500+</div>
+          <div class="label">Dự Án Hoàn Thành</div>
         </div>
+      </div>
+      <div
+        class="col-lg-3 col-md-6 number-divider wow fadeInUp"
+        data-wow-delay="0.2s"
+      >
+        <div class="number-item">
+          <div class="num">15+</div>
+          <div class="label">Năm Kinh Nghiệm</div>
+        </div>
+      </div>
+      <div
+        class="col-lg-3 col-md-6 number-divider wow fadeInUp"
+        data-wow-delay="0.3s"
+      >
+        <div class="number-item">
+          <div class="num">200+</div>
+          <div class="label">Kỹ Sư & Chuyên Gia</div>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.4s">
+        <div class="number-item">
+          <div class="num">50+</div>
+          <div class="label">Đối Tác Chiến Lược</div>
+        </div>
+      </div>
     </div>
+  </div>
 </section>
 
 <!-- VIDEO TOUR -->
 <section class="video-section">
-    <div class="container text-center">
-        <h2 class="wow fadeInDown">Quy Trình Triển Khai Dự Án</h2>
-        <p
-                style="
+  <div class="container text-center">
+    <h2 class="wow fadeInDown">Quy Trình Triển Khai Dự Án</h2>
+    <p
+      style="
         color: rgba(255, 255, 255, 0.75);
         font-size: 16px;
         margin-bottom: 36px;
       "
-        >
-            Minh bạch từng bước — kiểm soát chất lượng và tiến độ theo tiêu chuẩn
-        </p>
-        <div class="row justify-content-center" style="margin-top: 12px">
-            <div class="col-lg-3 col-md-4 mb-4 wow fadeInUp" data-wow-delay="0.1s">
-                <div class="process-card">
-                    <div class="icon"><i class="fa fa-search"></i></div>
-                    <h4>Khảo sát</h4>
-                    <p>
-                        Tiếp nhận nhu cầu, khảo sát hiện trạng và tư vấn phương án tối ưu.
-                    </p>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-4 mb-4 wow fadeInUp" data-wow-delay="0.2s">
-                <div class="process-card">
-                    <div class="icon"><i class="fa fa-file-text-o"></i></div>
-                    <h4>Báo giá</h4>
-                    <p>Lập hồ sơ kỹ thuật, dự toán chi tiết và thống nhất hợp đồng.</p>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-4 mb-4 wow fadeInUp" data-wow-delay="0.3s">
-                <div class="process-card">
-                    <div class="icon"><i class="fa fa-gavel"></i></div>
-                    <h4>Thi công</h4>
-                    <p>Triển khai theo tiến độ, nghiệm thu theo giai đoạn và bàn giao.</p>
-                </div>
-            </div>
+    >
+      Minh bạch từng bước — kiểm soát chất lượng và tiến độ theo tiêu chuẩn
+    </p>
+    <div class="row justify-content-center" style="margin-top: 12px">
+      <div class="col-lg-3 col-md-4 mb-4 wow fadeInUp" data-wow-delay="0.1s">
+        <div class="process-card">
+          <div class="icon"><i class="fa fa-search"></i></div>
+          <h4>Khảo sát</h4>
+          <p>
+            Tiếp nhận nhu cầu, khảo sát hiện trạng và tư vấn phương án tối ưu.
+          </p>
         </div>
+      </div>
+      <div class="col-lg-3 col-md-4 mb-4 wow fadeInUp" data-wow-delay="0.2s">
+        <div class="process-card">
+          <div class="icon"><i class="fa fa-file-text-o"></i></div>
+          <h4>Báo giá</h4>
+          <p>Lập hồ sơ kỹ thuật, dự toán chi tiết và thống nhất hợp đồng.</p>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-4 mb-4 wow fadeInUp" data-wow-delay="0.3s">
+        <div class="process-card">
+          <div class="icon"><i class="fa fa-gavel"></i></div>
+          <h4>Thi công</h4>
+          <p>Triển khai theo tiến độ, nghiệm thu theo giai đoạn và bàn giao.</p>
+        </div>
+      </div>
     </div>
+  </div>
 </section>
 
 <!-- TEAM -->
 <section class="team-section">
-    <div class="container">
-        <div class="section-title text-center wow zoomIn">
-            <h2>Ban Lãnh Đạo</h2>
-            <p>
-                Đội ngũ chuyên gia giàu kinh nghiệm dẫn dắt sự phát triển của công ty
-            </p>
-        </div>
-        <div class="row">
-            {% for member in leadership_members %}
-            <div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
-                <div class="team-card">
-                    <div class="team-img-wrap">
-                        {% if member.image %}
-                        <img src="{{ member.image.url }}" alt="{{ member.full_name }}"/>
-                        {% else %}
-                        <div class="team-avatar" aria-hidden="true">
-                            {{ member.initials|default:member.full_name|slice:":2"|upper }}
-                        </div>
-                        {% endif %}
-                    </div>
-                    <h4>{{ member.full_name }}</h4>
-                    <div class="role">{{ member.role }}</div>
-                    <p class="bio">{{ member.bio }}</p>
-                    <div class="team-social">
-                        {% if member.linkedin_url %}
-                        <a
-                                href="{{ member.linkedin_url }}"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                        ><i class="fa fa-linkedin"></i
-                        ></a>
-                        {% endif %} {% if member.facebook_url %}
-                        <a
-                                href="{{ member.facebook_url }}"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                        ><i class="fa fa-facebook"></i
-                        ></a>
-                        {% endif %} {% if member.instagram_url %}
-                        <a
-                                href="{{ member.instagram_url }}"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                        ><i class="fa fa-instagram"></i
-                        ></a>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-            {% empty %}
-            <div class="col-12 text-center">
-                <p>Chưa có dữ liệu ban lãnh đạo.</p>
-            </div>
-            {% endfor %}
-        </div>
+  <div class="container">
+    <div class="section-title text-center wow zoomIn">
+      <h2>Ban Lãnh Đạo</h2>
+      <p>
+        Đội ngũ chuyên gia giàu kinh nghiệm dẫn dắt sự phát triển của công ty
+      </p>
     </div>
+    <div class="row">
+      {% for member in leadership_members %}
+      <div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
+        <div class="team-card">
+          <div class="team-img-wrap">
+            {% if member.image %}
+            <img src="{{ member.image.url }}" alt="{{ member.full_name }}" />
+            {% else %}
+            <div class="team-avatar" aria-hidden="true">
+              {{ member.initials|default:member.full_name|slice:":2"|upper }}
+            </div>
+            {% endif %}
+          </div>
+          <h4>{{ member.full_name }}</h4>
+          <div class="role">{{ member.role }}</div>
+          <p class="bio">{{ member.bio }}</p>
+          <div class="team-social">
+            {% if member.linkedin_url %}
+            <a
+              href="{{ member.linkedin_url }}"
+              target="_blank"
+              rel="noopener noreferrer"
+              ><i class="fa fa-linkedin"></i
+            ></a>
+            {% endif %} {% if member.facebook_url %}
+            <a
+              href="{{ member.facebook_url }}"
+              target="_blank"
+              rel="noopener noreferrer"
+              ><i class="fa fa-facebook"></i
+            ></a>
+            {% endif %} {% if member.instagram_url %}
+            <a
+              href="{{ member.instagram_url }}"
+              target="_blank"
+              rel="noopener noreferrer"
+              ><i class="fa fa-instagram"></i
+            ></a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="col-12 text-center">
+        <p>Chưa có dữ liệu ban lãnh đạo.</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
 </section>
 
 <!-- CERTIFICATIONS -->
 <section class="cert-section">
-    <div class="container">
-        <div class="section-title text-center wow zoomIn">
-            <h2>Chứng Chỉ & Năng Lực</h2>
-            <p>Được công nhận bởi các tổ chức trong nước và quốc tế</p>
-        </div>
-        <div class="row">
-            <div class="col-lg-6 wow fadeInLeft">
-                {% for cert in certs_left %}
-                <div class="cert-item">
-                    <div class="cert-icon"><i class="fa {{ cert.icon }}"></i></div>
-                    <div>
-                        <h5>{{ cert.title }}</h5>
-                        <p>{{ cert.description }}</p>
-                        {% if cert.image %}
-                        <a href="{{ cert.image.url }}" target="_blank">
-                            <img src="{{ cert.image.url }}" alt="{{ cert.title }}"
-                                 style="margin-top: 10px; max-width: 180px; max-height: 120px;
-                        border: 1px solid #ddd; border-radius: 6px;
-                        cursor: pointer; transition: opacity 0.2s;"
-                                 onmouseover="this.style.opacity='0.8'"
-                                 onmouseout="this.style.opacity='1'">
-                        </a>
-                        {% endif %}
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-            <div class="col-lg-6 wow fadeInRight">
-                {% for cert in certs_right %}
-                <div class="cert-item">
-                    <div class="cert-icon"><i class="fa {{ cert.icon }}"></i></div>
-                    <div>
-                        <h5>{{ cert.title }}</h5>
-                        <p>{{ cert.description }}</p>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
+  <div class="container">
+    <div class="section-title text-center wow zoomIn">
+      <h2>Chứng Chỉ & Năng Lực</h2>
+      <p>Được công nhận bởi các tổ chức trong nước và quốc tế</p>
     </div>
+    <div class="row">
+      <div class="col-lg-6 wow fadeInLeft">
+        {% for cert in certs_left %}
+        <div class="cert-item">
+          <div class="cert-icon"><i class="fa {{ cert.icon }}"></i></div>
+          <div>
+            <h5>{{ cert.title }}</h5>
+            <p>{{ cert.description }}</p>
+            {% if cert.image %}
+            <a href="{{ cert.image.url }}" target="_blank">
+              <img
+                src="{{ cert.image.url }}"
+                alt="{{ cert.title }}"
+                style="
+                  margin-top: 10px;
+                  max-width: 180px;
+                  max-height: 120px;
+                  border: 1px solid #ddd;
+                  border-radius: 6px;
+                  cursor: pointer;
+                  transition: opacity 0.2s;
+                "
+                onmouseover="this.style.opacity = '0.8'"
+                onmouseout="this.style.opacity = '1'"
+              />
+            </a>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      <div class="col-lg-6 wow fadeInRight">
+        {% for cert in certs_right %}
+        <div class="cert-item">
+          <div class="cert-icon"><i class="fa {{ cert.icon }}"></i></div>
+          <div>
+            <h5>{{ cert.title }}</h5>
+            <p>{{ cert.description }}</p>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
 </section>
 
 {% endblock %}

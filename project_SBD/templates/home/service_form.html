@@ -11,9 +11,9 @@
     "
   >
     <h2 style="margin: 0">{{ title_page }}</h2>
-    <a href="{% url 'service_type_add' %}" class="btn btn-outline-primary"
-      >+ Thêm loại mới</a
-    >
+    <a href="{% url 'service_type_add' %}" class="btn btn-outline-primary">
+      + Thêm loại mới
+    </a>
   </div>
 
   {% if error %}
@@ -40,9 +40,6 @@
           {%
           if
           service.service_type_id=""
-          ="item.id"
-          or
-          service.service_type.id=""
           ="item.id"
           %}selected{%
           endif
@@ -114,9 +111,9 @@
         endif
         %}
       />
-      <label class="form-check-label" for="is_active_service"
-        >Hiển thị trên trang chủ</label
-      >
+      <label class="form-check-label" for="is_active_service">
+        Hiển thị trên trang chủ
+      </label>
     </div>
 
     <button type="submit" class="btn btn-primary">Lưu</button>

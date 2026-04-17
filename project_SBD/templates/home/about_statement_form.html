@@ -11,9 +11,9 @@
     "
   >
     <h2 style="margin: 0">{{ title }}</h2>
-    <a href="{% url 'statement_type_add' %}" class="btn btn-outline-primary"
-      >+ Thêm loại mới</a
-    >
+    <a href="{% url 'statement_type_add' %}" class="btn btn-outline-primary">
+      + Thêm loại mới
+    </a>
   </div>
 
   {% if error %}
@@ -41,9 +41,6 @@
           if
           statement.statement_type_id=""
           ="item.id"
-          or
-          statement.statement_type.id=""
-          ="item.id"
           %}selected{%
           endif
           %}
@@ -63,10 +60,10 @@
         value="{{ statement.title|default:'' }}"
         placeholder="Có thể để trống để dùng tên loại nội dung"
       />
-      <small class="form-text text-muted"
-        >Ví dụ: Tầm nhìn, Sứ mệnh, Giá trị cốt lõi. Nếu để trống, website sẽ tự
-        dùng tên loại.</small
-      >
+      <small class="form-text text-muted">
+        Ví dụ: Tầm nhìn, Sứ mệnh, Giá trị cốt lõi. Nếu để trống, website sẽ tự
+        dùng tên loại.
+      </small>
     </div>
 
     <div class="form-group">
@@ -86,10 +83,7 @@
         placeholder="Ví dụ: fa-eye hoặc fa-solid fa-eye hoặc cart-arrow-down hoặc URL Font Awesome"
       />
       <small class="form-text text-muted">
-        Bạn có thể nhập class icon hoặc dán link icon từ Font Awesome. Ví dụ:
-        <code>fa-eye</code>, <code>fa-solid fa-heart</code>,
-        <code>cart-arrow-down</code>
-        hoặc link từ trang Font Awesome.
+        Bạn có thể nhập class icon hoặc dán link icon từ Font Awesome.
       </small>
     </div>
 
@@ -120,9 +114,9 @@
         endif
         %}
       />
-      <label class="form-check-label" for="is_active_statement"
-        >Hiển thị trên website</label
-      >
+      <label class="form-check-label" for="is_active_statement">
+        Hiển thị trên website
+      </label>
     </div>
 
     <button type="submit" class="btn btn-primary">Lưu</button>

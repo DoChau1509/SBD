@@ -86,36 +86,34 @@
       <h2>Dự Án Tiêu Biểu</h2>
       <p>Một số công trình tiêu biểu chúng tôi đã thực hiện thành công</p>
     </div>
+
     <div class="row">
       {% for project in projects %}
-      <div class="row">
-        {% for project in projects %}
-        <div class="col-lg-4 col-md-6 mb-4">
-          <div class="project-card wow fadeInUp">
-            <div
-              class="project-thumb"
-              style="background-image: url('{{ project.image.url }}');"
-            ></div>
+      <div class="col-lg-4 col-md-6 mb-4">
+        <div class="project-card wow fadeInUp">
+          <div
+            class="project-thumb"
+            style="background-image: url('{{ project.image.url }}');"
+          ></div>
 
-            <div class="project-overlay">
-              <span class="tag">{{ project.category.name }}</span>
-              <h4>{{ project.name }}</h4>
-              <p>{{ project.created_at|date:"Y" }}</p>
-            </div>
+          <div class="project-overlay">
+            <span class="tag">{{ project.category.name }}</span>
+            <h4>{{ project.name }}</h4>
+            <p>{{ project.created_at|date:"Y" }}</p>
           </div>
         </div>
-        {% empty %}
-        <div class="col-12 text-center text-muted">
-          Chưa có dự án nổi bật nào.
-        </div>
-        {% endfor %}
+      </div>
+      {% empty %}
+      <div class="col-12 text-center text-muted">
+        Chưa có dự án nổi bật nào.
       </div>
       {% endfor %}
     </div>
+
     <div class="text-center mt-4">
-      <a href="{% url 'project' %}" class="btn-primary-custom"
-        >Xem Tất Cả Dự Án</a
-      >
+      <a href="{% url 'project' %}" class="btn-primary-custom">
+        Xem Tất Cả Dự Án
+      </a>
     </div>
   </div>
 </section>
