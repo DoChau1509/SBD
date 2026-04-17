@@ -103,54 +103,31 @@
             <p>Một số công trình tiêu biểu chúng tôi đã thực hiện thành công</p>
         </div>
         <div class="row">
-            <div class="col-lg-8 col-md-12">
-                <div class="project-card wow fadeInLeft">
-                    <div class="project-thumb" aria-hidden="true">
-                        <i class="fa fa-building-o"></i>
-                    </div>
-                    <div class="project-overlay">
-                        <span class="tag">Khu Dân Cư</span>
-                        <h4>Khu Đô Thị Sao Phương Bắc</h4>
-                        <p>Bình Dương — 2024</p>
-                    </div>
+        {% for project in projects %}
+            <div class="row">
+            {% for project in projects %}
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="project-card wow fadeInUp">
+                
+                <div class="project-thumb"
+                    style="background-image: url('{{ project.image.url }}');">
+                </div>
+
+                <div class="project-overlay">
+                    <span class="tag">{{ project.category.name }}</span>
+                    <h4>{{ project.name }}</h4>
+                    <p>{{ project.created_at|date:"Y" }}</p>
+                </div>
+
                 </div>
             </div>
-            <div class="col-lg-4 col-md-6">
-                <div class="project-card wow fadeInRight" data-wow-delay="0.1s">
-                    <div class="project-thumb" aria-hidden="true">
-                        <i class="fa fa-industry"></i>
-                    </div>
-                    <div class="project-overlay">
-                        <span class="tag">Công Nghiệp</span>
-                        <h4>Nhà Máy Long Thành</h4>
-                        <p>Đồng Nai — 2023</p>
-                    </div>
-                </div>
+            {% empty %}
+            <div class="col-12 text-center text-muted">
+                Chưa có dự án nổi bật nào.
             </div>
-            <div class="col-lg-4 col-md-6">
-                <div class="project-card wow fadeInLeft" data-wow-delay="0.1s">
-                    <div class="project-thumb" aria-hidden="true">
-                        <i class="fa fa-briefcase"></i>
-                    </div>
-                    <div class="project-overlay">
-                        <span class="tag">Thương Mại</span>
-                        <h4>Tòa Nhà Văn Phòng SBD Tower</h4>
-                        <p>TP. HCM — 2023</p>
-                    </div>
-                </div>
+            {% endfor %}
             </div>
-            <div class="col-lg-8 col-md-12">
-                <div class="project-card wow fadeInRight" data-wow-delay="0.2s">
-                    <div class="project-thumb project-thumb--wide" aria-hidden="true">
-                        <i class="fa fa-road"></i>
-                    </div>
-                    <div class="project-overlay">
-                        <span class="tag">Hạ Tầng</span>
-                        <h4>Cải Tạo Đường Vành Đai KCN Tân Bình</h4>
-                        <p>TP. HCM — 2022</p>
-                    </div>
-                </div>
-            </div>
+        {% endfor %}
         </div>
         <div class="text-center mt-4">
             <a href="{% url 'project' %}" class="btn-primary-custom">Xem Tất Cả Dự Án</a>

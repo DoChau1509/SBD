@@ -139,7 +139,11 @@ def _notify_consultation_status_change(consultation):
 
 # ====================== PUBLIC PAGES ======================
 def home(request):
-    return render(request, "home/home.html")
+    projects = Project.objects.filter(is_featured=True)
+
+    return render(request, 'home/home.html', {
+        'projects': projects
+    })
 
 
 def about(request):

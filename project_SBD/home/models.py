@@ -31,6 +31,7 @@ class Project(models.Model):
         on_delete=models.PROTECT,
         related_name="projects",
     )
+    is_featured = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name

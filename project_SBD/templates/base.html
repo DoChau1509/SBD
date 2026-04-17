@@ -106,6 +106,18 @@
             <a href="{% url 'dashboard' %}" class="btn btn-sm btn-outline-light"
               >Quản Lý</a
             >
+            <a href="{% url 'consultation_list' %}" class="btn btn-outline-danger position-relative">
+              <i class="fa fa-comment"></i>
+              {% if consultations_pending %}
+              <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                {{ consultations_pending }}
+              </span>
+              {% elif consultations_processing %}
+              <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark">
+                {{ consultations_processing }}
+              </span>
+              {% endif %}
+            </a>
             {% endif %}
             <form method="post" action="{% url 'logout' %}" style="margin: 0">
               {% csrf_token %}

@@ -47,7 +47,7 @@
           <td>{{ consultation.subject }}</td>
           <td>{{ consultation.phone }}</td>
           <td>
-            <span class="badge badge-{% if consultation.status == 'done' %}success{% elif consultation.status == 'processing' %}warning{% else %}secondary{% endif %}">
+            <span class="badge bg-{% if consultation.status == 'done' %}success{% elif consultation.status == 'processing' %}warning{% else %}secondary{% endif %}">
               {{ consultation.get_status_display }}
             </span>
           </td>
