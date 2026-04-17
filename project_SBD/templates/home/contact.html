@@ -1,228 +1,410 @@
-{% extends 'base.html' %}
-{% block content %}
-
-
+{% extends 'base.html' %} {% block content %}
 
 <!-- PAGE HEADER -->
 <section class="section-top">
-	<div class="container">
-		<div class="col-lg-10 offset-lg-1 col-xs-12 text-center">
-			<div class="section-top-title wow fadeInRight" data-wow-duration="1s" data-wow-delay="0.3s">
-				<h1>Liên Hệ Với Chúng Tôi</h1>
-				<p>Đội ngũ tư vấn luôn sẵn sàng hỗ trợ bạn 24/7</p>
-				<div class="breadcrumb-nav">
-					<a href="{% url 'home' %}">Trang Chủ</a>
-					<span>/</span>
-					<strong>Liên Hệ</strong>
-				</div>
-			</div>
-		</div>
-	</div>
+  <div class="container">
+    <div class="col-lg-10 offset-lg-1 col-xs-12 text-center">
+      <div
+        class="section-top-title wow fadeInRight"
+        data-wow-duration="1s"
+        data-wow-delay="0.3s"
+      >
+        <h1>Liên Hệ Với Chúng Tôi</h1>
+        <p>Đội ngũ tư vấn luôn sẵn sàng hỗ trợ bạn 24/7</p>
+        <div class="breadcrumb-nav">
+          <a href="{% url 'home' %}">Trang Chủ</a>
+          <span>/</span>
+          <strong>Liên Hệ</strong>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
 
 <!-- CONTACT FORM + INFO -->
 <section class="contact-area">
-	<div class="container">
-		<div class="section-title text-center wow zoomIn">
-			<h2>Gửi Yêu Cầu Tư Vấn</h2>
-			<p>Điền thông tin bên dưới — chúng tôi sẽ liên hệ lại trong vòng 24 giờ làm việc</p>
-		</div>
-		<div class="row">
-			<!-- Form -->
-			<div class="col-lg-7 col-md-12 wow fadeInLeft mb-4">
-				<div class="contact-form-wrap">
-					<h3>Gửi Tin Nhắn</h3>
-					<p>Vui lòng cung cấp thông tin dự án để chúng tôi tư vấn chính xác nhất.</p>
-					<form id="contact-form" method="post" enctype="multipart/form-data" novalidate>
-						<div class="form-row-half">
-							<div class="form-group">
-								<label>Họ và Tên *</label>
-								<input type="text" name="name" class="form-control" placeholder="Nguyễn Văn A" required>
-							</div>
-							<div class="form-group">
-								<label>Số Điện Thoại *</label>
-								<input type="tel" name="phone" class="form-control" placeholder="0901 234 567" required>
-							</div>
-						</div>
-						<div class="form-group">
-							<label>Email</label>
-							<input type="email" name="email" class="form-control" placeholder="example@email.com">
-						</div>
-						<div class="form-group">
-							<label>Loại Dự Án *</label>
-							<select name="project_type" class="form-control" required>
-								<option value="" disabled selected>-- Chọn loại dự án --</option>
-								<option value="dan-dung">Xây dựng Dân dụng (Nhà ở, Biệt thự, Chung cư)</option>
-								<option value="cong-nghiep">Xây dựng Công nghiệp (Nhà máy, Kho xưởng)</option>
-								<option value="thuong-mai">Xây dựng Thương mại (Văn phòng, TTTM)</option>
-								<option value="ha-tang">Hạ tầng Kỹ thuật (Đường, Cầu, Cống)</option>
-								<option value="noi-that">Thi công Nội thất</option>
-								<option value="thiet-ke">Thiết kế Kiến trúc & Kết cấu</option>
-								<option value="khac">Khác</option>
-							</select>
-						</div>
-						<div class="form-group">
-							<label>Chủ Đề / Tiêu Đề *</label>
-							<input type="text" name="subject" class="form-control" placeholder="Ví dụ: Tư vấn xây dựng nhà xưởng 5000m²" required>
-						</div>
-						<div class="form-group">
-							<label>Nội Dung Chi Tiết</label>
-							<textarea rows="5" name="message" class="form-control" placeholder="Mô tả chi tiết về dự án, quy mô, địa điểm, yêu cầu đặc biệt..."></textarea>
-						</div>
-						<div class="form-group">
-							<label>Ngân Sách Dự Kiến</label>
-							<select name="budget" class="form-control">
-								<option value="" disabled selected>-- Chọn ngân sách (không bắt buộc) --</option>
-								<option>Dưới 1 tỷ VNĐ</option>
-								<option>1 – 5 tỷ VNĐ</option>
-								<option>5 – 20 tỷ VNĐ</option>
-								<option>20 – 100 tỷ VNĐ</option>
-								<option>Trên 100 tỷ VNĐ</option>
-							</select>
-						</div>
-						<button type="submit" class="btn-submit">
-							<i class="fa fa-paper-plane"></i> Gửi Yêu Cầu
-						</button>
-						<p class="form-note">* Thông tin bắt buộc. Chúng tôi cam kết bảo mật thông tin của bạn.</p>
-						<div class="form-success" id="form-success">
-							<i class="fa fa-check-circle"></i> Cảm ơn bạn! Chúng tôi đã nhận được yêu cầu và sẽ liên hệ lại trong 24 giờ làm việc.
-						</div>
-					</form>
-				</div>
-			</div>
+  <div class="container">
+    <div class="section-title text-center wow zoomIn">
+      <h2>Gửi Yêu Cầu Tư Vấn</h2>
+      <p>
+        Điền thông tin bên dưới — chúng tôi sẽ liên hệ lại trong vòng 24 giờ làm
+        việc
+      </p>
+    </div>
 
-			<!-- Info -->
-			<div class="col-lg-5 col-md-12 wow fadeInRight mb-4">
-				<div class="contact-info-card">
-					<h4>Thông Tin Liên Hệ</h4>
+    <div class="row">
+      <!-- Form -->
+      <div class="col-lg-7 col-md-12 wow fadeInLeft mb-4">
+        <div class="contact-form-wrap">
+          <h3>Gửi Tin Nhắn</h3>
+          <p>
+            Vui lòng cung cấp thông tin dự án để chúng tôi tư vấn chính xác
+            nhất.
+          </p>
+          {% if not user.is_authenticated %}
+          <div class="alert alert-warning">
+            Bạn cần <a href="{% url 'login' %}?next={% url 'contact' %}">đăng nhập</a>
+            để gửi yêu cầu và nhận thông báo xử lý.
+          </div>
+          {% endif %}
 
-					<div class="contact-info-item">
-						<div class="contact-info-icon"><i class="fa fa-map-marker"></i></div>
-						<div class="contact-info-content">
-							<h6>Trụ Sở Chính</h6>
-							<p>123 Đường Lê Lợi, Phường Bến Nghé<br>Quận 1, TP. Hồ Chí Minh</p>
-						</div>
-					</div>
+          <form
+            id="contact-form"
+            method="post"
+            enctype="multipart/form-data"
+            novalidate
+          >
+            {% csrf_token %}
 
-					<div class="contact-info-item">
-						<div class="contact-info-icon"><i class="fa fa-building-o"></i></div>
-						<div class="contact-info-content">
-							<h6>Chi Nhánh Hà Nội</h6>
-							<p>45 Đường Láng, Đống Đa<br>Hà Nội</p>
-						</div>
-					</div>
+            <div class="form-row-half">
+              <div class="form-group">
+                <label>Họ và Tên *</label>
+                <input
+                  type="text"
+                  name="name"
+                  class="form-control"
+                  placeholder="Nguyễn Văn A"
+                  value="{{ request.POST.name|default:user.get_full_name|default:user.username }}"
+                  required
+                />
+              </div>
 
-					<div class="contact-info-item">
-						<div class="contact-info-icon"><i class="fa fa-phone"></i></div>
-						<div class="contact-info-content">
-							<h6>Điện Thoại</h6>
-							<a href="tel:+842838234567">(+84) 028 3823 4567</a><br>
-							<a href="tel:+842438234567">(+84) 024 3823 4567 (HN)</a>
-						</div>
-					</div>
+              <div class="form-group">
+                <label>Số Điện Thoại *</label>
+                <input
+                  type="tel"
+                  name="phone"
+                  class="form-control"
+                  placeholder="0901 234 567"
+                  value="{{ request.POST.phone }}"
+                  required
+                />
+              </div>
+            </div>
 
-					<div class="contact-info-item">
-						<div class="contact-info-icon"><i class="fa fa-fax"></i></div>
-						<div class="contact-info-content">
-							<h6>Fax</h6>
-							<p>(+84) 028 3823 4568</p>
-						</div>
-					</div>
+            <div class="form-group">
+              <label>Email</label>
+              <input
+                type="email"
+                name="email"
+                class="form-control"
+                placeholder="example@email.com"
+                value="{{ request.POST.email|default:user.email }}"
+              />
+            </div>
 
-					<div class="contact-info-item">
-						<div class="contact-info-icon"><i class="fa fa-envelope"></i></div>
-						<div class="contact-info-content">
-							<h6>Email</h6>
-							<a href="mailto:info@saobacday.com.vn">info@saobacday.com.vn</a><br>
-							<a href="mailto:tuvanduan@saobacday.com.vn">tuvanduan@saobacday.com.vn</a>
-						</div>
-					</div>
+            <div class="form-group">
+              <label>Loại Dự Án *</label>
+              <select name="project_type" class="form-control" required>
+                <option value="" disabled {% if not request.POST.project_type %}selected{% endif %}>
+                  -- Chọn loại dự án --
+                </option>
+                {% for value, label in project_type_choices %}
+                <option value="{{ value }}" {% if request.POST.project_type == value %}selected{% endif %}>
+                  {{ label }}
+                </option>
+                {% endfor %}
+              </select>
+            </div>
 
-					<div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 24px; margin-top: 8px;">
-						<h6 style="color: var(--accent-light); font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 14px;">Giờ Làm Việc</h6>
-						<ul class="hours-list">
-							<li><span>Thứ 2 – Thứ 6</span> <span class="open">07:30 – 17:30</span></li>
-							<li><span>Thứ 7</span> <span class="open">07:30 – 12:00</span></li>
-							<li><span>Chủ Nhật</span> <span class="closed">Nghỉ</span></li>
-						</ul>
-					</div>
+            <div class="form-group">
+              <label>Chủ Đề / Tiêu Đề *</label>
+              <input
+                type="text"
+                name="subject"
+                class="form-control"
+                placeholder="Ví dụ: Tư vấn xây dựng nhà xưởng 5000m²"
+                value="{{ request.POST.subject }}"
+                required
+              />
+            </div>
 
-					<div class="contact-social">
-						<a href="#"><i class="fa fa-facebook"></i></a>
-						<a href="#"><i class="fa fa-youtube"></i></a>
-						<a href="#"><i class="fa fa-linkedin"></i></a>
-						<a href="#"><i class="fa fa-instagram"></i></a>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+            <div class="form-group">
+              <label>Nội Dung Chi Tiết</label>
+              <textarea
+                rows="5"
+                name="message"
+                class="form-control"
+                placeholder="Mô tả chi tiết về dự án, quy mô, địa điểm, yêu cầu đặc biệt..."
+              >{{ request.POST.message }}</textarea>
+            </div>
+
+            <div class="form-group">
+              <label>Ngân Sách Dự Kiến</label>
+              <select name="budget" class="form-control">
+                <option value="" {% if not request.POST.budget %}selected{% endif %}>
+                  -- Chọn ngân sách (không bắt buộc) --
+                </option>
+                {% for budget in budget_choices %}
+                <option value="{{ budget }}" {% if request.POST.budget == budget %}selected{% endif %}>
+                  {{ budget }}
+                </option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <button type="submit" class="btn-submit">
+              <i class="fa fa-paper-plane"></i> Gửi Yêu Cầu
+            </button>
+
+            <p class="form-note">
+              * Thông tin bắt buộc. Chúng tôi cam kết bảo mật thông tin của bạn.
+            </p>
+
+          </form>
+        </div>
+      </div>
+
+      <!-- Info -->
+      <div class="col-lg-5 col-md-12 wow fadeInRight mb-4">
+        {% for info in contact_infos %}
+        <div class="contact-info-card {% if not forloop.last %}mb-4{% endif %}">
+          <h4>{{ info.branch_name }}</h4>
+
+          <div class="contact-info-item">
+            <div class="contact-info-icon">
+              <i class="fa fa-map-marker"></i>
+            </div>
+            <div class="contact-info-content">
+              <h6>Địa Chỉ</h6>
+              <p>{{ info.address|linebreaksbr }}</p>
+            </div>
+          </div>
+
+          <div class="contact-info-item">
+            <div class="contact-info-icon">
+              <i class="fa fa-phone"></i>
+            </div>
+            <div class="contact-info-content">
+              <h6>Điện Thoại</h6>
+              <a href="tel:{{ info.phone }}">{{ info.phone }}</a>
+            </div>
+          </div>
+
+          {% if info.fax %}
+          <div class="contact-info-item">
+            <div class="contact-info-icon">
+              <i class="fa fa-fax"></i>
+            </div>
+            <div class="contact-info-content">
+              <h6>Fax</h6>
+              <p>{{ info.fax }}</p>
+            </div>
+          </div>
+          {% endif %} {% if info.email %}
+          <div class="contact-info-item">
+            <div class="contact-info-icon">
+              <i class="fa fa-envelope"></i>
+            </div>
+            <div class="contact-info-content">
+              <h6>Email</h6>
+              <a href="mailto:{{ info.email }}">{{ info.email }}</a>
+            </div>
+          </div>
+          {% endif %} {% if info.working_hours %}
+          <div
+            style="
+              border-top: 1px solid rgba(255, 255, 255, 0.1);
+              padding-top: 24px;
+              margin-top: 8px;
+            "
+          >
+            <h6
+              style="
+                color: var(--accent-light);
+                font-size: 11px;
+                font-weight: 700;
+                letter-spacing: 1.5px;
+                text-transform: uppercase;
+                margin-bottom: 14px;
+              "
+            >
+              Giờ Làm Việc
+            </h6>
+            <p
+              style="
+                margin: 0;
+                color: rgba(255, 255, 255, 0.86);
+                line-height: 1.8;
+              "
+            >
+              {{ info.working_hours|linebreaksbr }}
+            </p>
+          </div>
+          {% endif %} {% if info.facebook_url or info.youtube_url or
+          info.linkedin_url or info.instagram_url %}
+          <div class="contact-social">
+            {% if info.facebook_url %}
+            <a
+              href="{{ info.facebook_url }}"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <i class="fa fa-facebook"></i>
+            </a>
+            {% endif %} {% if info.youtube_url %}
+            <a
+              href="{{ info.youtube_url }}"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <i class="fa fa-youtube"></i>
+            </a>
+            {% endif %} {% if info.linkedin_url %}
+            <a
+              href="{{ info.linkedin_url }}"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <i class="fa fa-linkedin"></i>
+            </a>
+            {% endif %} {% if info.instagram_url %}
+            <a
+              href="{{ info.instagram_url }}"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <i class="fa fa-instagram"></i>
+            </a>
+            {% endif %}
+          </div>
+        </div>
+        {% empty %}
+        <div class="contact-info-card">
+          <h4>Thông Tin Liên Hệ</h4>
+          <p>Chưa có dữ liệu liên hệ trong hệ thống.</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    {% if user.is_authenticated %}
+    <div class="row mt-5">
+      <div class="col-12">
+        <div
+          style="
+            background: #fff;
+            border-radius: 20px;
+            padding: 28px;
+            box-shadow: 0 18px 40px rgba(19, 39, 63, 0.08);
+          "
+        >
+          <div class="d-flex justify-content-between align-items-center flex-wrap mb-3">
+            <div>
+              <h3 style="margin-bottom: 6px">Yêu Cầu Của Bạn</h3>
+              <p class="text-muted mb-0">
+                Theo dõi tiến độ xử lý các yêu cầu tư vấn đã gửi.
+              </p>
+            </div>
+            <a href="{% url 'notifications' %}" class="btn btn-outline-primary">
+              Xem thông báo
+            </a>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table table-bordered align-middle mb-0">
+              <thead>
+                <tr>
+                  <th>Tiêu đề</th>
+                  <th>Loại dự án</th>
+                  <th>Trạng thái</th>
+                  <th>Người xử lý</th>
+                  <th>Ngày gửi</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for consultation in user_consultations %}
+                <tr>
+                  <td>
+                    <strong>{{ consultation.subject }}</strong>
+                    {% if consultation.content %}
+                    <div class="text-muted" style="font-size: 13px">
+                      {{ consultation.content|truncatechars:80 }}
+                    </div>
+                    {% endif %}
+                  </td>
+                  <td>{{ consultation.get_project_type_display|default:consultation.project_type }}</td>
+                  <td>
+                    <span class="badge bg-{% if consultation.status == 'done' %}success{% elif consultation.status == 'processing' %}warning{% else %}secondary{% endif %}">
+                      {{ consultation.get_status_display }}
+                    </span>
+                  </td>
+                  <td>{{ consultation.handled_by.username|default:"Chưa có" }}</td>
+                  <td>{{ consultation.created_at|date:"d/m/Y H:i" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="5" class="text-center text-muted">
+                    Bạn chưa gửi yêu cầu tư vấn nào.
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
 </section>
-
-<!-- MAP -->
+{% if main_contact and main_contact.map_display_url %}
 <div class="map">
-	<iframe
-		src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.4940554660714!2d106.69975991526323!3d10.773657161783258!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752f4a7f87f253%3A0x5d3b61f38c7e56b3!2zTMOqIEzhu6NpLCBC4bq_biBOZ2jDqSwgUXXhuq1uIDEsIFRow6BuaCBwaOG7kSBI4buTIENow60gTWluaCwgVmnhu4d0IE5hbQ!5e0!3m2!1svi!2s!4v1620000000000!5m2!1svi!2s"
-		allowfullscreen="" aria-hidden="false" tabindex="0" title="Bản đồ Sao Bắc Đẩu">
-	</iframe>
+  <iframe
+    src="{{ main_contact.map_display_url }}"
+    allowfullscreen=""
+    aria-hidden="false"
+    tabindex="0"
+    title="Bản đồ {{ main_contact.branch_name }}"
+  ></iframe>
 </div>
-
+{% endif %}
 <!-- FAQ -->
 <section class="faq-section">
-    <div class="container">
-        <div class="section-title text-center wow zoomIn">
-            <h2>Câu Hỏi Thường Gặp</h2>
-            <p>Những thắc mắc phổ biến từ khách hàng của chúng tôi</p>
-        </div>
-        <div class="row">
-            <div class="col-lg-8 offset-lg-2">
-
-                {% for faq in faqs %}
-                <div class="faq-item {% if forloop.first %}open{% endif %}">
-                    <div class="faq-question">
-                        {{ faq.question }} <i class="fa fa-chevron-down"></i>
-                    </div>
-                    <div class="faq-answer">{{ faq.answer }}</div>
-                </div>
-                {% empty %}
-                <p class="text-center text-muted">Chưa có câu hỏi nào.</p>
-                {% endfor %}
-
-            </div>
-        </div>
+  <div class="container">
+    <div class="section-title text-center wow zoomIn">
+      <h2>Câu Hỏi Thường Gặp</h2>
+      <p>Những thắc mắc phổ biến từ khách hàng của chúng tôi</p>
     </div>
+
+    <div class="row">
+      <div class="col-lg-8 offset-lg-2">
+        {% for faq in faqs %}
+        <div class="faq-item {% if forloop.first %}open{% endif %}">
+          <div class="faq-question">
+            {{ faq.question }} <i class="fa fa-chevron-down"></i>
+          </div>
+          <div class="faq-answer">{{ faq.answer }}</div>
+        </div>
+        {% empty %}
+        <p class="text-center text-muted">Chưa có câu hỏi nào.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
 </section>
 
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-	// FAQ accordion
-	var faqRoot = document.querySelector('.faq-section');
-	if (faqRoot) {
-		faqRoot.addEventListener('click', function (e) {
-			var q = e.target.closest('.faq-question');
-			if (!q) return;
-			var parent = q.closest('.faq-item');
-			if (!parent) return;
-			Array.prototype.slice.call(faqRoot.querySelectorAll('.faq-item')).forEach(function (el) {
-				if (el !== parent) el.classList.remove('open');
-			});
-			parent.classList.toggle('open');
-		});
-	}
+  document.addEventListener("DOMContentLoaded", function () {
+    var faqRoot = document.querySelector(".faq-section");
+    if (faqRoot) {
+      faqRoot.addEventListener("click", function (e) {
+        var q = e.target.closest(".faq-question");
+        if (!q) return;
+        var parent = q.closest(".faq-item");
+        if (!parent) return;
 
-	// Form submit demo
-	var form = document.getElementById('contact-form');
-	var success = document.getElementById('form-success');
-	if (form && success) {
-		form.addEventListener('submit', function (e) {
-			e.preventDefault();
-			success.style.display = 'block';
-			form.reset();
-			var y = success.getBoundingClientRect().top + window.scrollY - 100;
-			window.scrollTo({ top: y, behavior: 'smooth' });
-		});
-	}
-});
+        Array.prototype.slice
+          .call(faqRoot.querySelectorAll(".faq-item"))
+          .forEach(function (el) {
+            if (el !== parent) el.classList.remove("open");
+          });
+
+        parent.classList.toggle("open");
+      });
+    }
+
+  });
 </script>
 
 {% endblock %}

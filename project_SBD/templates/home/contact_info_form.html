@@ -1,0 +1,156 @@
+{% extends 'base.html' %} {% block content %}
+<div class="container" style="margin-top: 100px">
+  <h2>{{ title }}</h2>
+
+  <form method="POST">
+    {% csrf_token %}
+
+    <div class="form-group">
+      <label>Tên chi nhánh / văn phòng *</label>
+      <input
+        type="text"
+        name="branch_name"
+        class="form-control"
+        value="{{ contact_info.branch_name|default:'' }}"
+        required
+      />
+    </div>
+
+    <div class="form-group">
+      <label>Địa chỉ *</label>
+      <textarea name="address" class="form-control" rows="3" required>
+{{ contact_info.address|default:'' }}</textarea
+      >
+    </div>
+
+    <div class="form-group">
+      <label>Số điện thoại *</label>
+      <input
+        type="text"
+        name="phone"
+        class="form-control"
+        value="{{ contact_info.phone|default:'' }}"
+        required
+      />
+    </div>
+
+    <div class="form-group">
+      <label>Fax</label>
+      <input
+        type="text"
+        name="fax"
+        class="form-control"
+        value="{{ contact_info.fax|default:'' }}"
+      />
+    </div>
+
+    <div class="form-group">
+      <label>Email</label>
+      <input
+        type="email"
+        name="email"
+        class="form-control"
+        value="{{ contact_info.email|default:'' }}"
+      />
+    </div>
+
+    <div class="form-group">
+      <label>Giờ làm việc</label>
+      <textarea
+        name="working_hours"
+        class="form-control"
+        rows="2"
+        placeholder="Ví dụ: Thứ 2 - Thứ 7: 08:00 - 17:30"
+      >
+{{ contact_info.working_hours|default:'' }}</textarea
+      >
+    </div>
+
+    <!-- <div class="form-group">
+      <label>Link Google Maps</label>
+      <input
+        type="url"
+        name="map_embed_url"
+        class="form-control"
+        value="{{ contact_info.map_embed_url|default:'' }}"
+        placeholder="Có thể dán link Google Maps thường hoặc link nhúng iframe"
+      />
+    </div> -->
+
+    <div class="form-group">
+      <label>Facebook URL</label>
+      <input
+        type="url"
+        name="facebook_url"
+        class="form-control"
+        value="{{ contact_info.facebook_url|default:'' }}"
+      />
+    </div>
+
+    <div class="form-group">
+      <label>YouTube URL</label>
+      <input
+        type="url"
+        name="youtube_url"
+        class="form-control"
+        value="{{ contact_info.youtube_url|default:'' }}"
+      />
+    </div>
+
+    <div class="form-group">
+      <label>LinkedIn URL</label>
+      <input
+        type="url"
+        name="linkedin_url"
+        class="form-control"
+        value="{{ contact_info.linkedin_url|default:'' }}"
+      />
+    </div>
+
+    <div class="form-group">
+      <label>Instagram URL</label>
+      <input
+        type="url"
+        name="instagram_url"
+        class="form-control"
+        value="{{ contact_info.instagram_url|default:'' }}"
+      />
+    </div>
+
+    <div class="form-group">
+      <label>Thứ tự hiển thị</label>
+      <input
+        type="number"
+        name="order"
+        class="form-control"
+        value="{{ contact_info.order|default:'0' }}"
+        min="0"
+      />
+    </div>
+
+    <div class="form-group form-check">
+      <input
+        type="checkbox"
+        name="is_active"
+        class="form-check-input"
+        id="is_active"
+        {%
+        if
+        contact_info.is_active
+        or
+        not
+        contact_info
+        %}checked{%
+        endif
+        %}
+      />
+      <label class="form-check-label" for="is_active"
+        >Hiển thị trên website</label
+      >
+    </div>
+
+    <button type="submit" class="btn btn-primary">Lưu</button>
+    <a href="{% url 'contact_info_list' %}" class="btn btn-secondary">Hủy</a>
+  </form>
+</div>
+{% endblock %}

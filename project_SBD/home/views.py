@@ -1,14 +1,17 @@
 # views.py
 from django.contrib import messages
+from django.contrib.auth import get_user_model
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.db.models.deletion import ProtectedError
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
 from django.utils.text import slugify
 from django.utils.http import url_has_allowed_host_and_scheme
 from functools import wraps
 from urllib.parse import urlparse
 from .forms import UserRegistrationForm, LoginForm
+
 
 from .models import (
     Product,
@@ -21,7 +24,25 @@ from .models import (
     LeadershipMember,
     AboutStatement,
     Certificate,
+    ContactInfo,
+    Consultation,
+    Notification,
+    AboutIntro
 )
+
+User = get_user_model()
+
+CONSULTATION_PROJECT_TYPES = Consultation.PROJECT_TYPE_CHOICES
+
+CONSULTATION_BUDGET_CHOICES = [
+    "Dưới 1 tỷ VNĐ",
+    "1 – 5 tỷ VNĐ",
+    "5 – 20 tỷ VNĐ",
+    "20 – 100 tỷ VNĐ",
+    "Trên 100 tỷ VNĐ",
+]
+
+CONSULTATION_STATUS_LABELS = dict(Consultation.STATUS_CHOICES)
 
 
 def staff_required(view_func):
@@ -61,44 +82,157 @@ def _is_management_path(path: str) -> bool:
         "/post-category",
         "/leadership",
         "/about-statements",
+        "/contact-infos",
+        "/contact-info/add",
+        "/contact-info/edit",
+        "/contact-info/delete",
     )
     return path.startswith(management_prefixes)
 
 
+def _get_staff_recipients():
+    return User.objects.filter(is_active=True).filter(
+        is_staff=True
+    ) | User.objects.filter(is_active=True, is_superuser=True)
+
+
+def _create_notification(user, message, notification_type, consultation=None, link=""):
+    return Notification.objects.create(
+        user=user,
+        message=message,
+        notification_type=notification_type,
+        consultation=consultation,
+        link=link or "",
+    )
+
+
+def _notify_new_consultation(consultation):
+    consultation_link = reverse("consultation_detail", args=[consultation.id])
+    recipients = _get_staff_recipients().exclude(id=consultation.user_id).distinct()
+
+    for recipient in recipients:
+        _create_notification(
+            user=recipient,
+            message=(
+                f"Có yêu cầu tư vấn mới từ {consultation.full_name} - "
+                f"{consultation.subject}"
+            ),
+            notification_type="consult",
+            consultation=consultation,
+            link=consultation_link,
+        )
+
+
+def _notify_consultation_status_change(consultation):
+    status_text = CONSULTATION_STATUS_LABELS.get(consultation.status, consultation.status)
+    handled_by = consultation.handled_by.username if consultation.handled_by else "nhân viên"
+    _create_notification(
+        user=consultation.user,
+        message=(
+            f"Yêu cầu tư vấn '{consultation.subject}' của bạn đã được cập nhật "
+            f"sang trạng thái {status_text} bởi {handled_by}."
+        ),
+        notification_type="answer",
+        consultation=consultation,
+        link=reverse("contact"),
+    )
+
+
 # ====================== PUBLIC PAGES ======================
 def home(request):
-    return render(request, "home/home.html")
+    projects = Project.objects.filter(is_featured=True)
+
+    return render(request, 'home/home.html', {
+        'projects': projects
+    })
 
 
 def about(request):
-    leadership_members = LeadershipMember.objects.filter(is_active=True).order_by(
-        "order", "created_at"
-    )
-    vision_statements = AboutStatement.objects.filter(
-        statement_type="vision", is_active=True
-    ).order_by("order", "created_at")
-    mission_statements = AboutStatement.objects.filter(
-        statement_type="mission", is_active=True
-    ).order_by("order", "created_at")
-    certs_left = Certificate.objects.filter(is_active=True, side='left').order_by('order')
-    certs_right = Certificate.objects.filter(is_active=True, side='right').order_by('order')
+    leadership_members = LeadershipMember.objects.filter(is_active=True).order_by("order", "created_at")
+    vision_statements = AboutStatement.objects.filter(statement_type="vision", is_active=True).order_by("order", "created_at")
+    mission_statements = AboutStatement.objects.filter(statement_type="mission", is_active=True).order_by("order", "created_at")
 
-    return render(
-        request,
-        "home/about.html",
-        {
-            "leadership_members": leadership_members,
-            "vision_statements": vision_statements,
-            "mission_statements": mission_statements,
-            "certs_left": certs_left,
-            "certs_right": certs_right,
-        },
-    )
+    all_certs = list(Certificate.objects.filter(is_active=True).order_by("order", "created_at"))
+    mid = (len(all_certs) + 1) // 2
+    certs_left = all_certs[:mid]
+    certs_right = all_certs[mid:]
+    intro = AboutIntro.objects.first()
+
+    return render(request, "home/about.html", {
+        "leadership_members": leadership_members,
+        "vision_statements": vision_statements,
+        "mission_statements": mission_statements,
+        "certs_left": certs_left,
+        "certs_right": certs_right,
+        "intro": intro,
+    })
 
 
 def contact(request):
     faqs = FAQ.objects.filter(is_active=True).order_by("order", "created_at")
-    return render(request, "home/contact.html", {"faqs": faqs})
+    contact_infos = ContactInfo.objects.filter(is_active=True).order_by(
+        "order", "created_at"
+    )
+    main_contact = contact_infos.first()
+    user_consultations = Consultation.objects.none()
+
+    if request.user.is_authenticated:
+        user_consultations = Consultation.objects.filter(user=request.user).select_related(
+            "handled_by"
+        )
+
+    if request.method == "POST":
+        if not request.user.is_authenticated:
+            messages.warning(
+                request,
+                "Bạn cần đăng nhập để gửi yêu cầu tư vấn và nhận thông báo xử lý.",
+            )
+            return redirect(f"{reverse('login')}?next={request.path}")
+
+        full_name = (request.POST.get("name") or "").strip()
+        phone = (request.POST.get("phone") or "").strip()
+        email = (request.POST.get("email") or "").strip()
+        project_type = (request.POST.get("project_type") or "").strip()
+        subject = (request.POST.get("subject") or "").strip()
+        content = (request.POST.get("message") or "").strip()
+        budget = (request.POST.get("budget") or "").strip()
+        valid_project_types = {value for value, _ in CONSULTATION_PROJECT_TYPES}
+
+        if not all([full_name, phone, project_type, subject]):
+            messages.error(request, "Vui lòng nhập đầy đủ các trường bắt buộc.")
+        elif project_type not in valid_project_types:
+            messages.error(request, "Loại dự án không hợp lệ.")
+        else:
+            consultation = Consultation.objects.create(
+                user=request.user,
+                full_name=full_name,
+                phone=phone,
+                email=email,
+                project_type=project_type,
+                subject=subject,
+                budget=budget,
+                content=content,
+            )
+            _notify_new_consultation(consultation)
+            messages.success(
+                request,
+                "Đã gửi yêu cầu tư vấn thành công. Bạn sẽ nhận được thông báo khi yêu cầu được xử lý.",
+            )
+            return redirect("contact")
+
+    return render(
+        request,
+        "home/contact.html",
+        {
+            "faqs": faqs,
+            "contact_infos": contact_infos,
+            "main_contact": main_contact,
+            "project_type_choices": CONSULTATION_PROJECT_TYPES,
+            "budget_choices": CONSULTATION_BUDGET_CHOICES,
+            "user_consultations": user_consultations,
+            "status_labels": CONSULTATION_STATUS_LABELS,
+        },
+    )
 
 
 def project(request):
@@ -298,8 +432,17 @@ def logout_view(request):
 def dashboard(request):
     projects = Project.objects.all().order_by("-id")
     products = Product.objects.all().order_by("-id")
+    consultations_pending = Consultation.objects.filter(status="pending").count()
+    consultations_processing = Consultation.objects.filter(status="processing").count()
     return render(
-        request, "home/dashboard.html", {"projects": projects, "products": products}
+        request,
+        "home/dashboard.html",
+        {
+            "projects": projects,
+            "products": products,
+            "consultations_pending": consultations_pending,
+            "consultations_processing": consultations_processing,
+        },
     )
 
 
@@ -896,6 +1039,7 @@ def statement_delete(request, id):
     statement.delete()
     return redirect("statement_list")
 
+
 # ====================== CRUD CERTIFICATE ======================
 @staff_required
 def certificate_list(request):
@@ -909,15 +1053,16 @@ def certificate_create(request):
         title = (request.POST.get("title") or "").strip()
         description = (request.POST.get("description") or "").strip()
         icon = request.POST.get("icon") or "fa-certificate"
-        side = request.POST.get("side") or "left"
         order = request.POST.get("order") or 0
         is_active = request.POST.get("is_active") == "on"
 
         if title and description:
             Certificate.objects.create(
-                title=title, description=description,
-                icon=icon, side=side,
-                order=int(order), is_active=is_active,
+                title=title,
+                description=description,
+                icon=icon,
+                order=int(order),
+                is_active=is_active,
                 image=request.FILES.get("image"),
             )
             return redirect("certificate_list")
@@ -925,7 +1070,6 @@ def certificate_create(request):
     return render(request, "home/about_certificate_form.html", {
         "title": "Thêm chứng chỉ mới",
         "icon_choices": Certificate.ICON_CHOICES,
-        "side_choices": Certificate.SIDE_CHOICES,
     })
 
 
@@ -937,7 +1081,6 @@ def certificate_update(request, id):
         cert.title = (request.POST.get("title") or "").strip() or cert.title
         cert.description = (request.POST.get("description") or "").strip() or cert.description
         cert.icon = request.POST.get("icon") or cert.icon
-        cert.side = request.POST.get("side") or cert.side
         cert.order = int(request.POST.get("order") or 0)
         cert.is_active = request.POST.get("is_active") == "on"
         if "image" in request.FILES:
@@ -949,7 +1092,6 @@ def certificate_update(request, id):
         "title": "Sửa chứng chỉ",
         "cert": cert,
         "icon_choices": Certificate.ICON_CHOICES,
-        "side_choices": Certificate.SIDE_CHOICES,
     })
 
 
@@ -958,3 +1100,240 @@ def certificate_delete(request, id):
     cert = get_object_or_404(Certificate, id=id)
     cert.delete()
     return redirect("certificate_list")
+
+
+# ====================== CRUD CONTACT INFO ======================
+@staff_required
+def contact_info_list(request):
+    contact_infos = ContactInfo.objects.all().order_by("order", "created_at")
+    return render(
+        request, "home/contact_info_list.html", {"contact_infos": contact_infos}
+    )
+
+
+@staff_required
+def contact_info_create(request):
+    if request.method == "POST":
+        branch_name = request.POST.get("branch_name", "").strip()
+        address = request.POST.get("address", "").strip()
+        phone = request.POST.get("phone", "").strip()
+        fax = request.POST.get("fax", "").strip()
+        email = request.POST.get("email", "").strip()
+        working_hours = request.POST.get("working_hours", "").strip()
+        map_embed_url = request.POST.get("map_embed_url", "").strip()
+        facebook_url = request.POST.get("facebook_url", "").strip()
+        youtube_url = request.POST.get("youtube_url", "").strip()
+        linkedin_url = request.POST.get("linkedin_url", "").strip()
+        instagram_url = request.POST.get("instagram_url", "").strip()
+        order = request.POST.get("order", 0)
+
+        posted_is_active = request.POST.get("is_active")
+        if posted_is_active is None:
+            is_active = True
+        else:
+            is_active = posted_is_active == "on"
+
+        ContactInfo.objects.create(
+            branch_name=branch_name,
+            address=address,
+            phone=phone,
+            fax=fax,
+            email=email,
+            working_hours=working_hours,
+            map_embed_url=map_embed_url,
+            facebook_url=facebook_url,
+            youtube_url=youtube_url,
+            linkedin_url=linkedin_url,
+            instagram_url=instagram_url,
+            order=order or 0,
+            is_active=is_active,
+        )
+
+        messages.success(request, "Thêm thông tin liên hệ thành công.")
+        return redirect("contact_info_list")
+
+    return render(request, "home/contact_info_form.html")
+
+
+@staff_required
+def contact_info_update(request, pk):
+    contact_info = get_object_or_404(ContactInfo, pk=pk)
+
+    if request.method == "POST":
+        contact_info.branch_name = request.POST.get("branch_name", "").strip()
+        contact_info.address = request.POST.get("address", "").strip()
+        contact_info.phone = request.POST.get("phone", "").strip()
+        contact_info.fax = request.POST.get("fax", "").strip()
+        contact_info.email = request.POST.get("email", "").strip()
+        contact_info.working_hours = request.POST.get("working_hours", "").strip()
+        contact_info.map_embed_url = request.POST.get("map_embed_url", "").strip()
+        contact_info.facebook_url = request.POST.get("facebook_url", "").strip()
+        contact_info.youtube_url = request.POST.get("youtube_url", "").strip()
+        contact_info.linkedin_url = request.POST.get("linkedin_url", "").strip()
+        contact_info.instagram_url = request.POST.get("instagram_url", "").strip()
+        contact_info.order = request.POST.get("order", 0) or 0
+
+        posted_is_active = request.POST.get("is_active")
+        if posted_is_active is not None:
+            contact_info.is_active = posted_is_active == "on"
+
+        contact_info.save()
+        messages.success(request, "Cập nhật thông tin liên hệ thành công.")
+        return redirect("contact_info_list")
+
+    return render(
+        request,
+        "home/contact_info_form.html",
+        {"contact_info": contact_info},
+    )
+
+
+@staff_required
+def contact_info_delete(request, id):
+    contact_info = get_object_or_404(ContactInfo, id=id)
+    contact_info.delete()
+    return redirect("contact_info_list")
+
+
+@staff_required
+def contact_info_toggle_status(request, pk):
+    contact_info = get_object_or_404(ContactInfo, pk=pk)
+
+    if request.method == "POST":
+        contact_info.is_active = not contact_info.is_active
+        contact_info.save()
+
+        if contact_info.is_active:
+            messages.success(request, f"Đã hiển thị: {contact_info.branch_name}")
+        else:
+            messages.success(request, f"Đã ẩn: {contact_info.branch_name}")
+
+    return redirect("contact_info_list")
+
+
+@staff_required
+def consultation_list(request):
+    consultations = Consultation.objects.select_related("user", "handled_by").all()
+    status_filter = (request.GET.get("status") or "").strip()
+
+    if status_filter in CONSULTATION_STATUS_LABELS:
+        consultations = consultations.filter(status=status_filter)
+
+    return render(
+        request,
+        "home/consultation_list.html",
+        {
+            "consultations": consultations,
+            "status_filter": status_filter,
+            "status_choices": Consultation.STATUS_CHOICES,
+        },
+    )
+
+
+@staff_required
+def consultation_detail(request, id):
+    consultation = get_object_or_404(
+        Consultation.objects.select_related("user", "handled_by"),
+        id=id,
+    )
+
+    if request.method == "POST":
+        new_status = (request.POST.get("status") or "").strip()
+        valid_statuses = {value for value, _ in Consultation.STATUS_CHOICES}
+
+        if new_status not in valid_statuses:
+            messages.error(request, "Trạng thái không hợp lệ.")
+        else:
+            status_changed = consultation.status != new_status
+            consultation.status = new_status
+            consultation.handled_by = request.user
+            consultation.save()
+
+            Notification.objects.filter(
+                consultation=consultation,
+                user=request.user,
+                notification_type="consult",
+                is_read=False,
+            ).update(is_read=True)
+
+            if status_changed:
+                _notify_consultation_status_change(consultation)
+                messages.success(request, "Đã cập nhật trạng thái yêu cầu tư vấn.")
+            else:
+                messages.success(request, "Đã cập nhật người xử lý yêu cầu tư vấn.")
+
+            return redirect("consultation_detail", id=consultation.id)
+
+    return render(
+        request,
+        "home/consultation_detail.html",
+        {
+            "consultation": consultation,
+            "status_choices": Consultation.STATUS_CHOICES,
+        },
+    )
+
+
+@login_required
+def notifications(request):
+    user_notifications = request.user.notifications.select_related("consultation")
+    return render(
+        request,
+        "home/notifications.html",
+        {"notifications": user_notifications},
+    )
+
+
+@login_required
+def notification_read(request, id):
+    notification = get_object_or_404(
+        Notification.objects.select_related("consultation"),
+        id=id,
+        user=request.user,
+    )
+    notification.is_read = True
+    notification.save(update_fields=["is_read"])
+
+    if notification.link:
+        return redirect(notification.link)
+
+    if notification.consultation_id:
+        if request.user.is_staff or request.user.is_superuser:
+            return redirect("consultation_detail", id=notification.consultation_id)
+        return redirect("contact")
+
+    return redirect("notifications")
+
+
+@login_required
+def notification_mark_all_read(request):
+    request.user.notifications.filter(is_read=False).update(is_read=True)
+    return redirect("notifications")
+
+# ====================== CRUD ABOUT INTRO ======================
+@staff_required
+def about_intro_edit(request):
+    intro = AboutIntro.objects.first()
+
+    if request.method == "POST":
+        data = request.POST
+        if intro is None:
+            intro = AboutIntro()
+
+        intro.kicker = data.get("kicker", "").strip()
+        intro.brand_name = data.get("brand_name", "").strip()
+        intro.slogan = data.get("slogan", "").strip()
+        intro.highlight_1 = data.get("highlight_1", "").strip()
+        intro.highlight_2 = data.get("highlight_2", "").strip()
+        intro.highlight_3 = data.get("highlight_3", "").strip()
+        intro.badge_number = data.get("badge_number", "").strip()
+        intro.badge_text = data.get("badge_text", "").strip()
+        intro.heading = data.get("heading", "").strip()
+        intro.paragraph_1 = data.get("paragraph_1", "").strip()
+        intro.paragraph_2 = data.get("paragraph_2", "").strip()
+        intro.bullet_points = data.get("bullet_points", "").strip()
+        intro.save()
+        messages.success(request, "Đã cập nhật phần giới thiệu!")
+        return redirect("about_intro_edit")
+
+    return render(request, "home/about_intro_form.html", {"intro": intro})

@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container" style="margin-top:100px; max-width: 800px;">
+    <h2>Chỉnh sửa phần Giới Thiệu</h2>
+    <form method="POST">
+        {% csrf_token %}
+
+        <h5 style="margin: 24px 0 12px; color: #1a3a5c; border-bottom: 2px solid #c9a84c; padding-bottom: 6px;">
+            Card bên trái
+        </h5>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label>Dòng kicker nhỏ</label>
+                <input type="text" name="kicker" class="form-control" value="{{ intro.kicker|default:'Thành lập 2009' }}">
+            </div>
+            <div class="form-group col-md-6">
+                <label>Tên thương hiệu</label>
+                <input type="text" name="brand_name" class="form-control" value="{{ intro.brand_name|default:'Sao Bắc Đẩu' }}">
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Slogan</label>
+            <input type="text" name="slogan" class="form-control" value="{{ intro.slogan|default:'Chất lượng — Uy tín — Bền vững' }}">
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-4">
+                <label>Highlight 1</label>
+                <input type="text" name="highlight_1" class="form-control" value="{{ intro.highlight_1|default:'' }}" placeholder="ISO 9001:2015">
+            </div>
+            <div class="form-group col-md-4">
+                <label>Highlight 2</label>
+                <input type="text" name="highlight_2" class="form-control" value="{{ intro.highlight_2|default:'' }}" placeholder="200+ kỹ sư">
+            </div>
+            <div class="form-group col-md-4">
+                <label>Highlight 3</label>
+                <input type="text" name="highlight_3" class="form-control" value="{{ intro.highlight_3|default:'' }}" placeholder="Thi công toàn quốc">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-4">
+                <label>Số badge</label>
+                <input type="text" name="badge_number" class="form-control" value="{{ intro.badge_number|default:'500+' }}">
+            </div>
+            <div class="form-group col-md-8">
+                <label>Chữ dưới badge</label>
+                <input type="text" name="badge_text" class="form-control" value="{{ intro.badge_text|default:'Dự Án Hoàn Thành' }}">
+            </div>
+        </div>
+
+        <h5 style="margin: 24px 0 12px; color: #1a3a5c; border-bottom: 2px solid #c9a84c; padding-bottom: 6px;">
+            Nội dung bên phải
+        </h5>
+        <div class="form-group">
+            <label>Tiêu đề lớn</label>
+            <input type="text" name="heading" class="form-control" value="{{ intro.heading|default:'' }}" required>
+        </div>
+        <div class="form-group">
+            <label>Đoạn văn 1</label>
+            <textarea name="paragraph_1" class="form-control" rows="4">{{ intro.paragraph_1|default:'' }}</textarea>
+        </div>
+        <div class="form-group">
+            <label>Đoạn văn 2 <small class="text-muted">(không bắt buộc)</small></label>
+            <textarea name="paragraph_2" class="form-control" rows="3">{{ intro.paragraph_2|default:'' }}</textarea>
+        </div>
+        <div class="form-group">
+            <label>Danh sách điểm mạnh <small class="text-muted">(mỗi dòng 1 item)</small></label>
+            <textarea name="bullet_points" class="form-control" rows="6"
+                      placeholder="Chứng nhận ISO 9001:2015 về Quản lý Chất lượng&#10;Giấy phép xây dựng hạng I&#10;Đội ngũ 200+ kỹ sư">{{ intro.bullet_points|default:'' }}</textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+        <a href="{% url 'about' %}" class="btn btn-secondary">Xem trang Giới Thiệu</a>
+        <a href="{% url 'dashboard' %}" class="btn btn-secondary">Quay lại Dashboard</a>
+    </form>
+</div>
+{% endblock %}

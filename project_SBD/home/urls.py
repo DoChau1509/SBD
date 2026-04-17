@@ -108,8 +108,50 @@ urlpatterns = [
         name="statement_delete",
     ),
     # certificate
-    path('certificates/', views.certificate_list, name='certificate_list'),
-    path('certificate/add/', views.certificate_create, name='certificate_add'),
-    path('certificate/edit/<int:id>/', views.certificate_update, name='certificate_edit'),
-    path('certificate/delete/<int:id>/', views.certificate_delete, name='certificate_delete'),
+    path("certificates/", views.certificate_list, name="certificate_list"),
+    path("certificate/add/", views.certificate_create, name="certificate_add"),
+    path(
+        "certificate/edit/<int:id>/", views.certificate_update, name="certificate_edit"
+    ),
+    path(
+        "certificate/delete/<int:id>/",
+        views.certificate_delete,
+        name="certificate_delete",
+    ),
+    # contact info
+    path("contact-infos/", views.contact_info_list, name="contact_info_list"),
+    path("contact-info/add/", views.contact_info_create, name="contact_info_add"),
+    path(
+        "contact-info/edit/<int:pk>/",
+        views.contact_info_update,
+        name="contact_info_edit",
+    ),
+    path(
+        "contact-info/delete/<int:id>/",
+        views.contact_info_delete,
+        name="contact_info_delete",
+    ),
+    path(
+        "contact-info/<int:pk>/toggle-status/",
+        views.contact_info_toggle_status,
+        name="contact_info_toggle_status",
+    ),
+    path("consultations/", views.consultation_list, name="consultation_list"),
+    path(
+        "consultations/<int:id>/",
+        views.consultation_detail,
+        name="consultation_detail",
+    ),
+    path("notifications/", views.notifications, name="notifications"),
+    path(
+        "notifications/<int:id>/read/",
+        views.notification_read,
+        name="notification_read",
+    ),
+    path(
+        "notifications/mark-all-read/",
+        views.notification_mark_all_read,
+        name="notification_mark_all_read",
+    ),
+    path('about-intro/', views.about_intro_edit, name='about_intro_edit'),
 ]

@@ -27,67 +27,43 @@
         <div class="row align-items-center">
             <div class="col-lg-6 wow fadeInLeft" style="padding-bottom: 30px">
                 <div class="about-img-wrap">
-                    <div
-                            class="about-media"
-                            role="img"
-                            aria-label="Sao Bắc Đẩu Construction"
-                    >
+                    <div class="about-media" role="img" aria-label="Sao Bắc Đẩu Construction">
                         <div class="about-media-inner">
-                            <div class="kicker">Thành lập 2009</div>
-                            <div class="title">Sao Bắc Đẩu</div>
-                            <div class="sub">Chất lượng — Uy tín — Bền vững</div>
-                            <div class="highlights">
-                                <div><i class="fa fa-check-circle"></i> ISO 9001:2015</div>
-                                <div><i class="fa fa-check-circle"></i> 200+ kỹ sư</div>
-                                <div><i class="fa fa-check-circle"></i> Thi công toàn quốc</div>
-                            </div>
+                            {% if intro %}
+                                <div class="kicker">{{ intro.kicker }}</div>
+                                <div class="title">{{ intro.brand_name }}</div>
+                                <div class="sub">{{ intro.slogan }}</div>
+                                <div class="highlights">
+                                    {% if intro.highlight_1 %}<div><i class="fa fa-check-circle"></i> {{ intro.highlight_1 }}</div>{% endif %}
+                                    {% if intro.highlight_2 %}<div><i class="fa fa-check-circle"></i> {{ intro.highlight_2 }}</div>{% endif %}
+                                    {% if intro.highlight_3 %}<div><i class="fa fa-check-circle"></i> {{ intro.highlight_3 }}</div>{% endif %}
+                                </div>
+                            {% else %}
+                                <div class="kicker">Thành lập 2009</div>
+                                <div class="title">Sao Bắc Đẩu</div>
+                                <div class="sub">Chất lượng — Uy tín — Bền vững</div>
+                            {% endif %}
                         </div>
                     </div>
                     <div class="about-img-badge">
-                        <div class="num">500+</div>
-                        <div class="txt">Dự Án Hoàn Thành</div>
+                        <div class="num">{{ intro.badge_number|default:"500+" }}</div>
+                        <div class="txt">{{ intro.badge_text|default:"Dự Án Hoàn Thành" }}</div>
                     </div>
                 </div>
             </div>
+
             <div class="col-lg-6 wow fadeInRight" style="padding-left: 50px">
-                <h2>Công Ty Xây Dựng Sao Bắc Đẩu</h2>
-                <p>
-                    Được thành lập năm 2009, Công ty Xây Dựng Sao Bắc Đẩu (SBD
-                    Construction) là một trong những đơn vị xây dựng uy tín hàng đầu tại
-                    Việt Nam. Với phương châm
-                    <strong>"Chất lượng — Uy tín — Bền vững"</strong>, chúng tôi không
-                    ngừng nỗ lực mang đến những công trình xuất sắc cho khách hàng.
-                </p>
-                <p>
-                    Trải qua hơn 15 năm phát triển, SBD đã hoàn thành hơn 500 công trình
-                    lớn nhỏ trải dài từ Bắc vào Nam, bao gồm các dự án dân dụng, thương
-                    mại, công nghiệp và hạ tầng kỹ thuật.
-                </p>
-                <ul>
-                    <li>
-                        <i class="fa fa-check-circle"></i> Chứng nhận ISO 9001:2015 về Quản
-                        lý Chất lượng
-                    </li>
-                    <li>
-                        <i class="fa fa-check-circle"></i> Giấy phép xây dựng hạng I (Bộ Xây
-                        Dựng cấp)
-                    </li>
-                    <li>
-                        <i class="fa fa-check-circle"></i> Đội ngũ 200+ kỹ sư, kiến trúc sư
-                        có kinh nghiệm
-                    </li>
-                    <li>
-                        <i class="fa fa-check-circle"></i> Hệ thống thiết bị thi công hiện
-                        đại, đồng bộ
-                    </li>
-                    <li>
-                        <i class="fa fa-check-circle"></i> Bảo hành công trình từ 2 đến 5
-                        năm
-                    </li>
-                </ul>
-                <a href="{% url 'contact' %}" class="btn-primary-custom"
-                >Liên Hệ Tư Vấn</a
-                >
+                {% if intro %}
+                    <h2>{{ intro.heading }}</h2>
+                    {% if intro.paragraph_1 %}<p>{{ intro.paragraph_1 }}</p>{% endif %}
+                    {% if intro.paragraph_2 %}<p>{{ intro.paragraph_2 }}</p>{% endif %}
+                    <ul>
+                        {% for bullet in intro.get_bullets %}
+                        <li><i class="fa fa-check-circle"></i> {{ bullet }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+                <a href="{% url 'contact' %}" class="btn-primary-custom">Liên Hệ Tư Vấn</a>
             </div>
         </div>
     </div>
