@@ -1,267 +1,304 @@
-{% extends 'base.html' %}
-{% load static %}
-{% block content %}
+{% extends 'base.html' %} {% load static %} {% block content %}
 <!-- HERO -->
 <section class="home_bg">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-10 offset-lg-1 col-sm-12 text-center">
-                <div class="hero-text">
-                    <div class="hero-badge">Hơn 15 năm xây dựng uy tín</div>
-                    <h2>Kiến Tạo Không Gian<br><span>Vững Bền — Đẳng Cấp</span></h2>
-                    <p>Công ty Xây Dựng Sao Bắc Đẩu cung cấp dịch vụ thi công dân dụng, công nghiệp và hạ tầng chất lượng cao trên toàn lãnh thổ Việt Nam.</p>
-                    <div>
-                        <a href="{% url 'about' %}" class="btn-primary-custom mr-3">Giới Thiệu</a>
-                        <a href="{% url 'project' %}" class="btn-outline-custom">Xem Dự Án</a>
-                    </div>
-                    <div class="hero-stats">
-                        <div class="hero-stat-item">
-                            <div class="num">500+</div>
-                            <div class="label">Dự án hoàn thành</div>
-                        </div>
-                        <div class="hero-stat-item">
-                            <div class="num">15+</div>
-                            <div class="label">Năm kinh nghiệm</div>
-                        </div>
-                        <div class="hero-stat-item">
-                            <div class="num">200+</div>
-                            <div class="label">Kỹ sư & Chuyên gia</div>
-                        </div>
-                        <div class="hero-stat-item">
-                            <div class="num">98%</div>
-                            <div class="label">Khách hàng hài lòng</div>
-                        </div>
-                    </div>
-                </div>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-10 offset-lg-1 col-sm-12 text-center">
+        <div class="hero-text">
+          <div class="hero-badge">Hơn 15 năm xây dựng uy tín</div>
+          <h2>Kiến Tạo Không Gian<br /><span>Vững Bền — Đẳng Cấp</span></h2>
+          <p>
+            Công ty Xây Dựng Sao Bắc Đẩu cung cấp dịch vụ thi công dân dụng,
+            công nghiệp và hạ tầng chất lượng cao trên toàn lãnh thổ Việt Nam.
+          </p>
+          <div>
+            <a href="{% url 'about' %}" class="btn-primary-custom mr-3"
+              >Giới Thiệu</a
+            >
+            <a href="{% url 'project' %}" class="btn-outline-custom"
+              >Xem Dự Án</a
+            >
+          </div>
+          <div class="hero-stats">
+            <div class="hero-stat-item">
+              <div class="num">500+</div>
+              <div class="label">Dự án hoàn thành</div>
             </div>
+            <div class="hero-stat-item">
+              <div class="num">15+</div>
+              <div class="label">Năm kinh nghiệm</div>
+            </div>
+            <div class="hero-stat-item">
+              <div class="num">200+</div>
+              <div class="label">Kỹ sư & Chuyên gia</div>
+            </div>
+            <div class="hero-stat-item">
+              <div class="num">98%</div>
+              <div class="label">Khách hàng hài lòng</div>
+            </div>
+          </div>
         </div>
+      </div>
     </div>
-    <div class="hero-scroll">
-        Cuộn xuống <i class="fa fa-chevron-down"></i>
-    </div>
+  </div>
+  <div class="hero-scroll">Cuộn xuống <i class="fa fa-chevron-down"></i></div>
 </section>
 
 <!-- SERVICES -->
 <section class="services-section">
-    <div class="container">
-        <div class="section-title text-center wow zoomIn">
-            <h2>Dịch Vụ Của Chúng Tôi</h2>
-            <p>Cung cấp đầy đủ giải pháp xây dựng — từ thiết kế đến thi công hoàn thiện</p>
-        </div>
-        <div class="row">
-            <div class="col-lg-4 col-md-6">
-                <div class="service-card wow fadeInUp" data-wow-delay="0.1s">
-                    <div class="service-icon"><i class="fa fa-building"></i></div>
-                    <h4>Xây Dựng Dân Dụng</h4>
-                    <p>Thi công nhà ở, chung cư, văn phòng và các công trình dân dụng với tiêu chuẩn cao và đảm bảo tiến độ.</p>
-                </div>
-            </div>
-            <div class="col-lg-4 col-md-6">
-                <div class="service-card wow fadeInUp" data-wow-delay="0.2s">
-                    <div class="service-icon"><i class="fa fa-industry"></i></div>
-                    <h4>Xây Dựng Công Nghiệp</h4>
-                    <p>Nhà xưởng, kho bãi, khu công nghiệp — thiết kế tối ưu công năng, đáp ứng tiêu chuẩn PCCC và ATVSLĐ.</p>
-                </div>
-            </div>
-            <div class="col-lg-4 col-md-6">
-                <div class="service-card wow fadeInUp" data-wow-delay="0.3s">
-                    <div class="service-icon"><i class="fa fa-pencil-square-o"></i></div>
-                    <h4>Thiết Kế Kiến Trúc</h4>
-                    <p>Tư vấn và lập hồ sơ thiết kế kiến trúc, kết cấu, M&E theo yêu cầu của chủ đầu tư.</p>
-                </div>
-            </div>
-            <div class="col-lg-4 col-md-6">
-                <div class="service-card wow fadeInUp" data-wow-delay="0.4s">
-                    <div class="service-icon"><i class="fa fa-home"></i></div>
-                    <h4>Thi Công Nội Thất</h4>
-                    <p>Hoàn thiện nội thất theo phong cách hiện đại, tân cổ điển hoặc tối giản theo yêu cầu.</p>
-                </div>
-            </div>
-            <div class="col-lg-4 col-md-6">
-                <div class="service-card wow fadeInUp" data-wow-delay="0.5s">
-                    <div class="service-icon"><i class="fa fa-road"></i></div>
-                    <h4>Hạ Tầng Và Giao Thông</h4>
-                    <p>Thi công đường giao thông, cầu cống, hệ thống cấp thoát nước và hạ tầng kỹ thuật đô thị.</p>
-                </div>
-            </div>
-            <div class="col-lg-4 col-md-6">
-                <div class="service-card wow fadeInUp" data-wow-delay="0.6s">
-                    <div class="service-icon"><i class="fa fa-tasks"></i></div>
-                    <h4>Quản Lý Dự Án</h4>
-                    <p>Giám sát, quản lý tiến độ và chất lượng thi công từ giai đoạn đầu tư đến nghiệm thu bàn giao.</p>
-                </div>
-            </div>
-        </div>
+  <div class="container">
+    <div class="section-title text-center wow zoomIn">
+      <h2>Dịch Vụ Của Chúng Tôi</h2>
+      <p>
+        Cung cấp đầy đủ giải pháp xây dựng — từ thiết kế đến thi công hoàn thiện
+      </p>
     </div>
+    <div class="row">
+      {% for service in services %}
+      <div class="col-lg-4 col-md-6">
+        <div class="service-card wow fadeInUp">
+          <div class="service-icon">
+            <i class="{{ service.icon_css_class }}"></i>
+          </div>
+          <h4>{{ service.title }}</h4>
+          <p>{{ service.content }}</p>
+        </div>
+      </div>
+      {% empty %}
+      <div class="col-12">
+        <div class="service-card wow fadeInUp text-center">
+          <div class="service-icon">
+            <i class="fa-solid fa-star"></i>
+          </div>
+          <h4>Chưa có dịch vụ</h4>
+          <p>Hiện chưa có dữ liệu dịch vụ để hiển thị trên trang chủ.</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
 </section>
 
 <!-- FEATURED PROJECTS -->
 <section class="featured-projects">
-    <div class="container">
-        <div class="section-title text-center wow zoomIn">
-            <h2>Dự Án Tiêu Biểu</h2>
-            <p>Một số công trình tiêu biểu chúng tôi đã thực hiện thành công</p>
-        </div>
-        <div class="row">
-        {% for project in projects %}
-            <div class="row">
-            {% for project in projects %}
-            <div class="col-lg-4 col-md-6 mb-4">
-                <div class="project-card wow fadeInUp">
-                
-                <div class="project-thumb"
-                    style="background-image: url('{{ project.image.url }}');">
-                </div>
-
-                <div class="project-overlay">
-                    <span class="tag">{{ project.category.name }}</span>
-                    <h4>{{ project.name }}</h4>
-                    <p>{{ project.created_at|date:"Y" }}</p>
-                </div>
-
-                </div>
-            </div>
-            {% empty %}
-            <div class="col-12 text-center text-muted">
-                Chưa có dự án nổi bật nào.
-            </div>
-            {% endfor %}
-            </div>
-        {% endfor %}
-        </div>
-        <div class="text-center mt-4">
-            <a href="{% url 'project' %}" class="btn-primary-custom">Xem Tất Cả Dự Án</a>
-        </div>
+  <div class="container">
+    <div class="section-title text-center wow zoomIn">
+      <h2>Dự Án Tiêu Biểu</h2>
+      <p>Một số công trình tiêu biểu chúng tôi đã thực hiện thành công</p>
     </div>
+    <div class="row">
+      {% for project in projects %}
+      <div class="row">
+        {% for project in projects %}
+        <div class="col-lg-4 col-md-6 mb-4">
+          <div class="project-card wow fadeInUp">
+            <div
+              class="project-thumb"
+              style="background-image: url('{{ project.image.url }}');"
+            ></div>
+
+            <div class="project-overlay">
+              <span class="tag">{{ project.category.name }}</span>
+              <h4>{{ project.name }}</h4>
+              <p>{{ project.created_at|date:"Y" }}</p>
+            </div>
+          </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center text-muted">
+          Chưa có dự án nổi bật nào.
+        </div>
+        {% endfor %}
+      </div>
+      {% endfor %}
+    </div>
+    <div class="text-center mt-4">
+      <a href="{% url 'project' %}" class="btn-primary-custom"
+        >Xem Tất Cả Dự Án</a
+      >
+    </div>
+  </div>
 </section>
 
 <!-- WHY CHOOSE US -->
 <section class="why-us">
-    <div class="container">
-        <div class="row align-items-center">
-            <div class="col-lg-6 wow fadeInLeft">
-                <div class="section-title text-left">
-                    <h2>Tại Sao Chọn Sao Bắc Đẩu?</h2>
-                </div>
-                <div class="why-item">
-                    <div class="why-item-icon"><i class="fa fa-trophy"></i></div>
-                    <div class="why-item-content">
-                        <h5>Kinh Nghiệm & Chuyên Môn Sâu</h5>
-                        <p>Hơn 15 năm hoạt động, chúng tôi tích lũy kinh nghiệm thực tiễn phong phú với đội ngũ kỹ sư, kiến trúc sư được đào tạo bài bản.</p>
-                    </div>
-                </div>
-                <div class="why-item">
-                    <div class="why-item-icon"><i class="fa fa-check-circle"></i></div>
-                    <div class="why-item-content">
-                        <h5>Chất Lượng Được Kiểm Soát Chặt Chẽ</h5>
-                        <p>Quy trình kiểm soát chất lượng theo tiêu chuẩn ISO 9001:2015, đảm bảo từng hạng mục đều đạt yêu cầu kỹ thuật và thẩm mỹ.</p>
-                    </div>
-                </div>
-                <div class="why-item">
-                    <div class="why-item-icon"><i class="fa fa-calendar-check-o"></i></div>
-                    <div class="why-item-content">
-                        <h5>Đảm Bảo Tiến Độ</h5>
-                        <p>Cam kết bàn giao đúng hạn theo hợp đồng. Chúng tôi lên kế hoạch chi tiết và theo dõi sát sao từng giai đoạn thi công.</p>
-                    </div>
-                </div>
-                <div class="why-item">
-                    <div class="why-item-icon"><i class="fa fa-shield"></i></div>
-                    <div class="why-item-content">
-                        <h5>Bảo Hành Dài Hạn</h5>
-                        <p>Chế độ bảo hành từ 2–5 năm tùy hạng mục, cùng đội ngũ kỹ thuật hỗ trợ sau bàn giao 24/7.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-6 wow fadeInRight mt-4 mt-lg-0">
-                <div class="why-us-img" style="padding-left: 20px;">
-                    <div class="why-us-media" role="img" aria-label="Năng lực thi công của Sao Bắc Đẩu">
-                        <div class="why-us-media-inner">
-                            <div class="kicker">SBD Construction</div>
-                            <div class="title">Thi công trọn gói</div>
-                            <div class="sub">Dân dụng • Công nghiệp • Hạ tầng</div>
-                        </div>
-                    </div>
-                    <div class="experience-badge">
-                        <div class="years">15+</div>
-                        <div class="years-label">Năm Kinh Nghiệm</div>
-                    </div>
-                </div>
-            </div>
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-6 wow fadeInLeft">
+        <div class="section-title text-left">
+          <h2>Tại Sao Chọn Sao Bắc Đẩu?</h2>
         </div>
+        <div class="why-item">
+          <div class="why-item-icon"><i class="fa fa-trophy"></i></div>
+          <div class="why-item-content">
+            <h5>Kinh Nghiệm & Chuyên Môn Sâu</h5>
+            <p>
+              Hơn 15 năm hoạt động, chúng tôi tích lũy kinh nghiệm thực tiễn
+              phong phú với đội ngũ kỹ sư, kiến trúc sư được đào tạo bài bản.
+            </p>
+          </div>
+        </div>
+        <div class="why-item">
+          <div class="why-item-icon"><i class="fa fa-check-circle"></i></div>
+          <div class="why-item-content">
+            <h5>Chất Lượng Được Kiểm Soát Chặt Chẽ</h5>
+            <p>
+              Quy trình kiểm soát chất lượng theo tiêu chuẩn ISO 9001:2015, đảm
+              bảo từng hạng mục đều đạt yêu cầu kỹ thuật và thẩm mỹ.
+            </p>
+          </div>
+        </div>
+        <div class="why-item">
+          <div class="why-item-icon">
+            <i class="fa fa-calendar-check-o"></i>
+          </div>
+          <div class="why-item-content">
+            <h5>Đảm Bảo Tiến Độ</h5>
+            <p>
+              Cam kết bàn giao đúng hạn theo hợp đồng. Chúng tôi lên kế hoạch
+              chi tiết và theo dõi sát sao từng giai đoạn thi công.
+            </p>
+          </div>
+        </div>
+        <div class="why-item">
+          <div class="why-item-icon"><i class="fa fa-shield"></i></div>
+          <div class="why-item-content">
+            <h5>Bảo Hành Dài Hạn</h5>
+            <p>
+              Chế độ bảo hành từ 2–5 năm tùy hạng mục, cùng đội ngũ kỹ thuật hỗ
+              trợ sau bàn giao 24/7.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 wow fadeInRight mt-4 mt-lg-0">
+        <div class="why-us-img" style="padding-left: 20px">
+          <div
+            class="why-us-media"
+            role="img"
+            aria-label="Năng lực thi công của Sao Bắc Đẩu"
+          >
+            <div class="why-us-media-inner">
+              <div class="kicker">SBD Construction</div>
+              <div class="title">Thi công trọn gói</div>
+              <div class="sub">Dân dụng • Công nghiệp • Hạ tầng</div>
+            </div>
+          </div>
+          <div class="experience-badge">
+            <div class="years">15+</div>
+            <div class="years-label">Năm Kinh Nghiệm</div>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
 </section>
 
 <!-- TESTIMONIALS -->
 <section class="testimonial-section">
-    <div class="container">
-        <div class="section-title text-center wow zoomIn">
-            <h2>Khách Hàng Nói Gì</h2>
-            <p>Sự hài lòng của khách hàng là thước đo thành công của chúng tôi</p>
-        </div>
-        <div class="row">
-            <div class="col-lg-4 col-md-6 mb-4 wow fadeInUp" data-wow-delay="0.1s">
-                <div class="testimonial-card">
-                    <p>Sao Bắc Đẩu đã thi công nhà xưởng của chúng tôi với tiến độ đúng hẹn và chất lượng vượt kỳ vọng. Đội ngũ chuyên nghiệp, tư vấn nhiệt tình. Chắc chắn sẽ tiếp tục hợp tác.</p>
-                    <div class="testimonial-author">
-                        <div class="avatar" aria-hidden="true">TV</div>
-                        <div>
-                            <h6>Nguyễn Văn Thành</h6>
-                            <span>Giám đốc — Công ty TNHH Sản Xuất Phú Long</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4 col-md-6 mb-4 wow fadeInUp" data-wow-delay="0.2s">
-                <div class="testimonial-card">
-                    <p>Tôi rất hài lòng với dự án biệt thự do Sao Bắc Đẩu thi công. Mọi chi tiết nhỏ nhất đều được chú ý, thợ lành nghề và thái độ làm việc rất chuyên nghiệp.</p>
-                    <div class="testimonial-author">
-                        <div class="avatar" aria-hidden="true">HH</div>
-                        <div>
-                            <h6>Trần Thị Hương</h6>
-                            <span>Chủ đầu tư — Dự án biệt thự Phú Mỹ Hưng</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4 col-md-6 mb-4 wow fadeInUp" data-wow-delay="0.3s">
-                <div class="testimonial-card">
-                    <p>Đơn vị uy tín, giá cả hợp lý, thi công bền đẹp. Chúng tôi đã phối hợp với Sao Bắc Đẩu trong nhiều dự án hạ tầng và luôn đánh giá cao sự chuyên nghiệp của họ.</p>
-                    <div class="testimonial-author">
-                        <div class="avatar" aria-hidden="true">QH</div>
-                        <div>
-                            <h6>Lê Quốc Hùng</h6>
-                            <span>Trưởng Ban QLDA — Ban Quản Lý KCN Tân Bình</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+  <div class="container">
+    <div class="section-title text-center wow zoomIn">
+      <h2>Khách Hàng Nói Gì</h2>
+      <p>Sự hài lòng của khách hàng là thước đo thành công của chúng tôi</p>
     </div>
+    <div class="row">
+      <div class="col-lg-4 col-md-6 mb-4 wow fadeInUp" data-wow-delay="0.1s">
+        <div class="testimonial-card">
+          <p>
+            Sao Bắc Đẩu đã thi công nhà xưởng của chúng tôi với tiến độ đúng hẹn
+            và chất lượng vượt kỳ vọng. Đội ngũ chuyên nghiệp, tư vấn nhiệt
+            tình. Chắc chắn sẽ tiếp tục hợp tác.
+          </p>
+          <div class="testimonial-author">
+            <div class="avatar" aria-hidden="true">TV</div>
+            <div>
+              <h6>Nguyễn Văn Thành</h6>
+              <span>Giám đốc — Công ty TNHH Sản Xuất Phú Long</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4 col-md-6 mb-4 wow fadeInUp" data-wow-delay="0.2s">
+        <div class="testimonial-card">
+          <p>
+            Tôi rất hài lòng với dự án biệt thự do Sao Bắc Đẩu thi công. Mọi chi
+            tiết nhỏ nhất đều được chú ý, thợ lành nghề và thái độ làm việc rất
+            chuyên nghiệp.
+          </p>
+          <div class="testimonial-author">
+            <div class="avatar" aria-hidden="true">HH</div>
+            <div>
+              <h6>Trần Thị Hương</h6>
+              <span>Chủ đầu tư — Dự án biệt thự Phú Mỹ Hưng</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4 col-md-6 mb-4 wow fadeInUp" data-wow-delay="0.3s">
+        <div class="testimonial-card">
+          <p>
+            Đơn vị uy tín, giá cả hợp lý, thi công bền đẹp. Chúng tôi đã phối
+            hợp với Sao Bắc Đẩu trong nhiều dự án hạ tầng và luôn đánh giá cao
+            sự chuyên nghiệp của họ.
+          </p>
+          <div class="testimonial-author">
+            <div class="avatar" aria-hidden="true">QH</div>
+            <div>
+              <h6>Lê Quốc Hùng</h6>
+              <span>Trưởng Ban QLDA — Ban Quản Lý KCN Tân Bình</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
 
 <!-- PARTNERS -->
 <section class="partners-section">
-    <div class="container">
-        <div class="section-title text-center mb-4" style="margin-bottom: 32px !important;">
-            <h2 style="font-size: 26px;">Đối Tác Tin Cậy</h2>
-        </div>
-        <div class="row align-items-center justify-content-center">
-            <div class="col"><div class="partner-logo"><div class="partner-pill">Phú Long</div></div></div>
-            <div class="col"><div class="partner-logo"><div class="partner-pill">Vietcombank</div></div></div>
-            <div class="col"><div class="partner-logo"><div class="partner-pill">Samsung VN</div></div></div>
-            <div class="col"><div class="partner-logo"><div class="partner-pill">Bureau Veritas</div></div></div>
-            <div class="col"><div class="partner-logo"><div class="partner-pill">VACC</div></div></div>
-        </div>
+  <div class="container">
+    <div
+      class="section-title text-center mb-4"
+      style="margin-bottom: 32px !important"
+    >
+      <h2 style="font-size: 26px">Đối Tác Tin Cậy</h2>
     </div>
+    <div class="row align-items-center justify-content-center">
+      <div class="col">
+        <div class="partner-logo"><div class="partner-pill">Phú Long</div></div>
+      </div>
+      <div class="col">
+        <div class="partner-logo">
+          <div class="partner-pill">Vietcombank</div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="partner-logo">
+          <div class="partner-pill">Samsung VN</div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="partner-logo">
+          <div class="partner-pill">Bureau Veritas</div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="partner-logo"><div class="partner-pill">VACC</div></div>
+      </div>
+    </div>
+  </div>
 </section>
 
 <!-- CTA -->
 <section class="cta-section wow fadeIn">
-    <div class="container">
-        <h2>Bắt Đầu Dự Án Của Bạn Ngay Hôm Nay</h2>
-        <p>Liên hệ với chúng tôi để được tư vấn miễn phí và nhận báo giá chi tiết trong 24 giờ.</p>
-        <a href="{% url 'contact' %}" class="btn-cta">Liên Hệ Ngay</a>
-    </div>
+  <div class="container">
+    <h2>Bắt Đầu Dự Án Của Bạn Ngay Hôm Nay</h2>
+    <p>
+      Liên hệ với chúng tôi để được tư vấn miễn phí và nhận báo giá chi tiết
+      trong 24 giờ.
+    </p>
+    <a href="{% url 'contact' %}" class="btn-cta">Liên Hệ Ngay</a>
+  </div>
 </section>
 
 {% endblock %}

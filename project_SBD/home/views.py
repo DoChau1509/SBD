@@ -23,11 +23,13 @@ from .models import (
     FAQ,
     LeadershipMember,
     AboutStatement,
+    ServiceType,
+    Service,
     Certificate,
     ContactInfo,
     Consultation,
     Notification,
-    AboutIntro
+    AboutIntro,
 )
 
 User = get_user_model()
@@ -82,6 +84,8 @@ def _is_management_path(path: str) -> bool:
         "/post-category",
         "/leadership",
         "/about-statements",
+        "/service-types",
+        "/services",
         "/contact-infos",
         "/contact-info/add",
         "/contact-info/edit",
@@ -124,8 +128,12 @@ def _notify_new_consultation(consultation):
 
 
 def _notify_consultation_status_change(consultation):
-    status_text = CONSULTATION_STATUS_LABELS.get(consultation.status, consultation.status)
-    handled_by = consultation.handled_by.username if consultation.handled_by else "nhân viên"
+    status_text = CONSULTATION_STATUS_LABELS.get(
+        consultation.status, consultation.status
+    )
+    handled_by = (
+        consultation.handled_by.username if consultation.handled_by else "nhân viên"
+    )
     _create_notification(
         user=consultation.user,
         message=(
@@ -141,31 +149,57 @@ def _notify_consultation_status_change(consultation):
 # ====================== PUBLIC PAGES ======================
 def home(request):
     projects = Project.objects.filter(is_featured=True)
+    services = (
+        Service.objects.filter(is_active=True, service_type__is_active=True)
+        .select_related("service_type")
+        .order_by(
+            "service_type__order", "service_type__created_at", "order", "created_at"
+        )
+    )
 
-    return render(request, 'home/home.html', {
-        'projects': projects
-    })
+    return render(request, "home/home.html", {"projects": projects})
+
+    return render(
+        request,
+        "home/home.html",
+        {
+            "projects": projects,
+            "services": services,
+        },
+    )
 
 
 def about(request):
-    leadership_members = LeadershipMember.objects.filter(is_active=True).order_by("order", "created_at")
-    vision_statements = AboutStatement.objects.filter(statement_type="vision", is_active=True).order_by("order", "created_at")
-    mission_statements = AboutStatement.objects.filter(statement_type="mission", is_active=True).order_by("order", "created_at")
+    leadership_members = LeadershipMember.objects.filter(is_active=True).order_by(
+        "order", "created_at"
+    )
+    vision_statements = AboutStatement.objects.filter(
+        statement_type="vision", is_active=True
+    ).order_by("order", "created_at")
+    mission_statements = AboutStatement.objects.filter(
+        statement_type="mission", is_active=True
+    ).order_by("order", "created_at")
 
-    all_certs = list(Certificate.objects.filter(is_active=True).order_by("order", "created_at"))
+    all_certs = list(
+        Certificate.objects.filter(is_active=True).order_by("order", "created_at")
+    )
     mid = (len(all_certs) + 1) // 2
     certs_left = all_certs[:mid]
     certs_right = all_certs[mid:]
     intro = AboutIntro.objects.first()
 
-    return render(request, "home/about.html", {
-        "leadership_members": leadership_members,
-        "vision_statements": vision_statements,
-        "mission_statements": mission_statements,
-        "certs_left": certs_left,
-        "certs_right": certs_right,
-        "intro": intro,
-    })
+    return render(
+        request,
+        "home/about.html",
+        {
+            "leadership_members": leadership_members,
+            "vision_statements": vision_statements,
+            "mission_statements": mission_statements,
+            "certs_left": certs_left,
+            "certs_right": certs_right,
+            "intro": intro,
+        },
+    )
 
 
 def contact(request):
@@ -177,9 +211,9 @@ def contact(request):
     user_consultations = Consultation.objects.none()
 
     if request.user.is_authenticated:
-        user_consultations = Consultation.objects.filter(user=request.user).select_related(
-            "handled_by"
-        )
+        user_consultations = Consultation.objects.filter(
+            user=request.user
+        ).select_related("handled_by")
 
     if request.method == "POST":
         if not request.user.is_authenticated:
@@ -1040,6 +1074,259 @@ def statement_delete(request, id):
     return redirect("statement_list")
 
 
+# ====================== CRUD SERVICE TYPES ======================
+@staff_required
+def service_type_list(request):
+    service_types = ServiceType.objects.all().order_by("order", "created_at")
+    error = request.GET.get("error")
+    return render(
+        request,
+        "home/service_type_list.html",
+        {"service_types": service_types, "error": error},
+    )
+
+
+@staff_required
+def service_type_create(request):
+    if request.method == "POST":
+        name = (request.POST.get("name") or "").strip()
+        order = request.POST.get("order") or 0
+        is_active = request.POST.get("is_active") == "on"
+
+        if not name:
+            return render(
+                request,
+                "home/service_type_form.html",
+                {
+                    "title": "Thêm loại dịch vụ",
+                    "error": "Bạn cần nhập tên loại.",
+                    "service_type": {
+                        "name": name,
+                        "order": order,
+                        "is_active": is_active,
+                    },
+                },
+            )
+
+        if ServiceType.objects.filter(name__iexact=name).exists():
+            return render(
+                request,
+                "home/service_type_form.html",
+                {
+                    "title": "Thêm loại dịch vụ",
+                    "error": "Loại dịch vụ này đã tồn tại.",
+                    "service_type": {
+                        "name": name,
+                        "order": order,
+                        "is_active": is_active,
+                    },
+                },
+            )
+
+        ServiceType.objects.create(
+            name=name,
+            order=int(order),
+            is_active=is_active,
+        )
+        return redirect("service_type_list")
+
+    return render(
+        request,
+        "home/service_type_form.html",
+        {"title": "Thêm loại dịch vụ"},
+    )
+
+
+@staff_required
+def service_type_update(request, id):
+    service_type = get_object_or_404(ServiceType, id=id)
+
+    if request.method == "POST":
+        name = (request.POST.get("name") or "").strip()
+        order = request.POST.get("order") or 0
+        is_active = request.POST.get("is_active") == "on"
+
+        if not name:
+            return render(
+                request,
+                "home/service_type_form.html",
+                {
+                    "title": "Sửa loại dịch vụ",
+                    "error": "Bạn cần nhập tên loại.",
+                    "service_type": service_type,
+                },
+            )
+
+        duplicate = ServiceType.objects.filter(name__iexact=name).exclude(
+            id=service_type.id
+        )
+        if duplicate.exists():
+            return render(
+                request,
+                "home/service_type_form.html",
+                {
+                    "title": "Sửa loại dịch vụ",
+                    "error": "Loại dịch vụ này đã tồn tại.",
+                    "service_type": service_type,
+                },
+            )
+
+        service_type.name = name
+        service_type.slug = ""
+        service_type.order = int(order)
+        service_type.is_active = is_active
+        service_type.save()
+        return redirect("service_type_list")
+
+    return render(
+        request,
+        "home/service_type_form.html",
+        {"title": "Sửa loại dịch vụ", "service_type": service_type},
+    )
+
+
+@staff_required
+def service_type_delete(request, id):
+    service_type = get_object_or_404(ServiceType, id=id)
+
+    try:
+        service_type.delete()
+    except ProtectedError:
+        error = "Không thể xóa loại dịch vụ này vì vẫn còn dịch vụ đang sử dụng."
+        return redirect(f"{reverse('service_type_list')}?error={error}")
+
+    return redirect("service_type_list")
+
+
+# ====================== CRUD SERVICES ======================
+@staff_required
+def service_list(request):
+    services = (
+        Service.objects.select_related("service_type")
+        .all()
+        .order_by(
+            "service_type__order", "service_type__created_at", "order", "created_at"
+        )
+    )
+    error = request.GET.get("error")
+    return render(
+        request,
+        "home/service_list.html",
+        {"services": services, "error": error},
+    )
+
+
+@staff_required
+def service_create(request):
+    service_types = ServiceType.objects.filter(is_active=True).order_by(
+        "order", "created_at"
+    )
+
+    if request.method == "POST":
+        service_type_id = (request.POST.get("service_type") or "").strip()
+        title = (request.POST.get("title") or "").strip()
+        content = (request.POST.get("content") or "").strip()
+        icon = (request.POST.get("icon") or "").strip()
+        order = request.POST.get("order") or 0
+        is_active = request.POST.get("is_active") == "on"
+
+        if not service_type_id or not title or not content:
+            return render(
+                request,
+                "home/service_form.html",
+                {
+                    "title_page": "Thêm dịch vụ",
+                    "types": service_types,
+                    "error": "Bạn cần chọn loại, nhập tiêu đề và nội dung.",
+                    "service": {
+                        "title": title,
+                        "content": content,
+                        "icon": icon,
+                        "order": order,
+                        "is_active": is_active,
+                        "service_type_id": service_type_id,
+                    },
+                },
+            )
+
+        service_type = get_object_or_404(ServiceType, id=service_type_id)
+
+        Service.objects.create(
+            service_type=service_type,
+            title=title,
+            content=content,
+            icon=icon,
+            order=int(order),
+            is_active=is_active,
+        )
+        return redirect("service_list")
+
+    return render(
+        request,
+        "home/service_form.html",
+        {
+            "title_page": "Thêm dịch vụ",
+            "types": service_types,
+        },
+    )
+
+
+@staff_required
+def service_update(request, id):
+    service = get_object_or_404(Service.objects.select_related("service_type"), id=id)
+    service_types = ServiceType.objects.filter(is_active=True).order_by(
+        "order", "created_at"
+    )
+
+    if request.method == "POST":
+        service_type_id = (request.POST.get("service_type") or "").strip()
+        title = (request.POST.get("title") or "").strip()
+        content = (request.POST.get("content") or "").strip()
+        icon = (request.POST.get("icon") or "").strip()
+        order = request.POST.get("order") or 0
+        is_active = request.POST.get("is_active") == "on"
+
+        if not service_type_id or not title or not content:
+            return render(
+                request,
+                "home/service_form.html",
+                {
+                    "title_page": "Sửa dịch vụ",
+                    "service": service,
+                    "types": service_types,
+                    "error": "Bạn cần chọn loại, nhập tiêu đề và nội dung.",
+                },
+            )
+
+        service_type = get_object_or_404(ServiceType, id=service_type_id)
+
+        service.service_type = service_type
+        service.title = title
+        service.content = content
+        service.icon = icon
+        service.order = int(order)
+        service.is_active = is_active
+        service.save()
+        return redirect("service_list")
+
+    return render(
+        request,
+        "home/service_form.html",
+        {
+            "title_page": "Sửa dịch vụ",
+            "service": service,
+            "types": service_types,
+        },
+    )
+
+
+@staff_required
+def service_delete(request, id):
+    service = get_object_or_404(Service, id=id)
+    service.delete()
+    return redirect("service_list")
+
+
 # ====================== CRUD CERTIFICATE ======================
 @staff_required
 def certificate_list(request):
@@ -1067,10 +1354,14 @@ def certificate_create(request):
             )
             return redirect("certificate_list")
 
-    return render(request, "home/about_certificate_form.html", {
-        "title": "Thêm chứng chỉ mới",
-        "icon_choices": Certificate.ICON_CHOICES,
-    })
+    return render(
+        request,
+        "home/about_certificate_form.html",
+        {
+            "title": "Thêm chứng chỉ mới",
+            "icon_choices": Certificate.ICON_CHOICES,
+        },
+    )
 
 
 @staff_required
@@ -1079,7 +1370,9 @@ def certificate_update(request, id):
 
     if request.method == "POST":
         cert.title = (request.POST.get("title") or "").strip() or cert.title
-        cert.description = (request.POST.get("description") or "").strip() or cert.description
+        cert.description = (
+            request.POST.get("description") or ""
+        ).strip() or cert.description
         cert.icon = request.POST.get("icon") or cert.icon
         cert.order = int(request.POST.get("order") or 0)
         cert.is_active = request.POST.get("is_active") == "on"
@@ -1088,11 +1381,15 @@ def certificate_update(request, id):
         cert.save()
         return redirect("certificate_list")
 
-    return render(request, "home/about_certificate_form.html", {
-        "title": "Sửa chứng chỉ",
-        "cert": cert,
-        "icon_choices": Certificate.ICON_CHOICES,
-    })
+    return render(
+        request,
+        "home/about_certificate_form.html",
+        {
+            "title": "Sửa chứng chỉ",
+            "cert": cert,
+            "icon_choices": Certificate.ICON_CHOICES,
+        },
+    )
 
 
 @staff_required
@@ -1309,6 +1606,7 @@ def notification_read(request, id):
 def notification_mark_all_read(request):
     request.user.notifications.filter(is_read=False).update(is_read=True)
     return redirect("notifications")
+
 
 # ====================== CRUD ABOUT INTRO ======================
 @staff_required

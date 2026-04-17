@@ -1,0 +1,127 @@
+{% extends 'base.html' %} {% block content %}
+<div class="container" style="margin-top: 100px; max-width: 1000px">
+  <div
+    style="
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    "
+  >
+    <h2 style="margin: 0">{{ title_page }}</h2>
+    <a href="{% url 'service_type_add' %}" class="btn btn-outline-primary"
+      >+ Thêm loại mới</a
+    >
+  </div>
+
+  {% if error %}
+  <div class="alert alert-danger">{{ error }}</div>
+  {% endif %} {% if not types %}
+  <div class="alert alert-warning">
+    Bạn chưa có loại dịch vụ nào. Hãy tạo loại trước rồi mới thêm dịch vụ.
+  </div>
+  <a href="{% url 'service_type_add' %}" class="btn btn-primary"
+    >Tạo loại dịch vụ</a
+  >
+  <a href="{% url 'service_list' %}" class="btn btn-secondary">Quay lại</a>
+  {% else %}
+  <form method="POST">
+    {% csrf_token %}
+
+    <div class="form-group">
+      <label>Loại dịch vụ *</label>
+      <select name="service_type" class="form-control" required>
+        <option value="">-- Chọn loại --</option>
+        {% for item in types %}
+        <option
+          value="{{ item.id }}"
+          {%
+          if
+          service.service_type_id=""
+          ="item.id"
+          or
+          service.service_type.id=""
+          ="item.id"
+          %}selected{%
+          endif
+          %}
+        >
+          {{ item.name }}
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Tiêu đề *</label>
+      <input
+        type="text"
+        name="title"
+        class="form-control"
+        value="{{ service.title|default:'' }}"
+        placeholder="Ví dụ: Xây dựng dân dụng"
+        required
+      />
+    </div>
+
+    <div class="form-group">
+      <label>Nội dung *</label>
+      <textarea name="content" class="form-control" rows="6" required>
+{{ service.content|default:'' }}</textarea
+      >
+    </div>
+
+    <div class="form-group">
+      <label>Icon Font Awesome / Icon URL</label>
+      <input
+        type="text"
+        name="icon"
+        class="form-control"
+        value="{{ service.icon|default:'' }}"
+        placeholder="Ví dụ: fa-building hoặc fa-solid fa-building hoặc URL Font Awesome"
+      />
+      <small class="form-text text-muted">
+        Bạn có thể nhập class icon hoặc dán link icon từ Font Awesome.
+      </small>
+    </div>
+
+    <div class="form-group">
+      <label>Thứ tự hiển thị</label>
+      <input
+        type="number"
+        name="order"
+        class="form-control"
+        value="{{ service.order|default:'0' }}"
+        min="0"
+      />
+    </div>
+
+    <div class="form-group form-check">
+      <input
+        type="checkbox"
+        name="is_active"
+        class="form-check-input"
+        id="is_active_service"
+        {%
+        if
+        service.is_active
+        or
+        not
+        service
+        %}checked{%
+        endif
+        %}
+      />
+      <label class="form-check-label" for="is_active_service"
+        >Hiển thị trên trang chủ</label
+      >
+    </div>
+
+    <button type="submit" class="btn btn-primary">Lưu</button>
+    <a href="{% url 'service_list' %}" class="btn btn-secondary">Hủy</a>
+  </form>
+  {% endif %}
+</div>
+{% endblock %}

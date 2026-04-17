@@ -280,6 +280,122 @@ class AboutStatement(models.Model):
         return f"{self.statement_type.name} - {self.display_title}"
 
 
+############## ServiceType
+class ServiceType(models.Model):
+    name = models.CharField(max_length=100, unique=True, verbose_name="Tên loại")
+    slug = models.SlugField(max_length=120, unique=True, blank=True)
+    order = models.PositiveIntegerField(default=0, verbose_name="Thứ tự")
+    is_active = models.BooleanField(default=True, verbose_name="Hiển thị")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["order", "created_at", "name"]
+        verbose_name = "Loại dịch vụ"
+        verbose_name_plural = "Loại dịch vụ"
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            base_slug = slugify(self.name) or "loai-dich-vu"
+            slug = base_slug
+            counter = 1
+            while ServiceType.objects.exclude(pk=self.pk).filter(slug=slug).exists():
+                counter += 1
+                slug = f"{base_slug}-{counter}"
+            self.slug = slug
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
+
+
+############## Service
+class Service(models.Model):
+    service_type = models.ForeignKey(
+        ServiceType,
+        on_delete=models.PROTECT,
+        related_name="services",
+        verbose_name="Loại dịch vụ",
+    )
+    title = models.CharField(max_length=150, verbose_name="Tiêu đề")
+    content = models.TextField(verbose_name="Nội dung")
+    icon = models.CharField(
+        max_length=500,
+        blank=True,
+        default="",
+        verbose_name="Icon Font Awesome / Icon URL",
+        help_text=(
+            "Có thể nhập fa-eye, fa-solid fa-eye, cart-arrow-down "
+            "hoặc URL icon từ Font Awesome."
+        ),
+    )
+    order = models.PositiveIntegerField(default=0, verbose_name="Thứ tự hiển thị")
+    is_active = models.BooleanField(default=True, verbose_name="Hiển thị")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["order", "created_at"]
+        verbose_name = "Dịch vụ"
+        verbose_name_plural = "Dịch vụ"
+
+    @property
+    def icon_css_class(self):
+        raw = (self.icon or "").strip()
+        fallback = "fa-solid fa-star"
+
+        if not raw:
+            return fallback
+
+        raw_lower = raw.lower()
+
+        if "fontawesome.com/" in raw_lower:
+            parsed = urlparse(raw)
+            path_parts = [part for part in parsed.path.split("/") if part]
+            icon_name = path_parts[-1] if path_parts else "star"
+            query = parse_qs(parsed.query)
+            style = (query.get("s", ["solid"])[0] or "solid").lower()
+            style_map = {
+                "solid": "fa-solid",
+                "regular": "fa-regular",
+                "brands": "fa-brands",
+                "brand": "fa-brands",
+                "light": "fa-light",
+                "thin": "fa-thin",
+                "duotone": "fa-duotone",
+            }
+            prefix = style_map.get(style, "fa-solid")
+            return f"{prefix} fa-{icon_name}"
+
+        parts = raw.split()
+        known_prefixes = {
+            "fa-solid",
+            "fa-regular",
+            "fa-brands",
+            "fa-light",
+            "fa-thin",
+            "fa-duotone",
+            "fa",
+            "fab",
+            "far",
+            "fas",
+        }
+
+        if any(part in known_prefixes for part in parts):
+            if raw.startswith("fa ") and len(parts) >= 2 and parts[1].startswith("fa-"):
+                return f"fa-solid {parts[1]}"
+            return raw
+
+        if raw.startswith("fa-"):
+            return f"fa-solid {raw}"
+
+        if "-" in raw and " " not in raw:
+            return f"fa-solid fa-{raw}"
+
+        return fallback
+
+    def __str__(self):
+        return self.title
+
+
 # chứng chỉ và năng lực
 class Certificate(models.Model):
     ICON_CHOICES = [

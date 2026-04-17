@@ -174,5 +174,23 @@ urlpatterns = [
         views.notification_mark_all_read,
         name="notification_mark_all_read",
     ),
-    path('about-intro/', views.about_intro_edit, name='about_intro_edit'),
+    path("about-intro/", views.about_intro_edit, name="about_intro_edit"),
+    # service types
+    path("service-types/", views.service_type_list, name="service_type_list"),
+    path("service-types/add/", views.service_type_create, name="service_type_add"),
+    path(
+        "service-types/edit/<int:id>/",
+        views.service_type_update,
+        name="service_type_edit",
+    ),
+    path(
+        "service-types/delete/<int:id>/",
+        views.service_type_delete,
+        name="service_type_delete",
+    ),
+    # services
+    path("services/", views.service_list, name="service_list"),
+    path("services/add/", views.service_create, name="service_add"),
+    path("services/edit/<int:id>/", views.service_update, name="service_edit"),
+    path("services/delete/<int:id>/", views.service_delete, name="service_delete"),
 ]
