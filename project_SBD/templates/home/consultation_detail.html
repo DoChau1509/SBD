@@ -45,11 +45,18 @@
               <label for="status">Trạng thái</label>
               <select name="status" id="status" class="form-control">
                 {% for value, label in status_choices %}
-                <option value="{{ value }}" {% if consultation.status == value %}selected{% endif %}>
+                <option
+                  value="{{ value }}"
+                  {% if consultation.status == value %}selected{% endif %}
+                  {% if value not in allowed_statuses %}disabled{% endif %}
+                >
                   {{ label }}
                 </option>
                 {% endfor %}
               </select>
+              <small class="form-text text-muted">
+                Chỉ được cập nhật theo thứ tự tiến trình, không thể chuyển ngược về trạng thái trước.
+              </small>
             </div>
             <button type="submit" class="btn btn-primary btn-block">
               Lưu trạng thái

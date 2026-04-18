@@ -8,7 +8,7 @@
                     ★
                 </div>
                 <h3 class="mb-1" style="color:var(--primary); font-weight:800;">Đăng ký</h3>
-                <div class="text-muted">Tạo tài khoản để truy cập Dashboard</div>
+                <div class="text-muted">Tạo tài khoản để gửi yêu cầu tư vấn và theo dõi phản hồi</div>
             </div>
 
             {% if form.non_field_errors %}
@@ -24,12 +24,27 @@
                 <div class="mb-3">
                     <label class="form-label">Tên đăng nhập</label>
                     {{ form.username }}
+                    {% if form.username.help_text %}<div class="text-muted small mt-1">{{ form.username.help_text }}</div>{% endif %}
                     {% if form.username.errors %}<div class="text-danger small mt-1">{{ form.username.errors }}</div>{% endif %}
                 </div>
 
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Họ</label>
+                        {{ form.first_name }}
+                        {% if form.first_name.errors %}<div class="text-danger small mt-1">{{ form.first_name.errors }}</div>{% endif %}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Tên</label>
+                        {{ form.last_name }}
+                        {% if form.last_name.errors %}<div class="text-danger small mt-1">{{ form.last_name.errors }}</div>{% endif %}
+                    </div>
+                </div>
+
                 <div class="mb-3">
-                    <label class="form-label">Email</label>
+                    <label class="form-label">Email *</label>
                     {{ form.email }}
+                    {% if form.email.help_text %}<div class="text-muted small mt-1">{{ form.email.help_text }}</div>{% endif %}
                     {% if form.email.errors %}<div class="text-danger small mt-1">{{ form.email.errors }}</div>{% endif %}
                 </div>
 

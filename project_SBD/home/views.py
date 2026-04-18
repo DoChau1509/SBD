@@ -46,6 +46,9 @@ CONSULTATION_BUDGET_CHOICES = [
 ]
 
 CONSULTATION_STATUS_LABELS = dict(Consultation.STATUS_CHOICES)
+CONSULTATION_STATUS_ORDER = {
+    status: index for index, (status, _) in enumerate(Consultation.STATUS_CHOICES)
+}
 
 
 def staff_required(view_func):
@@ -145,6 +148,12 @@ def _notify_consultation_status_change(consultation):
         consultation=consultation,
         link=reverse("contact"),
     )
+
+
+def _can_move_consultation_status(current_status, new_status):
+    current_index = CONSULTATION_STATUS_ORDER.get(current_status, -1)
+    new_index = CONSULTATION_STATUS_ORDER.get(new_status, -1)
+    return new_index >= current_index
 
 
 # ====================== PUBLIC PAGES ======================
@@ -1726,6 +1735,11 @@ def consultation_detail(request, id):
 
         if new_status not in valid_statuses:
             messages.error(request, "Trạng thái không hợp lệ.")
+        elif not _can_move_consultation_status(consultation.status, new_status):
+            messages.error(
+                request,
+                "Không thể cập nhật trạng thái lùi về bước trước.",
+            )
         else:
             status_changed = consultation.status != new_status
             consultation.status = new_status
@@ -1753,6 +1767,11 @@ def consultation_detail(request, id):
         {
             "consultation": consultation,
             "status_choices": Consultation.STATUS_CHOICES,
+            "allowed_statuses": {
+                value
+                for value, _ in Consultation.STATUS_CHOICES
+                if _can_move_consultation_status(consultation.status, value)
+            },
         },
     )
 

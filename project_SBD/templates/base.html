@@ -133,6 +133,9 @@
               </button>
             </form>
             {% else %}
+            <a href="{% url 'register' %}" class="btn btn-sm btn-outline-light"
+              >Đăng ký</a
+            >
             <a href="{% url 'login' %}" class="btn btn-sm btn-light"
               >Đăng nhập</a
             >
@@ -220,6 +223,9 @@
             </button>
           </form>
           {% else %}
+          <a href="{% url 'register' %}" class="btn btn-sm btn-outline-secondary w-100 mb-2"
+            >Đăng ký</a
+          >
           <a href="{% url 'login' %}" class="btn btn-sm btn-primary w-100"
             >Đăng nhập</a
           >
