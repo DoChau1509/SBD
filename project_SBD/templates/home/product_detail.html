@@ -1,96 +1,208 @@
-{% extends 'base.html' %}
-{% block content %}
+{% extends 'base.html' %} {% block content %}
 
 <style>
-	.detail-wrap { padding: 90px 0; background: var(--light-bg); }
-	.detail-card {
-		background: var(--white);
-		border-radius: 10px;
-		box-shadow: 0 12px 44px rgba(26,46,74,0.10);
-		overflow: hidden;
-	}
-	.detail-hero {
-		height: 360px;
-		position: relative;
-		background: radial-gradient(900px 320px at 20% 15%, rgba(201, 150, 62, 0.35) 0%, transparent 60%),
-		            linear-gradient(135deg, rgba(8, 28, 50, 0.96) 0%, rgba(26, 60, 94, 0.96) 60%, rgba(201, 150, 62, 0.22) 100%);
-	}
-	.detail-hero img { width: 100%; height: 100%; object-fit: cover; display:block; }
-	.detail-hero .fallback {
-		position:absolute; inset:0;
-		display:flex; align-items:center; justify-content:center;
-		color: rgba(255,255,255,0.92);
-	}
-	.detail-hero .fallback i { font-size: 70px; }
-	.detail-body { padding: 34px; }
-	.badge-cat {
-		display:inline-block;
-		background: rgba(201,150,62,0.14);
-		color: var(--accent-dark);
-		border: 1px solid rgba(201,150,62,0.35);
-		padding: 6px 14px;
-		border-radius: 999px;
-		font-size: 11px;
-		font-weight: 800;
-		letter-spacing: 1.5px;
-		text-transform: uppercase;
-		margin-bottom: 12px;
-	}
-	.detail-title { font-size: 34px; color: var(--primary); margin: 0 0 10px; }
-	.detail-meta { color: var(--text-muted); font-size: 13.5px; margin-bottom: 18px; }
-	.detail-desc { color: var(--text-muted); line-height: 1.9; font-size: 15px; }
+  .detail-wrap {
+    padding: 90px 0;
+    background: var(--light-bg);
+  }
+  .detail-card {
+    background: var(--white);
+    border-radius: 10px;
+    box-shadow: 0 12px 44px rgba(26, 46, 74, 0.1);
+    overflow: hidden;
+  }
+  .detail-hero {
+    height: 360px;
+    position: relative;
+    background:
+      radial-gradient(
+        900px 320px at 20% 15%,
+        rgba(201, 150, 62, 0.35) 0%,
+        transparent 60%
+      ),
+      linear-gradient(
+        135deg,
+        rgba(8, 28, 50, 0.96) 0%,
+        rgba(26, 60, 94, 0.96) 60%,
+        rgba(201, 150, 62, 0.22) 100%
+      );
+  }
+  .detail-hero img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .detail-hero .fallback {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.92);
+  }
+  .detail-hero .fallback i {
+    font-size: 70px;
+  }
+  .detail-body {
+    padding: 34px;
+  }
+  .badge-cat {
+    display: inline-block;
+    background: rgba(201, 150, 62, 0.14);
+    color: var(--accent-dark);
+    border: 1px solid rgba(201, 150, 62, 0.35);
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .detail-title {
+    font-size: 34px;
+    color: var(--primary);
+    margin: 0 0 10px;
+  }
+  .detail-meta {
+    color: var(--text-muted);
+    font-size: 13.5px;
+    margin-bottom: 18px;
+  }
+  .detail-desc {
+    color: var(--text-muted);
+    line-height: 1.9;
+    font-size: 15px;
+  }
+  .info-box {
+    margin-top: 24px;
+    padding: 20px;
+    border: 1px solid rgba(26, 46, 74, 0.1);
+    border-radius: 10px;
+    background: #fafbfd;
+  }
+  .info-box h4 {
+    font-size: 18px;
+    color: var(--primary);
+    margin-bottom: 14px;
+  }
+  .info-item {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 12px;
+    color: var(--text-muted);
+  }
+  .info-item i {
+    width: 18px;
+    margin-top: 4px;
+    color: var(--accent);
+  }
+  .product-map {
+    margin-top: 20px;
+    height: 320px;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid rgba(26, 46, 74, 0.1);
+  }
+  .product-map iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
 </style>
 
 <section class="section-top">
-	<div class="container">
-		<div class="col-lg-10 offset-lg-1 col-xs-12 text-center">
-			<div class="section-top-title wow fadeInRight" data-wow-duration="1s" data-wow-delay="0.3s">
-				<h1>Chi Tiết Sản Phẩm</h1>
-				<p>{{ product.name }}</p>
-				<div class="breadcrumb-nav">
-					<a href="{% url 'home' %}">Trang Chủ</a>
-					<span>/</span>
-					<a href="{% url 'product' %}">Sản Phẩm</a>
-					<span>/</span>
-					<strong>Chi tiết</strong>
-				</div>
-			</div>
-		</div>
-	</div>
+  <div class="container">
+    <div class="col-lg-10 offset-lg-1 col-xs-12 text-center">
+      <div
+        class="section-top-title wow fadeInRight"
+        data-wow-duration="1s"
+        data-wow-delay="0.3s"
+      >
+        <h1>Chi Tiết Sản Phẩm</h1>
+        <p>{{ product.name }}</p>
+        <div class="breadcrumb-nav">
+          <a href="{% url 'home' %}">Trang Chủ</a>
+          <span>/</span>
+          <a href="{% url 'product' %}">Sản Phẩm</a>
+          <span>/</span>
+          <strong>Chi tiết</strong>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
 
 <section class="detail-wrap">
-	<div class="container">
-		<div class="row justify-content-center">
-			<div class="col-lg-10">
-				<div class="detail-card">
-					<div class="detail-hero">
-						{% if product.image %}
-							<img src="{{ product.image.url }}" alt="{{ product.name }}">
-						{% else %}
-							<div class="fallback" aria-hidden="true"><i class="fa fa-cube"></i></div>
-						{% endif %}
-					</div>
-					<div class="detail-body">
-						<div class="badge-cat">{{ product.category.name }}</div>
-						<h2 class="detail-title">{{ product.name }}</h2>
-						<div class="detail-meta">
-							<i class="fa fa-calendar-o"></i> {{ product.created_at|date:"d/m/Y H:i" }}
-						</div>
-						<div class="detail-desc">
-							{{ product.description|default:""|linebreaksbr }}
-						</div>
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-10">
+        <div class="detail-card">
+          <div class="detail-hero">
+            {% if product.image %}
+            <img src="{{ product.image.url }}" alt="{{ product.name }}" />
+            {% else %}
+            <div class="fallback" aria-hidden="true">
+              <i class="fa fa-cube"></i>
+            </div>
+            {% endif %}
+          </div>
+          <div class="detail-body">
+            <div class="badge-cat">{{ product.category.name }}</div>
+            <h2 class="detail-title">{{ product.name }}</h2>
+            <div class="detail-meta">
+              <!-- <i class="fa fa-calendar-o"></i> {{ product.created_at|date:"d/m/Y
+              H:i" }} -->
+              <i class="fa fa-calendar-o"></i> {{ product.created_at_vn }}
+            </div>
+            <div class="detail-desc">
+              {{ product.description|default:""|linebreaksbr }}
+            </div>
 
-						<div class="d-flex justify-content-between align-items-center mt-4">
-							<a href="{% url 'product' %}" class="btn btn-secondary">Quay lại</a>
-							<a href="{% url 'contact' %}" class="btn btn-primary">Nhận tư vấn</a>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+            {% if product.supplier_name or product.supplier_address %}
+            <div class="info-box">
+              <h4>Thông tin nhà cung cấp / công ty</h4>
+
+              {% if product.supplier_name %}
+              <div class="info-item">
+                <i class="fa fa-building"></i>
+                <div>
+                  <strong>{{ product.supplier_name }}</strong>
+                </div>
+              </div>
+              {% endif %} {% if product.supplier_address %}
+              <div class="info-item">
+                <i class="fa fa-map-marker-alt"></i>
+                <div>{{ product.supplier_address|linebreaksbr }}</div>
+              </div>
+              {% endif %} {% if product.map_display_url %}
+              <div class="product-map">
+                <iframe
+                  src="{{ product.map_display_url }}"
+                  allowfullscreen=""
+                  loading="lazy"
+                  referrerpolicy="no-referrer-when-downgrade"
+                  title="Bản đồ {{ product.supplier_name|default:product.name }}"
+                ></iframe>
+              </div>
+              {% endif %}
+            </div>
+            {% endif %}
+
+            <div class="d-flex justify-content-between align-items-center mt-4">
+              <a href="{% url 'product' %}" class="btn btn-secondary"
+                >Quay lại</a
+              >
+              <a href="{% url 'contact' %}" class="btn btn-primary"
+                >Nhận tư vấn</a
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
 
 {% endblock %}
-

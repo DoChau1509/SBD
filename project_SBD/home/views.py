@@ -535,6 +535,11 @@ def product_create(request):
             name=request.POST.get("name"),
             description=request.POST.get("description", ""),
             image=request.FILES.get("image"),
+            supplier_name=request.POST.get("supplier_name", "").strip(),
+            supplier_address=request.POST.get("supplier_address", "").strip(),
+            supplier_map_embed_url=request.POST.get(
+                "supplier_map_embed_url", ""
+            ).strip(),
             category=category,
         )
         return redirect("product_list")
@@ -548,8 +553,15 @@ def product_update(request, id):
     categories = ProductCategory.objects.filter(is_hidden=False).order_by("name")
 
     if request.method == "POST":
+        # product.name = request.POST.get("name")
+        # product.description = request.POST.get("description", "")
         product.name = request.POST.get("name")
         product.description = request.POST.get("description", "")
+        product.supplier_name = request.POST.get("supplier_name", "").strip()
+        product.supplier_address = request.POST.get("supplier_address", "").strip()
+        product.supplier_map_embed_url = request.POST.get(
+            "supplier_map_embed_url", ""
+        ).strip()
 
         category_id = request.POST.get("category")
         if category_id:

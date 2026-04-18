@@ -15,7 +15,6 @@ from .models import (
 )
 
 admin.site.register(ProjectCategory)
-admin.site.register(Product)
 admin.site.register(ProductCategory)
 
 admin.site.register(Post)
@@ -36,3 +35,15 @@ class ProjectAdmin(admin.ModelAdmin):
     list_display = ("name", "category", "is_featured")
     list_filter = ("is_featured", "category")
     list_editable = ("is_featured",)
+
+
+# @admin.register(Product)
+# class ProductAdmin(admin.ModelAdmin):
+#     list_display = ("name", "category", "created_at")
+#     list_filter = ("category",)
+#     search_fields = ("name",)
+@admin.register(Product)
+class ProductAdmin(admin.ModelAdmin):
+    list_display = ("name", "category", "supplier_name", "created_at")
+    list_filter = ("category",)
+    search_fields = ("name", "supplier_name", "supplier_address")

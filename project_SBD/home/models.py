@@ -2,6 +2,7 @@ from django.db import models
 from urllib.parse import quote_plus, urlparse, parse_qs
 from django.contrib.auth.models import User
 from django.utils.text import slugify
+from django.utils import timezone
 
 
 class ProjectCategory(models.Model):
@@ -38,16 +39,87 @@ class Project(models.Model):
         return self.name
 
 
+############ Product
+# class Product(models.Model):
+#     name = models.CharField(max_length=200)
+#     description = models.TextField(blank=True)
+#     image = models.ImageField(upload_to="products/", blank=True, null=True)
+#     created_at = models.DateTimeField(auto_now_add=True)
+#     category = models.ForeignKey(
+#         ProductCategory,
+#         on_delete=models.PROTECT,
+#         related_name="products",
+#     )
+
+#     @property
+#     def created_at_vn(self):
+#         if not self.created_at:
+#             return ""
+#         return timezone.localtime(self.created_at).strftime("%d/%m/%Y %H:%M")
+
+#     @property
+#     def created_date_vn(self):
+#         if not self.created_at:
+#             return ""
+#         return timezone.localtime(self.created_at).strftime("%d/%m/%Y")
+
+
+#     def __str__(self):
+#         return self.name
 class Product(models.Model):
     name = models.CharField(max_length=200)
     description = models.TextField(blank=True)
     image = models.ImageField(upload_to="products/", blank=True, null=True)
+
+    supplier_name = models.CharField(
+        max_length=200,
+        blank=True,
+        default="",
+        verbose_name="Tên nhà cung cấp / công ty",
+    )
+    supplier_address = models.TextField(
+        blank=True,
+        default="",
+        verbose_name="Địa chỉ nhà cung cấp / công ty",
+    )
+    supplier_map_embed_url = models.URLField(
+        blank=True,
+        verbose_name="Link Google Maps của nhà cung cấp / công ty",
+    )
+
     created_at = models.DateTimeField(auto_now_add=True)
     category = models.ForeignKey(
         ProductCategory,
         on_delete=models.PROTECT,
         related_name="products",
     )
+
+    @property
+    def created_at_vn(self):
+        if not self.created_at:
+            return ""
+        return timezone.localtime(self.created_at).strftime("%d/%m/%Y %H:%M")
+
+    @property
+    def created_date_vn(self):
+        if not self.created_at:
+            return ""
+        return timezone.localtime(self.created_at).strftime("%d/%m/%Y")
+
+    @property
+    def map_display_url(self):
+        raw_url = (self.supplier_map_embed_url or "").strip()
+        if raw_url and ("/maps/embed" in raw_url or "output=embed" in raw_url):
+            return raw_url
+
+        query = (self.supplier_address or "").strip()
+        if not query:
+            return ""
+
+        return (
+            "https://maps.google.com/maps?"
+            f"q={quote_plus(query)}&t=&z=15&ie=UTF8&iwloc=&output=embed"
+        )
 
     def __str__(self):
         return self.name
@@ -115,26 +187,47 @@ class LeadershipMember(models.Model):
     def __str__(self):
         return self.full_name
 
+
 class AboutIntro(models.Model):
     # Cột trái (card tối)
-    kicker = models.CharField(max_length=100, default="Thành lập 2009", verbose_name="Dòng nhỏ trên cùng")
-    brand_name = models.CharField(max_length=200, default="Sao Bắc Đẩu", verbose_name="Tên thương hiệu")
-    slogan = models.CharField(max_length=300, default="Chất lượng — Uy tín — Bền vững", verbose_name="Slogan")
-    highlight_1 = models.CharField(max_length=100, blank=True, verbose_name="Highlight 1 (vd: ISO 9001:2015)")
-    highlight_2 = models.CharField(max_length=100, blank=True, verbose_name="Highlight 2 (vd: 200+ kỹ sư)")
-    highlight_3 = models.CharField(max_length=100, blank=True, verbose_name="Highlight 3 (vd: Thi công toàn quốc)")
-    badge_number = models.CharField(max_length=20, default="500+", verbose_name="Số badge (vd: 500+)")
-    badge_text = models.CharField(max_length=100, default="Dự Án Hoàn Thành", verbose_name="Chữ dưới badge")
+    kicker = models.CharField(
+        max_length=100, default="Thành lập 2009", verbose_name="Dòng nhỏ trên cùng"
+    )
+    brand_name = models.CharField(
+        max_length=200, default="Sao Bắc Đẩu", verbose_name="Tên thương hiệu"
+    )
+    slogan = models.CharField(
+        max_length=300, default="Chất lượng — Uy tín — Bền vững", verbose_name="Slogan"
+    )
+    highlight_1 = models.CharField(
+        max_length=100, blank=True, verbose_name="Highlight 1 (vd: ISO 9001:2015)"
+    )
+    highlight_2 = models.CharField(
+        max_length=100, blank=True, verbose_name="Highlight 2 (vd: 200+ kỹ sư)"
+    )
+    highlight_3 = models.CharField(
+        max_length=100, blank=True, verbose_name="Highlight 3 (vd: Thi công toàn quốc)"
+    )
+    badge_number = models.CharField(
+        max_length=20, default="500+", verbose_name="Số badge (vd: 500+)"
+    )
+    badge_text = models.CharField(
+        max_length=100, default="Dự Án Hoàn Thành", verbose_name="Chữ dưới badge"
+    )
 
     # Cột phải (text)
-    heading = models.CharField(max_length=300, default="Công Ty Xây Dựng Sao Bắc Đẩu", verbose_name="Tiêu đề lớn")
+    heading = models.CharField(
+        max_length=300,
+        default="Công Ty Xây Dựng Sao Bắc Đẩu",
+        verbose_name="Tiêu đề lớn",
+    )
     paragraph_1 = models.TextField(verbose_name="Đoạn văn 1")
     paragraph_2 = models.TextField(blank=True, verbose_name="Đoạn văn 2")
 
     # Danh sách bullet (mỗi dòng 1 item)
     bullet_points = models.TextField(
         verbose_name="Danh sách điểm mạnh",
-        help_text="Mỗi dòng là một bullet. VD: Chứng nhận ISO 9001:2015"
+        help_text="Mỗi dòng là một bullet. VD: Chứng nhận ISO 9001:2015",
     )
 
     updated_at = models.DateTimeField(auto_now=True)
@@ -147,7 +240,10 @@ class AboutIntro(models.Model):
 
     def get_bullets(self):
         """Trả về list các bullet, bỏ dòng trống"""
-        return [line.strip() for line in self.bullet_points.splitlines() if line.strip()]
+        return [
+            line.strip() for line in self.bullet_points.splitlines() if line.strip()
+        ]
+
 
 ############# AboutStatementType
 class AboutStatementType(models.Model):
