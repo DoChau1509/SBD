@@ -64,7 +64,7 @@
                   name="name"
                   class="form-control"
                   placeholder="Nguyễn Văn A"
-                  value="{{ request.POST.name|default:user.get_full_name|default:user.username }}"
+                  value="{% if request.POST.name %}{{ request.POST.name }}{% elif user.is_authenticated %}{{ user.get_full_name|default:user.username }}{% endif %}"
                   required
                 />
               </div>
@@ -89,7 +89,7 @@
                 name="email"
                 class="form-control"
                 placeholder="example@email.com"
-                value="{{ request.POST.email|default:user.email }}"
+                value="{% if request.POST.email %}{{ request.POST.email }}{% elif user.is_authenticated %}{{ user.email }}{% endif %}"
               />
             </div>
 
