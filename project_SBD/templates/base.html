@@ -403,10 +403,11 @@
           <div class="col-lg-2 col-md-6">
             <div class="footer-heading">Dịch Vụ</div>
             <ul class="footer-links">
-              <li><a href="#">Xây dựng dân dụng</a></li>
-              <li><a href="#">Xây dựng công nghiệp</a></li>
-              <li><a href="#">Thiết kế quy hoạch</a></li>
-              <li><a href="#">Thi công nội thất</a></li>
+          {% for service in services %}
+          <li><a href="#">{{ service.title }}</a></li>
+          {% empty %}
+              <li>Hiện chưa có dữ liệu dịch vụ để hiển thị trên trang chủ.</li>
+          {% endfor %}
             </ul>
           </div>
 
@@ -429,8 +430,7 @@
               </li>
               <li>
                 <i class="fa fa-clock-o"></i>
-                {{ site_contact.working_hours|default:"Chưa cập nhật giờ làm
-                việc"|linebreaksbr }}
+                {{ site_contact.working_hours|default:"Chưa cập nhật giờ làm việc"|linebreaksbr }}
               </li>
               {% else %}
               <li><i class="fa fa-map-marker"></i> Chưa cập nhật địa chỉ</li>
