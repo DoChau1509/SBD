@@ -1,88 +1,164 @@
-{% extends 'base.html' %} {% block content %}
+{% extends 'base.html' %}
+{% block content %}
+
 <style>
+  .dashboard-container {
+    margin-top: 100px;
+  }
+
+  .table thead th {
+    background: #f8f9fa;
+    font-weight: 600;
+  }
+
+  .table td {
+    vertical-align: middle;
+  }
+
   .badge-success {
     background: #28a745;
+    padding: 6px 10px;
+    border-radius: 6px;
   }
+
   .badge-secondary {
     background: #6c757d;
+    padding: 6px 10px;
+    border-radius: 6px;
+  }
+
+  .action-btns a {
+    margin-right: 5px;
   }
 </style>
 
-<div class="container" style="margin-top: 100px">
-  <div
-    style="
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 24px;
-    "
-  >
-    <h2 style="margin: 0">Quản lý Thông Tin Liên Hệ</h2>
-    <a href="{% url 'contact_info_add' %}" class="btn btn-primary"
-      >+ Thêm thông tin liên hệ</a
-    >
+<div class="container dashboard-container">
+
+  <!-- MENU -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-body d-flex flex-wrap gap-2">
+
+      <a href="{% url 'dashboard' %}" class="btn btn-outline-primary">Dự án</a>
+      <a href="{% url 'project_category_list' %}" class="btn btn-outline-primary">Danh mục dự án</a>
+
+      <a href="{% url 'product_list' %}" class="btn btn-outline-primary">Sản phẩm</a>
+      <a href="{% url 'product_category_list' %}" class="btn btn-outline-primary">Danh mục sản phẩm</a>
+
+      <a href="{% url 'post_list' %}" class="btn btn-outline-primary">Bài viết</a>
+      <a href="{% url 'post_category_list' %}" class="btn btn-outline-primary">Danh mục bài viết</a>
+
+      <a href="{% url 'faq_list' %}" class="btn btn-outline-primary">FAQ</a>
+      <a href="{% url 'leadership_list' %}" class="btn btn-outline-primary">Ban lãnh đạo</a>
+
+      <a href="{% url 'statement_list' %}" class="btn btn-outline-primary">Tầm nhìn</a>
+      <a href="{% url 'statement_type_list' %}" class="btn btn-outline-primary">Loại nội dung</a>
+
+      <a href="{% url 'service_list' %}" class="btn btn-outline-primary">Dịch vụ</a>
+      <a href="{% url 'service_type_list' %}" class="btn btn-outline-primary">Loại dịch vụ</a>
+
+      <a href="{% url 'certificate_list' %}" class="btn btn-outline-primary">Chứng chỉ</a>
+      <a href="{% url 'contact_info_list' %}" class="btn btn-outline-primary active">Liên hệ</a>
+
+      <a href="{% url 'about_intro_edit' %}" class="btn btn-outline-primary">Giới thiệu</a>
+
+    </div>
   </div>
 
-  <table class="table table-bordered table-hover">
-    <thead class="thead-dark">
-      <tr>
-        <th>#</th>
-        <th>Chi nhánh / văn phòng</th>
-        <th>Điện thoại</th>
-        <th>Email</th>
-        <th>Thứ tự</th>
-        <th>Hiển thị</th>
-        <th>Hành động</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for info in contact_infos %}
-      <tr>
-        <td>{{ forloop.counter }}</td>
-        <td>{{ info.branch_name }}</td>
-        <td>{{ info.phone }}</td>
-        <td>{{ info.email|default:"-" }}</td>
-        <td>{{ info.order }}</td>
-        <td>
-          <form
-            method="post"
-            action="{% url 'contact_info_toggle_status' info.id %}"
-            style="display: inline-block; margin: 0"
-          >
-            {% csrf_token %}
-            <button
-              type="submit"
-              class="btn btn-sm {% if info.is_active %}btn-success{% else %}btn-secondary{% endif %}"
-              style="min-width: 70px"
-            >
-              {% if info.is_active %}Hiện{% else %}Ẩn{% endif %}
-            </button>
-          </form>
-        </td>
-        <td>
-          <a
-            href="{% url 'contact_info_edit' info.id %}"
-            class="btn btn-sm btn-warning"
-            >Sửa</a
-          >
-          <a
-            href="{% url 'contact_info_delete' info.id %}"
-            class="btn btn-sm btn-danger"
-            onclick="return confirm('Xóa thông tin liên lạc này?');"
-            >Xóa</a
-          >
-        </td>
-      </tr>
-      {% empty %}
-      <tr>
-        <td colspan="7" class="text-center">Chưa có thông tin liên lạc nào.</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  <!-- HEADER -->
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
 
-  <a href="{% url 'dashboard' %}" class="btn btn-secondary"
-    >Quay lại Dashboard</a
-  >
+    <div>
+      <h2 class="fw-bold mb-1">Quản lý thông tin liên hệ</h2>
+      <p class="text-muted mb-0">
+        Quản lý chi nhánh, văn phòng và thông tin liên lạc
+      </p>
+    </div>
+
+    <a href="{% url 'contact_info_add' %}" class="btn btn-primary">
+      <i class="fas fa-plus me-1"></i>
+      Thêm liên hệ
+    </a>
+
+  </div>
+
+  <!-- TABLE -->
+  <div class="card shadow-sm">
+    <div class="card-body p-0">
+
+      <table class="table table-hover mb-0">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Chi nhánh</th>
+            <th>Điện thoại</th>
+            <th>Email</th>
+            <th>Thứ tự</th>
+            <th>Trạng thái</th>
+            <th style="width: 170px;">Hành động</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for info in contact_infos %}
+          <tr>
+
+            <td>{{ forloop.counter }}</td>
+
+            <td>
+              <strong>{{ info.branch_name }}</strong>
+            </td>
+
+            <td>{{ info.phone }}</td>
+
+            <td>
+              {{ info.email|default:"-" }}
+            </td>
+
+            <td>{{ info.order }}</td>
+
+            <td>
+              <form method="post"
+                    action="{% url 'contact_info_toggle_status' info.id %}">
+                {% csrf_token %}
+                <button type="submit"
+                        class="btn btn-sm {% if info.is_active %}btn-success{% else %}btn-secondary{% endif %}">
+                  {% if info.is_active %}
+                    Hiện
+                  {% else %}
+                    Ẩn
+                  {% endif %}
+                </button>
+              </form>
+            </td>
+
+            <td class="action-btns">
+              <a href="{% url 'contact_info_edit' info.id %}" class="btn btn-sm btn-warning">
+                Sửa
+              </a>
+
+              <a href="{% url 'contact_info_delete' info.id %}"
+                 class="btn btn-sm btn-danger"
+                 onclick="return confirm('Xóa thông tin này?');">
+                Xóa
+              </a>
+            </td>
+
+          </tr>
+
+          {% empty %}
+          <tr>
+            <td colspan="7" class="text-center py-4 text-muted">
+              Chưa có thông tin liên hệ nào
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+
+      </table>
+
+    </div>
+  </div>
+
 </div>
+
 {% endblock %}

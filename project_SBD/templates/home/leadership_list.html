@@ -1,4 +1,6 @@
-{% extends 'base.html' %} {% block content %}
+{% extends 'base.html' %}
+{% block content %}
+
 <style>
   .badge-success {
     background: #28a745;
@@ -9,88 +11,122 @@
 </style>
 
 <div class="container" style="margin-top: 100px">
-  <div
-    style="
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 24px;
-    "
-  >
-    <h2 style="margin: 0">Quản lý Ban lãnh đạo</h2>
-    <a href="{% url 'leadership_add' %}" class="btn btn-primary"
-      >+ Thêm thành viên</a
-    >
+  <!-- HEADER -->
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+      <h2 class="fw-bold mb-1">Quản lý Ban lãnh đạo</h2>
+      <p class="text-muted mb-0">Danh sách thành viên và trạng thái hiển thị</p>
+    </div>
+
+    <div class="d-flex gap-2 flex-wrap">
+      <a href="{% url 'leadership_add' %}" class="btn btn-primary">
+        + Thêm thành viên
+      </a>
+    </div>
+  </div>
+
+  <!-- MENU -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-body d-flex flex-wrap gap-2">
+      <a href="{% url 'dashboard' %}" class="btn btn-outline-primary">Dự án</a>
+      <a href="{% url 'project_category_list' %}" class="btn btn-outline-primary">Danh mục dự án</a>
+
+      <a href="{% url 'product_list' %}" class="btn btn-outline-primary">Sản phẩm</a>
+      <a href="{% url 'product_category_list' %}" class="btn btn-outline-primary">Danh mục sản phẩm</a>
+
+      <a href="{% url 'post_list' %}" class="btn btn-outline-primary">Bài viết</a>
+      <a href="{% url 'post_category_list' %}" class="btn btn-outline-primary">Danh mục bài viết</a>
+
+      <a href="{% url 'faq_list' %}" class="btn btn-outline-primary">FAQ</a>
+      <a href="{% url 'leadership_list' %}" class="btn btn-outline-primary active">Ban lãnh đạo</a>
+
+      <a href="{% url 'statement_list' %}" class="btn btn-outline-primary">Tầm nhìn</a>
+      <a href="{% url 'statement_type_list' %}" class="btn btn-outline-primary">Loại nội dung</a>
+
+      <a href="{% url 'service_list' %}" class="btn btn-outline-primary">Dịch vụ</a>
+      <a href="{% url 'service_type_list' %}" class="btn btn-outline-primary">Loại dịch vụ</a>
+
+      <a href="{% url 'certificate_list' %}" class="btn btn-outline-primary">Chứng chỉ</a>
+      <a href="{% url 'contact_info_list' %}" class="btn btn-outline-primary">Liên hệ</a>
+
+      <a href="{% url 'about_intro_edit' %}" class="btn btn-outline-primary">Giới thiệu</a>
+    </div>
   </div>
 
   {% if error %}
   <div class="alert alert-danger">{{ error }}</div>
   {% endif %}
 
-  <table class="table table-bordered table-hover">
-    <thead class="thead-dark">
-      <tr>
-        <th>#</th>
-        <th>Ảnh</th>
-        <th>Họ và tên</th>
-        <th>Chức vụ</th>
-        <th>Thứ tự</th>
-        <th>Hiển thị</th>
-        <th>Hành động</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for member in leadership_members %}
-      <tr>
-        <td>{{ forloop.counter }}</td>
-        <td>
-          {% if member.image %}
-          <img
-            src="{{ member.image.url }}"
-            alt="{{ member.full_name }}"
-            width="60"
-            style="height: 60px; object-fit: cover; border-radius: 50%"
-          />
-          {% else %}
-          <span class="text-muted">Không có ảnh</span>
-          {% endif %}
-        </td>
-        <td>{{ member.full_name }}</td>
-        <td>{{ member.role }}</td>
-        <td>{{ member.order }}</td>
-        <td>
-          {% if member.is_active %}
-          <span class="badge badge-success">Hiện</span>
-          {% else %}
-          <span class="badge badge-secondary">Ẩn</span>
-          {% endif %}
-        </td>
-        <td>
-          <a
-            href="{% url 'leadership_edit' member.id %}"
-            class="btn btn-sm btn-warning"
-            >Sửa</a
-          >
-          <a
-            href="{% url 'leadership_delete' member.id %}"
-            class="btn btn-sm btn-danger"
-            onclick="return confirm('Xóa thành viên này?');"
-            >Xóa</a
-          >
-        </td>
-      </tr>
-      {% empty %}
-      <tr>
-        <td colspan="7" class="text-center">
-          Chưa có thành viên ban lãnh đạo nào.
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  <!-- TABLE -->
+  <div class="card shadow-sm">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>#</th>
+            <th>Ảnh</th>
+            <th>Họ và tên</th>
+            <th>Chức vụ</th>
+            <th>Thứ tự</th>
+            <th>Hiển thị</th>
+            <th class="text-end">Hành động</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for member in leadership_members %}
+          <tr>
+            <td>{{ forloop.counter }}</td>
 
-  <a href="{% url 'dashboard' %}" class="btn btn-secondary"
-    >Quay lại Dashboard</a
-  >
+            <td>
+              {% if member.image %}
+              <img
+                src="{{ member.image.url }}"
+                alt="{{ member.full_name }}"
+                width="50"
+                height="50"
+                style="object-fit: cover; border-radius: 50%;"
+              />
+              {% else %}
+              <span class="text-muted">Không có ảnh</span>
+              {% endif %}
+            </td>
+
+            <td class="fw-semibold">{{ member.full_name }}</td>
+            <td>{{ member.role }}</td>
+            <td>{{ member.order }}</td>
+
+            <td>
+              {% if member.is_active %}
+              <span class="badge badge-success">Hiện</span>
+              {% else %}
+              <span class="badge badge-secondary">Ẩn</span>
+              {% endif %}
+            </td>
+
+            <td class="text-end">
+              <a href="{% url 'leadership_edit' member.id %}" class="btn btn-sm btn-outline-warning">
+                Sửa
+              </a>
+              <a href="{% url 'leadership_delete' member.id %}" 
+                 class="btn btn-sm btn-outline-danger"
+                 onclick="return confirm('Xóa thành viên này?');">
+                Xóa
+              </a>
+            </td>
+          </tr>
+
+          {% empty %}
+          <tr>
+            <td colspan="7" class="text-center text-muted py-4">
+              Chưa có thành viên ban lãnh đạo nào.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
 </div>
+
 {% endblock %}
