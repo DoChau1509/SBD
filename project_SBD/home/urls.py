@@ -193,4 +193,26 @@ urlpatterns = [
     path("services/add/", views.service_create, name="service_add"),
     path("services/edit/<int:id>/", views.service_update, name="service_edit"),
     path("services/delete/<int:id>/", views.service_delete, name="service_delete"),
+    # Why-choose
+    path(
+        "why-choose/edit/",
+        views.why_choose_section_edit,
+        name="why_choose_section_edit",
+    ),
+    path("why-choose/items/", views.why_choose_item_list, name="why_choose_item_list"),
+    path(
+        "why-choose/items/add/",
+        views.why_choose_item_create,
+        name="why_choose_item_add",
+    ),
+    path(
+        "why-choose/items/<int:id>/edit/",
+        views.why_choose_item_update,
+        name="why_choose_item_edit",
+    ),
+    path(
+        "why-choose/items/<int:id>/delete/",
+        views.why_choose_item_delete,
+        name="why_choose_item_delete",
+    ),
 ]

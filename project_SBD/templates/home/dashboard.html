@@ -1,8 +1,6 @@
-{% extends 'base.html' %}
-{% block content %}
+{% extends 'base.html' %} {% block content %}
 
 <div class="container py-5" style="margin-top: 80px">
-
   <!-- HEADER -->
   <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
@@ -17,28 +15,63 @@
   <!-- DASHBOARD MENU -->
   <div class="card shadow-sm mb-4">
     <div class="card-body d-flex flex-wrap gap-2">
-      <a href="{% url 'dashboard' %}" class="btn btn-outline-primary active">Dự án</a>
-      <a href="{% url 'project_category_list' %}" class="btn btn-outline-primary">Danh mục dự án</a>
+      <a href="{% url 'why_choose_item_list' %}" class="btn btn-outline-primary"
+        >Tại Sao Chọn Chúng Tôi</a
+      >
+      <a href="{% url 'dashboard' %}" class="btn btn-outline-primary active"
+        >Dự án</a
+      >
+      <a
+        href="{% url 'project_category_list' %}"
+        class="btn btn-outline-primary"
+        >Danh mục dự án</a
+      >
 
-      <a href="{% url 'product_list' %}" class="btn btn-outline-primary">Sản phẩm</a>
-      <a href="{% url 'product_category_list' %}" class="btn btn-outline-primary">Danh mục sản phẩm</a>
+      <a href="{% url 'product_list' %}" class="btn btn-outline-primary"
+        >Sản phẩm</a
+      >
+      <a
+        href="{% url 'product_category_list' %}"
+        class="btn btn-outline-primary"
+        >Danh mục sản phẩm</a
+      >
 
-      <a href="{% url 'post_list' %}" class="btn btn-outline-primary">Bài viết</a>
-      <a href="{% url 'post_category_list' %}" class="btn btn-outline-primary">Danh mục bài viết</a>
+      <a href="{% url 'post_list' %}" class="btn btn-outline-primary"
+        >Bài viết</a
+      >
+      <a href="{% url 'post_category_list' %}" class="btn btn-outline-primary"
+        >Danh mục bài viết</a
+      >
 
       <a href="{% url 'faq_list' %}" class="btn btn-outline-primary">FAQ</a>
-      <a href="{% url 'leadership_list' %}" class="btn btn-outline-primary">Ban lãnh đạo</a>
+      <a href="{% url 'leadership_list' %}" class="btn btn-outline-primary"
+        >Ban lãnh đạo</a
+      >
 
-      <a href="{% url 'statement_list' %}" class="btn btn-outline-primary">Tầm nhìn</a>
-      <a href="{% url 'statement_type_list' %}" class="btn btn-outline-primary">Loại nội dung</a>
+      <a href="{% url 'statement_list' %}" class="btn btn-outline-primary"
+        >Tầm nhìn</a
+      >
+      <a href="{% url 'statement_type_list' %}" class="btn btn-outline-primary"
+        >Loại nội dung</a
+      >
 
-      <a href="{% url 'service_list' %}" class="btn btn-outline-primary">Dịch vụ</a>
-      <a href="{% url 'service_type_list' %}" class="btn btn-outline-primary">Loại dịch vụ</a>
+      <a href="{% url 'service_list' %}" class="btn btn-outline-primary"
+        >Dịch vụ</a
+      >
+      <a href="{% url 'service_type_list' %}" class="btn btn-outline-primary"
+        >Loại dịch vụ</a
+      >
 
-      <a href="{% url 'certificate_list' %}" class="btn btn-outline-primary">Chứng chỉ</a>
-      <a href="{% url 'contact_info_list' %}" class="btn btn-outline-primary">Liên hệ</a>
+      <a href="{% url 'certificate_list' %}" class="btn btn-outline-primary"
+        >Chứng chỉ</a
+      >
+      <a href="{% url 'contact_info_list' %}" class="btn btn-outline-primary"
+        >Liên hệ</a
+      >
 
-      <a href="{% url 'about_intro_edit' %}" class="btn btn-outline-primary">Giới thiệu</a>
+      <a href="{% url 'about_intro_edit' %}" class="btn btn-outline-primary"
+        >Giới thiệu</a
+      >
     </div>
   </div>
 
@@ -57,7 +90,7 @@
         <tbody>
           {% for p in projects %}
           <tr>
-            <td style="width: 100px;">
+            <td style="width: 100px">
               {% if p.image %}
               <img src="{{ p.image.url }}" class="rounded" width="80" />
               {% else %}
@@ -68,16 +101,20 @@
             <td class="fw-semibold">{{ p.name }}</td>
 
             <td>
-              <span class="badge bg-secondary">
-                {{ p.category.name }}
-              </span>
+              <span class="badge bg-secondary"> {{ p.category.name }} </span>
             </td>
 
             <td class="text-center">
-              <a href="{% url 'project_edit' p.id %}" class="btn btn-sm btn-warning me-1">
+              <a
+                href="{% url 'project_edit' p.id %}"
+                class="btn btn-sm btn-warning me-1"
+              >
                 Sửa
               </a>
-              <a href="{% url 'project_delete' p.id %}" class="btn btn-sm btn-danger">
+              <a
+                href="{% url 'project_delete' p.id %}"
+                class="btn btn-sm btn-danger"
+              >
                 Xóa
               </a>
             </td>
@@ -93,7 +130,6 @@
       </table>
     </div>
   </div>
-
 </div>
 
 {% endblock %}

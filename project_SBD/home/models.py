@@ -245,6 +245,76 @@ class AboutIntro(models.Model):
         ]
 
 
+# =========HomeWhyChooseSection
+class HomeWhyChooseSection(models.Model):
+    section_title = models.CharField(
+        max_length=255,
+        default="Tại Sao Chọn Sao Bắc Đẩu?",
+        verbose_name="Tiêu đề khối bên trái",
+    )
+    right_kicker = models.CharField(
+        max_length=100,
+        default="SBD Construction",
+        verbose_name="Dòng nhỏ bên phải",
+    )
+    right_title = models.CharField(
+        max_length=255,
+        default="Thi công trọn gói",
+        verbose_name="Tiêu đề lớn bên phải",
+    )
+    right_subtitle = models.CharField(
+        max_length=255,
+        default="Dân dụng • Công nghiệp • Hạ tầng",
+        verbose_name="Dòng mô tả bên phải",
+    )
+    badge_number = models.CharField(
+        max_length=20,
+        default="15+",
+        verbose_name="Số badge",
+    )
+    badge_label = models.CharField(
+        max_length=100,
+        default="Năm Kinh Nghiệm",
+        verbose_name="Chữ dưới badge",
+    )
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Khối Tại Sao Chọn Chúng Tôi"
+        verbose_name_plural = "Khối Tại Sao Chọn Chúng Tôi"
+
+    def __str__(self):
+        return self.section_title
+
+
+class HomeWhyChooseItem(models.Model):
+    section = models.ForeignKey(
+        HomeWhyChooseSection,
+        on_delete=models.CASCADE,
+        related_name="items",
+        verbose_name="Khối",
+    )
+    icon = models.CharField(
+        max_length=100,
+        default="fa-solid fa-star",
+        verbose_name="Icon Font Awesome",
+        help_text="Ví dụ: fa fa-trophy hoặc fa-solid fa-shield",
+    )
+    title = models.CharField(max_length=255, verbose_name="Tiêu đề item")
+    content = models.TextField(verbose_name="Nội dung item")
+    order = models.PositiveIntegerField(default=0, verbose_name="Thứ tự")
+    is_active = models.BooleanField(default=True, verbose_name="Hiển thị")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["order", "created_at"]
+        verbose_name = "Lý do chọn chúng tôi"
+        verbose_name_plural = "Lý do chọn chúng tôi"
+
+    def __str__(self):
+        return self.title
+
+
 ############# AboutStatementType
 class AboutStatementType(models.Model):
     name = models.CharField(max_length=100, unique=True, verbose_name="Tên loại")

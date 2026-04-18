@@ -31,6 +31,8 @@ from .models import (
     Consultation,
     Notification,
     AboutIntro,
+    HomeWhyChooseSection,
+    HomeWhyChooseItem,
 )
 
 User = get_user_model()
@@ -157,6 +159,28 @@ def _can_move_consultation_status(current_status, new_status):
 
 
 # ====================== PUBLIC PAGES ======================
+# def home(request):
+#     projects = Project.objects.filter(is_featured=True)
+#     services = (
+#         Service.objects.filter(is_active=True, service_type__is_active=True)
+#         .select_related("service_type")
+#         .order_by(
+#             "service_type__order",
+#             "service_type__created_at",
+#             "order",
+#             "created_at",
+#         )
+#     )
+
+
+#     return render(
+#         request,
+#         "home/home.html",
+#         {
+#             "projects": projects,
+#             "services": services,
+#         },
+#     )
 def home(request):
     projects = Project.objects.filter(is_featured=True)
     services = (
@@ -170,12 +194,19 @@ def home(request):
         )
     )
 
+    why_section = HomeWhyChooseSection.objects.first()
+    why_items = HomeWhyChooseItem.objects.filter(is_active=True).order_by(
+        "order", "created_at"
+    )
+
     return render(
         request,
         "home/home.html",
         {
             "projects": projects,
             "services": services,
+            "why_section": why_section,
+            "why_items": why_items,
         },
     )
 
@@ -1852,3 +1883,95 @@ def about_intro_edit(request):
         return redirect("about_intro_edit")
 
     return render(request, "home/about_intro_form.html", {"intro": intro})
+
+
+# ===============why_choose_section_edit
+@staff_required
+def why_choose_section_edit(request):
+    section = HomeWhyChooseSection.objects.first()
+    if not section:
+        section = HomeWhyChooseSection.objects.create()
+
+    if request.method == "POST":
+        section.section_title = (request.POST.get("section_title") or "").strip()
+        section.right_kicker = (request.POST.get("right_kicker") or "").strip()
+        section.right_title = (request.POST.get("right_title") or "").strip()
+        section.right_subtitle = (request.POST.get("right_subtitle") or "").strip()
+        section.badge_number = (request.POST.get("badge_number") or "").strip()
+        section.badge_label = (request.POST.get("badge_label") or "").strip()
+        section.save()
+        return redirect("why_choose_item_list")
+
+    return render(
+        request,
+        "home/why_choose_section_form.html",
+        {"section": section, "title": "Chỉnh sửa khối Tại Sao Chọn Chúng Tôi"},
+    )
+
+
+@staff_required
+def why_choose_item_list(request):
+    items = (
+        HomeWhyChooseItem.objects.select_related("section")
+        .all()
+        .order_by("order", "created_at")
+    )
+    return render(request, "home/why_choose_item_list.html", {"items": items})
+
+
+@staff_required
+def why_choose_item_create(request):
+    section = HomeWhyChooseSection.objects.first()
+    if not section:
+        section = HomeWhyChooseSection.objects.create()
+
+    if request.method == "POST":
+        title = (request.POST.get("title") or "").strip()
+        content = (request.POST.get("content") or "").strip()
+        icon = (request.POST.get("icon") or "").strip()
+        order = request.POST.get("order") or 0
+        is_active = request.POST.get("is_active") == "on"
+
+        if title and content:
+            HomeWhyChooseItem.objects.create(
+                section=section,
+                title=title,
+                content=content,
+                icon=icon or "fa-solid fa-star",
+                order=int(order),
+                is_active=is_active,
+            )
+            return redirect("why_choose_item_list")
+
+    return render(
+        request,
+        "home/why_choose_item_form.html",
+        {"title_page": "Thêm lý do", "item": None},
+    )
+
+
+@staff_required
+def why_choose_item_update(request, id):
+    item = get_object_or_404(HomeWhyChooseItem, id=id)
+
+    if request.method == "POST":
+        item.title = (request.POST.get("title") or "").strip()
+        item.content = (request.POST.get("content") or "").strip()
+        item.icon = (request.POST.get("icon") or "").strip() or "fa-solid fa-star"
+        item.order = int(request.POST.get("order") or 0)
+        item.is_active = request.POST.get("is_active") == "on"
+        item.save()
+        return redirect("why_choose_item_list")
+
+    return render(
+        request,
+        "home/why_choose_item_form.html",
+        {"title_page": "Sửa lý do", "item": item},
+    )
+
+
+@staff_required
+def why_choose_item_delete(request, id):
+    item = get_object_or_404(HomeWhyChooseItem, id=id)
+    item.delete()
+    return redirect("why_choose_item_list")
