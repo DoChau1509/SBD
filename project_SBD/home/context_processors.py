@@ -1,4 +1,4 @@
-from .models import ContactInfo, Notification
+from .models import ContactInfo, Notification, Consultation
 
 
 def site_contact(request):
@@ -16,9 +16,12 @@ def site_contact(request):
             is_read=False,
         ).count()
         recent_notifications = Notification.objects.filter(user=request.user)[:5]
+        
+    consultations_unfinished = Consultation.objects.exclude(status="done").count()
 
     return {
         "site_contact": contact,
         "unread_notifications_count": unread_notifications_count,
         "recent_notifications": recent_notifications,
+        "consultations_unfinished": consultations_unfinished,
     }

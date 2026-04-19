@@ -111,17 +111,11 @@
               class="btn btn-outline-danger position-relative"
             >
               <i class="fa fa-comment"></i>
-              {% if consultations_pending %}
+              {% if consultations_unfinished %}
               <span
                 class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
               >
-                {{ consultations_pending }}
-              </span>
-              {% elif consultations_processing %}
-              <span
-                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark"
-              >
-                {{ consultations_processing }}
+                {{ consultations_unfinished }}
               </span>
               {% endif %}
             </a>

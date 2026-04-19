@@ -33,16 +33,13 @@
   <!-- HEADER -->
   <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
     <div>
-      <h2 class="fw-bold mb-1">Quản lý nội dung</h2>
-      <p class="text-muted mb-0">Tầm nhìn / Sứ mệnh / Giá trị cốt lõi</p>
+      <h2 class="fw-bold mb-1">Quản lý chứng chỉ</h2>
+      <p class="text-muted mb-0">Các loại chứng chỉ của công ty</p>
     </div>
 
     <div class="d-flex gap-2 flex-wrap">
-      <a href="{% url 'statement_type_list' %}" class="btn btn-outline-primary">
-        Loại nội dung
-      </a>
-      <a href="{% url 'statement_add' %}" class="btn btn-primary">
-        + Thêm nội dung
+      <a href="{% url 'certificate_add' %}" class="btn btn-primary">
+        + Thêm chứng chỉ mới
       </a>
     </div>
   </div>
@@ -72,6 +69,7 @@
       <a href="{% url 'contact_info_list' %}" class="btn btn-outline-primary">Liên hệ</a>
 
       <a href="{% url 'about_intro_edit' %}" class="btn btn-outline-primary">Giới thiệu</a>
+      <a href="{% url 'why_choose_item_list' %}" class="btn btn-outline-primary">Tại Sao Chọn Chúng Tôi</a>
     </div>
   </div>
 
@@ -96,52 +94,58 @@
         </thead>
 
         <tbody>
-          {% for statement in statements %}
+          {% for certificate in certs %}
           <tr>
             <td>{{ forloop.counter }}</td>
 
+            <!-- Loại chứng chỉ -->
             <td>
               <span class="badge bg-secondary">
-                {{ statement.statement_type.name }}
+                {{ certificate.certificate_type.name }}
               </span>
             </td>
 
+            <!-- Tên chứng chỉ -->
             <td class="fw-semibold">
-              {{ statement.display_title }}
+              {{ certificate.title }}
             </td>
 
+            <!-- Icon -->
             <td>
               <div class="d-flex align-items-center gap-2">
-                <i class="{{ statement.icon_css_class }} statement-icon"></i>
+                <i class="{{ certificate.icon_css_class }} certificate-icon"></i>
                 <small class="text-muted">
-                  {{ statement.icon|default:"(mặc định)" }}
+                  {{ certificate.icon|default:"(mặc định)" }}
                 </small>
               </div>
             </td>
 
+            <!-- Thứ tự -->
             <td>
               <span class="badge bg-light text-dark">
-                {{ statement.order }}
+                {{ certificate.order }}
               </span>
             </td>
 
+            <!-- Trạng thái -->
             <td>
-              {% if statement.is_active %}
+              {% if certificate.is_active %}
               <span class="badge badge-active">Hiển thị</span>
               {% else %}
               <span class="badge badge-inactive">Ẩn</span>
               {% endif %}
             </td>
 
+            <!-- Action -->
             <td class="text-center">
-              <a href="{% url 'statement_edit' statement.id %}" 
-                 class="btn btn-sm btn-outline-warning me-1">
+              <a href="{% url 'certificate_edit' certificate.id %}" 
+                class="btn btn-sm btn-outline-warning me-1">
                 Sửa
               </a>
 
-              <a href="{% url 'statement_delete' statement.id %}" 
-                 class="btn btn-sm btn-outline-danger"
-                 onclick="return confirm('Xóa nội dung này?');">
+              <a href="{% url 'certificate_delete' certificate.id %}" 
+                class="btn btn-sm btn-outline-danger"
+                onclick="return confirm('Xóa chứng chỉ này?');">
                 Xóa
               </a>
             </td>
@@ -150,7 +154,7 @@
           {% empty %}
           <tr>
             <td colspan="7" class="text-center text-muted py-4">
-              Chưa có nội dung nào
+              Chưa có chứng chỉ nào
             </td>
           </tr>
           {% endfor %}

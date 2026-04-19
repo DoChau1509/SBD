@@ -33,6 +33,22 @@
 </style>
 
 <div class="container dashboard-container">
+    <!-- HEADER -->
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+
+    <div>
+      <h2 class="fw-bold mb-1">Quản lý thông tin liên hệ</h2>
+      <p class="text-muted mb-0">
+        Quản lý chi nhánh, văn phòng và thông tin liên lạc
+      </p>
+    </div>
+
+    <a href="{% url 'contact_info_add' %}" class="btn btn-primary">
+      <i class="fas fa-plus me-1"></i>
+      Thêm liên hệ
+    </a>
+
+  </div>
 
   <!-- MENU -->
   <div class="card shadow-sm mb-4">
@@ -60,25 +76,8 @@
       <a href="{% url 'contact_info_list' %}" class="btn btn-outline-primary active">Liên hệ</a>
 
       <a href="{% url 'about_intro_edit' %}" class="btn btn-outline-primary">Giới thiệu</a>
-
+      <a href="{% url 'why_choose_item_list' %}" class="btn btn-outline-primary">Tại Sao Chọn Chúng Tôi</a>
     </div>
-  </div>
-
-  <!-- HEADER -->
-  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-
-    <div>
-      <h2 class="fw-bold mb-1">Quản lý thông tin liên hệ</h2>
-      <p class="text-muted mb-0">
-        Quản lý chi nhánh, văn phòng và thông tin liên lạc
-      </p>
-    </div>
-
-    <a href="{% url 'contact_info_add' %}" class="btn btn-primary">
-      <i class="fas fa-plus me-1"></i>
-      Thêm liên hệ
-    </a>
-
   </div>
 
   <!-- TABLE -->

@@ -38,34 +38,6 @@ class Project(models.Model):
     def __str__(self):
         return self.name
 
-
-############ Product
-# class Product(models.Model):
-#     name = models.CharField(max_length=200)
-#     description = models.TextField(blank=True)
-#     image = models.ImageField(upload_to="products/", blank=True, null=True)
-#     created_at = models.DateTimeField(auto_now_add=True)
-#     category = models.ForeignKey(
-#         ProductCategory,
-#         on_delete=models.PROTECT,
-#         related_name="products",
-#     )
-
-#     @property
-#     def created_at_vn(self):
-#         if not self.created_at:
-#             return ""
-#         return timezone.localtime(self.created_at).strftime("%d/%m/%Y %H:%M")
-
-#     @property
-#     def created_date_vn(self):
-#         if not self.created_at:
-#             return ""
-#         return timezone.localtime(self.created_at).strftime("%d/%m/%Y")
-
-
-#     def __str__(self):
-#         return self.name
 class Product(models.Model):
     name = models.CharField(max_length=200)
     description = models.TextField(blank=True)
