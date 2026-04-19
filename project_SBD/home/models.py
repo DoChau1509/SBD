@@ -697,3 +697,57 @@ class Notification(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.message[:30]}"
+
+#carousel va video ảnh nền
+class HeroSection(models.Model):
+    # Text content
+    badge_text = models.CharField(max_length=200, verbose_name="Badge text (vd: Hơn 15 năm...)")
+    heading_line1 = models.CharField(max_length=300, verbose_name="Tiêu đề dòng 1")
+    heading_line2 = models.CharField(max_length=300, blank=True, verbose_name="Tiêu đề dòng 2 (vàng)")
+    description = models.TextField(verbose_name="Mô tả")
+    btn_primary_text = models.CharField(max_length=100, default="Giới Thiệu", verbose_name="Nút chính - text")
+    btn_primary_url = models.CharField(max_length=200, default="/about/", verbose_name="Nút chính - URL")
+    btn_outline_text = models.CharField(max_length=100, default="Xem Dự Án", verbose_name="Nút phụ - text")
+    btn_outline_url = models.CharField(max_length=200, default="/project/", verbose_name="Nút phụ - URL")
+
+    # Stats
+    stat_1_num = models.CharField(max_length=20, default="500+")
+    stat_1_label = models.CharField(max_length=100, default="Dự án hoàn thành")
+    stat_2_num = models.CharField(max_length=20, default="15+")
+    stat_2_label = models.CharField(max_length=100, default="Năm kinh nghiệm")
+    stat_3_num = models.CharField(max_length=20, default="200+")
+    stat_3_label = models.CharField(max_length=100, default="Kỹ sư & Chuyên gia")
+    stat_4_num = models.CharField(max_length=20, default="98%")
+    stat_4_label = models.CharField(max_length=100, default="Khách hàng hài lòng")
+
+    # Background
+    BG_TYPE_CHOICES = [
+        ('color', 'Màu nền (mặc định)'),
+        ('image', 'Ảnh nền'),
+        ('video', 'Video tự chạy'),
+        ('carousel', 'Carousel nhiều ảnh'),
+    ]
+    bg_type = models.CharField(max_length=20, choices=BG_TYPE_CHOICES, default='color', verbose_name="Loại nền")
+    bg_image = models.ImageField(upload_to='hero/', blank=True, null=True, verbose_name="Ảnh nền")
+    bg_video = models.FileField(upload_to='hero/videos/', blank=True, null=True, verbose_name="Video nền (mp4)")
+
+    is_active = models.BooleanField(default=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Hero Section"
+
+    def __str__(self):
+        return self.heading_line1
+
+
+class HeroCarouselImage(models.Model):
+    hero = models.ForeignKey(HeroSection, on_delete=models.CASCADE, related_name='carousel_images')
+    image = models.ImageField(upload_to='hero/carousel/', verbose_name="Ảnh")
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['order']
+
+    def __str__(self):
+        return f"Carousel ảnh #{self.order}"

@@ -12,7 +12,7 @@ from functools import wraps
 from urllib.parse import urlparse
 from .forms import UserRegistrationForm, LoginForm
 from django.db.models.deletion import ProtectedError
-
+import json
 from .models import (
     Product,
     ProductCategory,
@@ -33,6 +33,8 @@ from .models import (
     AboutIntro,
     HomeWhyChooseSection,
     HomeWhyChooseItem,
+    HeroSection,
+    HeroCarouselImage,
 )
 
 User = get_user_model()
@@ -183,6 +185,7 @@ def _can_move_consultation_status(current_status, new_status):
 #         },
 #     )
 def home(request):
+    hero = HeroSection.objects.filter(is_active=True).first()
     projects = Project.objects.filter(is_featured=True)
     services = (
         Service.objects.filter(is_active=True, service_type__is_active=True)
@@ -208,6 +211,7 @@ def home(request):
             "services": services,
             "why_section": why_section,
             "why_items": why_items,
+            'hero': hero
         },
     )
 
@@ -1998,3 +2002,64 @@ def why_choose_item_delete(request, id):
     item = get_object_or_404(HomeWhyChooseItem, id=id)
     item.delete()
     return redirect("why_choose_item_list")
+
+# ====================== CRUD HERO ======================
+@staff_required
+def hero_edit(request):
+    hero = HeroSection.objects.first()
+
+    if request.method == "POST":
+        if hero is None:
+            hero = HeroSection()
+
+        # Text
+        hero.badge_text = request.POST.get("badge_text", "").strip()
+        hero.heading_line1 = request.POST.get("heading_line1", "").strip()
+        hero.heading_line2 = request.POST.get("heading_line2", "").strip()
+        hero.description = request.POST.get("description", "").strip()
+        hero.btn_primary_text = request.POST.get("btn_primary_text", "").strip()
+        hero.btn_primary_url = request.POST.get("btn_primary_url", "").strip()
+        hero.btn_outline_text = request.POST.get("btn_outline_text", "").strip()
+        hero.btn_outline_url = request.POST.get("btn_outline_url", "").strip()
+
+        # Stats
+        hero.stat_1_num = request.POST.get("stat_1_num", "").strip()
+        hero.stat_1_label = request.POST.get("stat_1_label", "").strip()
+        hero.stat_2_num = request.POST.get("stat_2_num", "").strip()
+        hero.stat_2_label = request.POST.get("stat_2_label", "").strip()
+        hero.stat_3_num = request.POST.get("stat_3_num", "").strip()
+        hero.stat_3_label = request.POST.get("stat_3_label", "").strip()
+        hero.stat_4_num = request.POST.get("stat_4_num", "").strip()
+        hero.stat_4_label = request.POST.get("stat_4_label", "").strip()
+
+        # Background
+        hero.bg_type = request.POST.get("bg_type", "color")
+        if "bg_image" in request.FILES:
+            hero.bg_image = request.FILES["bg_image"]
+        if "bg_video" in request.FILES:
+            hero.bg_video = request.FILES["bg_video"]
+
+        hero.save()
+
+        # Carousel images — xử lý nhiều file
+        carousel_files = request.FILES.getlist("carousel_images")
+        for f in carousel_files:
+            last_order = HeroCarouselImage.objects.filter(hero=hero).count()
+            HeroCarouselImage.objects.create(hero=hero, image=f, order=last_order)
+
+        messages.success(request, "Đã cập nhật Hero section!")
+        return redirect("hero_edit")
+
+    carousel_images = HeroCarouselImage.objects.filter(hero=hero) if hero else []
+    return render(request, "home/hero_form.html", {
+        "hero": hero,
+        "carousel_images": carousel_images,
+        "bg_type_choices": HeroSection.BG_TYPE_CHOICES,
+    })
+
+
+@staff_required
+def hero_carousel_delete(request, id):
+    img = get_object_or_404(HeroCarouselImage, id=id)
+    img.delete()
+    return redirect("hero_edit")

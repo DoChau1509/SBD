@@ -7,6 +7,7 @@
     background: var(--primary);
     /* Bù navbar fixed 72px, padding thêm top để nội dung không bị che */
     padding-top: var(--navbar-h);
+
 }
 
 .home_bg::before {
@@ -15,6 +16,7 @@
     inset: 0;
     background: linear-gradient(140deg, rgba(8, 28, 50, 0.88) 0%, rgba(15, 43, 74, 0.70) 100%);
     z-index: 1;
+    display: none;
 }
 
 .home_bg .container {

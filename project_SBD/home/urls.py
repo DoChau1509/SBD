@@ -220,4 +220,6 @@ urlpatterns = [
         views.why_choose_item_delete,
         name="why_choose_item_delete",
     ),
+    path('hero/', views.hero_edit, name='hero_edit'),
+    path('hero/carousel/delete/<int:id>/', views.hero_carousel_delete, name='hero_carousel_delete'),
 ]

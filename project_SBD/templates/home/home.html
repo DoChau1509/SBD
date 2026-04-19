@@ -1,48 +1,64 @@
 {% extends 'base.html' %} {% load static %} {% block content %}
 <!-- HERO -->
+{% if hero and hero.bg_type == 'video' and hero.bg_video %}
 <section class="home_bg">
-  <div class="container">
-    <div class="row">
-      <div class="col-lg-10 offset-lg-1 col-sm-12 text-center">
-        <div class="hero-text">
-          <div class="hero-badge">Hơn 15 năm xây dựng uy tín</div>
-          <h2>Kiến Tạo Không Gian<br /><span>Vững Bền — Đẳng Cấp</span></h2>
-          <p>
-            Công ty Xây Dựng Sao Bắc Đẩu cung cấp dịch vụ thi công dân dụng,
-            công nghiệp và hạ tầng chất lượng cao trên toàn lãnh thổ Việt Nam.
-          </p>
-          <div>
-            <a href="{% url 'about' %}" class="btn-primary-custom mr-3"
-              >Giới Thiệu</a
-            >
-            <a href="{% url 'project' %}" class="btn-outline-custom"
-              >Xem Dự Án</a
-            >
-          </div>
-          <div class="hero-stats">
-            <div class="hero-stat-item">
-              <div class="num">500+</div>
-              <div class="label">Dự án hoàn thành</div>
-            </div>
-            <div class="hero-stat-item">
-              <div class="num">15+</div>
-              <div class="label">Năm kinh nghiệm</div>
-            </div>
-            <div class="hero-stat-item">
-              <div class="num">200+</div>
-              <div class="label">Kỹ sư & Chuyên gia</div>
-            </div>
-            <div class="hero-stat-item">
-              <div class="num">98%</div>
-              <div class="label">Khách hàng hài lòng</div>
-            </div>
-          </div>
-        </div>
-      </div>
+    <video autoplay muted loop playsinline
+           style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:0;">
+        <source src="{{ hero.bg_video.url }}" type="video/mp4">
+    </video>
+    <div style="position:relative; z-index:1;">
+
+{% elif hero and hero.bg_type == 'image' and hero.bg_image %}
+<section class="home_bg">
+    <div style="position:absolute; top:0; left:0; width:100%; height:100%;
+                background-image: url('{{ hero.bg_image.url }}');
+                background-size:cover; background-position:center; z-index:0;">
     </div>
-  </div>
-  <div class="hero-scroll">Cuộn xuống <i class="fa fa-chevron-down"></i></div>
+    <div style="position:relative; z-index:1;">
+
+{% elif hero and hero.bg_type == 'carousel' and hero.carousel_images.all %}
+<section class="home_bg">
+    <div id="heroBgCarousel" style="position:absolute; top:0; left:0; width:100%; height:100%; z-index:0;">
+        {% for img in hero.carousel_images.all %}
+        <div class="carousel-bg-slide" style="position:absolute; top:0; left:0; width:100%; height:100%;
+             background-image:url('{{ img.image.url }}'); background-size:cover; background-position:center;
+             opacity:0; transition: opacity 1s ease-in-out;"></div>
+        {% endfor %}
+    </div>
+    <div style="position:relative; z-index:1;">
+
+{% else %}
+<section class="home_bg">
+    <div>
+{% endif %}
+
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-10 offset-lg-1 col-sm-12 text-center">
+                    <div class="hero-text">
+                        {% if hero %}
+                            <div class="hero-badge">{{ hero.badge_text }}</div>
+                            <h2>{{ hero.heading_line1 }}{% if hero.heading_line2 %}<br><span>{{ hero.heading_line2 }}</span>{% endif %}</h2>
+                            <p>{{ hero.description }}</p>
+                            <div>
+                                <a href="{{ hero.btn_primary_url }}" class="btn-primary-custom mr-3">{{ hero.btn_primary_text }}</a>
+                                <a href="{{ hero.btn_outline_url }}" class="btn-outline-custom">{{ hero.btn_outline_text }}</a>
+                            </div>
+                            <div class="hero-stats">
+                                <div class="hero-stat-item"><div class="num">{{ hero.stat_1_num }}</div><div class="label">{{ hero.stat_1_label }}</div></div>
+                                <div class="hero-stat-item"><div class="num">{{ hero.stat_2_num }}</div><div class="label">{{ hero.stat_2_label }}</div></div>
+                                <div class="hero-stat-item"><div class="num">{{ hero.stat_3_num }}</div><div class="label">{{ hero.stat_3_label }}</div></div>
+                                <div class="hero-stat-item"><div class="num">{{ hero.stat_4_num }}</div><div class="label">{{ hero.stat_4_label }}</div></div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </section>
+
+
 
 <!-- SERVICES -->
 <section class="services-section">
@@ -364,5 +380,19 @@
     <a href="{% url 'contact' %}" class="btn-cta">Liên Hệ Ngay</a>
   </div>
 </section>
-
+{% if hero and hero.bg_type == 'carousel' %}
+<script>
+(function() {
+    var slides = document.querySelectorAll('.carousel-bg-slide');
+    if (!slides.length) return;
+    var current = 0;
+    slides[0].style.opacity = '1';
+    setInterval(function() {
+        slides[current].style.opacity = '0';
+        current = (current + 1) % slides.length;
+        slides[current].style.opacity = '1';
+    }, 5000);
+})();
+</script>
+{% endif %}
 {% endblock %}
