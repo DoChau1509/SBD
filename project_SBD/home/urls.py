@@ -23,6 +23,11 @@ urlpatterns = [
     path("project/add/", views.project_create, name="project_add"),
     path("project/edit/<int:id>/", views.project_update, name="project_edit"),
     path("project/delete/<int:id>/", views.project_delete, name="project_delete"),
+    path(
+        "project/featured/",
+        views.featured_project_list,
+        name="featured_project_list",
+    ),
     # product
     path("products/", views.product_list, name="product_list"),
     path("product/add/", views.product_create, name="product_add"),

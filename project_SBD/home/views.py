@@ -77,6 +77,7 @@ def _is_management_path(path: str) -> bool:
         "/project/add",
         "/project/edit",
         "/project/delete",
+        "/project/featured",
         "/products",
         "/product/add",
         "/product/edit",
@@ -412,6 +413,28 @@ def project_delete(request, id):
     project = get_object_or_404(Project, id=id)
     project.delete()
     return redirect("dashboard")
+
+
+@staff_required
+def featured_project_list(request):
+    projects = Project.objects.select_related("category").all().order_by("-created_at", "-id")
+
+    if request.method == "POST":
+        featured_ids = {
+            int(project_id)
+            for project_id in request.POST.getlist("featured_projects")
+            if project_id.isdigit()
+        }
+        Project.objects.exclude(id__in=featured_ids).update(is_featured=False)
+        Project.objects.filter(id__in=featured_ids).update(is_featured=True)
+        messages.success(request, "Đã cập nhật danh sách dự án nổi bật.")
+        return redirect("featured_project_list")
+
+    return render(
+        request,
+        "home/featured_project_list.html",
+        {"projects": projects},
+    )
 
 
 # ====================== AUTH ======================

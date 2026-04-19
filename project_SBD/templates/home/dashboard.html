@@ -7,9 +7,14 @@
       <h2 class="fw-bold mb-1">Quản lý dự án</h2>
       <p class="text-muted mb-0">Quản lý toàn bộ nội dung hệ thống</p>
     </div>
-    <a href="{% url 'project_add' %}" class="btn btn-success px-4">
+    <div>
+      <a href="{% url 'featured_project_list' %}" class="btn btn-primary px-4">
+      Dự án nổi bật
+      </a>
+      <a href="{% url 'project_add' %}" class="btn btn-success px-4">
       + Thêm dự án
-    </a>
+      </a>
+    </div>
   </div>
 
   <!-- DASHBOARD MENU -->
@@ -22,6 +27,11 @@
         href="{% url 'project_category_list' %}"
         class="btn btn-outline-primary"
         >Danh mục dự án</a
+      >
+      <a
+        href="{% url 'featured_project_list' %}"
+        class="btn btn-outline-primary"
+        >Dự án nổi bật</a
       >
 
       <a href="{% url 'product_list' %}" class="btn btn-outline-primary"
