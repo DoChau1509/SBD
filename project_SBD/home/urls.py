@@ -180,6 +180,7 @@ urlpatterns = [
         name="notification_mark_all_read",
     ),
     path("about-intro/", views.about_intro_edit, name="about_intro_edit"),
+    path("about-video-tour/", views.about_video_tour_edit, name="about_video_tour_edit"),
     # service types
     path("service-types/", views.service_type_list, name="service_type_list"),
     path("service-types/add/", views.service_type_create, name="service_type_add"),

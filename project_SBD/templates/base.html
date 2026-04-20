@@ -343,11 +343,11 @@
                 </div>
               </a>
             </div>
-
-            <p class="footer-desc">
-              Công ty xây dựng Sao Bắc Đẩu với hơn 15 năm kinh nghiệm trong lĩnh
-              vực xây dựng dân dụng, công nghiệp và hạ tầng tại Việt Nam.
-            </p>
+            {% if hero %}
+              <p class="footer-desc">
+                {{ hero.description }}                              
+              </p>
+            {% endif %}
 
             <div class="footer-social">
               {% if site_contact and site_contact.facebook_url %}

@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container" style="margin-top:100px; max-width: 900px;">
+    <h2>Chỉnh sửa Video Tour / Quy Trình</h2>
+    <form method="POST">
+        {% csrf_token %}
+
+        <h5 style="margin: 24px 0 12px; color: #1a3a5c; border-bottom: 2px solid #c9a84c; padding-bottom: 6px;">
+            Thông tin chung
+        </h5>
+        <div class="form-group">
+            <label>Tiêu đề khối</label>
+            <input type="text" name="section_title" class="form-control" value="{{ video_tour.section_title|default:'Quy Trình Triển Khai Dự Án' }}">
+        </div>
+        <div class="form-group">
+            <label>Mô tả khối</label>
+            <textarea name="section_description" class="form-control" rows="3">{{ video_tour.section_description|default:'Minh bạch từng bước — kiểm soát chất lượng và tiến độ theo tiêu chuẩn' }}</textarea>
+        </div>
+
+        <h5 style="margin: 24px 0 12px; color: #1a3a5c; border-bottom: 2px solid #c9a84c; padding-bottom: 6px;">
+            Bước 1
+        </h5>
+        <div class="form-row">
+            <div class="form-group col-md-4">
+                <label>Icon CSS</label>
+                <input type="text" name="step_1_icon" class="form-control" value="{{ video_tour.step_1_icon|default:'fa fa-search' }}">
+            </div>
+            <div class="form-group col-md-8">
+                <label>Tiêu đề</label>
+                <input type="text" name="step_1_title" class="form-control" value="{{ video_tour.step_1_title|default:'Khảo sát' }}">
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Mô tả</label>
+            <textarea name="step_1_description" class="form-control" rows="3">{{ video_tour.step_1_description|default:'Tiếp nhận nhu cầu, khảo sát hiện trạng và tư vấn phương án tối ưu.' }}</textarea>
+        </div>
+
+        <h5 style="margin: 24px 0 12px; color: #1a3a5c; border-bottom: 2px solid #c9a84c; padding-bottom: 6px;">
+            Bước 2
+        </h5>
+        <div class="form-row">
+            <div class="form-group col-md-4">
+                <label>Icon CSS</label>
+                <input type="text" name="step_2_icon" class="form-control" value="{{ video_tour.step_2_icon|default:'fa-solid fa-file-lines' }}">
+            </div>
+            <div class="form-group col-md-8">
+                <label>Tiêu đề</label>
+                <input type="text" name="step_2_title" class="form-control" value="{{ video_tour.step_2_title|default:'Báo giá' }}">
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Mô tả</label>
+            <textarea name="step_2_description" class="form-control" rows="3">{{ video_tour.step_2_description|default:'Lập hồ sơ kỹ thuật, dự toán chi tiết và thống nhất hợp đồng.' }}</textarea>
+        </div>
+
+        <h5 style="margin: 24px 0 12px; color: #1a3a5c; border-bottom: 2px solid #c9a84c; padding-bottom: 6px;">
+            Bước 3
+        </h5>
+        <div class="form-row">
+            <div class="form-group col-md-4">
+                <label>Icon CSS</label>
+                <input type="text" name="step_3_icon" class="form-control" value="{{ video_tour.step_3_icon|default:'fa fa-gavel' }}">
+            </div>
+            <div class="form-group col-md-8">
+                <label>Tiêu đề</label>
+                <input type="text" name="step_3_title" class="form-control" value="{{ video_tour.step_3_title|default:'Thi công' }}">
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Mô tả</label>
+            <textarea name="step_3_description" class="form-control" rows="3">{{ video_tour.step_3_description|default:'Triển khai theo tiến độ, nghiệm thu theo giai đoạn và bàn giao.' }}</textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+        <a href="{% url 'about' %}" class="btn btn-secondary">Xem trang Giới Thiệu</a>
+        <a href="{% url 'dashboard' %}" class="btn btn-secondary">Quay lại Dashboard</a>
+    </form>
+</div>
+{% endblock %}

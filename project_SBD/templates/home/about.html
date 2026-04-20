@@ -164,7 +164,7 @@
 <!-- VIDEO TOUR -->
 <section class="video-section">
   <div class="container text-center">
-    <h2 class="wow fadeInDown">Quy Trình Triển Khai Dự Án</h2>
+    <h2 class="wow fadeInDown">{{ about_video_tour.section_title|default:"Quy Trình Triển Khai Dự Án" }}</h2>
     <p
       style="
         color: rgba(255, 255, 255, 0.75);
@@ -172,30 +172,30 @@
         margin-bottom: 36px;
       "
     >
-      Minh bạch từng bước — kiểm soát chất lượng và tiến độ theo tiêu chuẩn
+      {{ about_video_tour.section_description|default:"Minh bạch từng bước — kiểm soát chất lượng và tiến độ theo tiêu chuẩn" }}
     </p>
     <div class="row justify-content-center" style="margin-top: 12px">
       <div class="col-lg-3 col-md-4 mb-4 wow fadeInUp" data-wow-delay="0.1s">
         <div class="process-card">
-          <div class="icon"><i class="fa fa-search"></i></div>
-          <h4>Khảo sát</h4>
+          <div class="icon"><i class="{{ about_video_tour.step_1_icon|default:'fa fa-search' }}"></i></div>
+          <h4>{{ about_video_tour.step_1_title|default:"Khảo sát" }}</h4>
           <p>
-            Tiếp nhận nhu cầu, khảo sát hiện trạng và tư vấn phương án tối ưu.
+            {{ about_video_tour.step_1_description|default:"Tiếp nhận nhu cầu, khảo sát hiện trạng và tư vấn phương án tối ưu." }}
           </p>
         </div>
       </div>
       <div class="col-lg-3 col-md-4 mb-4 wow fadeInUp" data-wow-delay="0.2s">
         <div class="process-card">
-          <div class="icon"><i class="fa-solid fa-file-lines"></i></div>
-          <h4>Báo giá</h4>
-          <p>Lập hồ sơ kỹ thuật, dự toán chi tiết và thống nhất hợp đồng.</p>
+          <div class="icon"><i class="{{ about_video_tour.step_2_icon|default:'fa-solid fa-file-lines' }}"></i></div>
+          <h4>{{ about_video_tour.step_2_title|default:"Báo giá" }}</h4>
+          <p>{{ about_video_tour.step_2_description|default:"Lập hồ sơ kỹ thuật, dự toán chi tiết và thống nhất hợp đồng." }}</p>
         </div>
       </div>
       <div class="col-lg-3 col-md-4 mb-4 wow fadeInUp" data-wow-delay="0.3s">
         <div class="process-card">
-          <div class="icon"><i class="fa fa-gavel"></i></div>
-          <h4>Thi công</h4>
-          <p>Triển khai theo tiến độ, nghiệm thu theo giai đoạn và bàn giao.</p>
+          <div class="icon"><i class="{{ about_video_tour.step_3_icon|default:'fa fa-gavel' }}"></i></div>
+          <h4>{{ about_video_tour.step_3_title|default:"Thi công" }}</h4>
+          <p>{{ about_video_tour.step_3_description|default:"Triển khai theo tiến độ, nghiệm thu theo giai đoạn và bàn giao." }}</p>
         </div>
       </div>
     </div>

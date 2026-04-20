@@ -35,12 +35,12 @@
         <div class="container">
             <div class="row">
                 <div class="col-lg-10 offset-lg-1 col-sm-12 text-center">
-                    <div class="hero-text">
+                    <div class="hero-text {% if hero and hero.text_theme %}hero-text--{{ hero.text_theme }}{% else %}hero-text--light{% endif %}">
                         {% if hero %}
                             <div class="hero-badge">{{ hero.badge_text }}</div>
                             <h2>{{ hero.heading_line1 }}{% if hero.heading_line2 %}<br><span>{{ hero.heading_line2 }}</span>{% endif %}</h2>
                             <p>{{ hero.description }}</p>
-                            <div>
+                            <div class="hero-actions">
                                 <a href="{{ hero.btn_primary_url }}" class="btn-primary-custom mr-3">{{ hero.btn_primary_text }}</a>
                                 <a href="{{ hero.btn_outline_url }}" class="btn-outline-custom">{{ hero.btn_outline_text }}</a>
                             </div>

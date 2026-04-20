@@ -35,6 +35,7 @@ from .models import (
     HomeWhyChooseItem,
     HeroSection,
     HeroCarouselImage,
+    AboutVideoTour,
 )
 
 User = get_user_model()
@@ -239,6 +240,7 @@ def about(request):
     certs_left = all_certs[:mid]
     certs_right = all_certs[mid:]
     intro = AboutIntro.objects.first()
+    about_video_tour = AboutVideoTour.objects.first()
 
     return render(
         request,
@@ -249,6 +251,7 @@ def about(request):
             "certs_left": certs_left,
             "certs_right": certs_right,
             "intro": intro,
+            "about_video_tour": about_video_tour,
         },
     )
 
@@ -1912,6 +1915,35 @@ def about_intro_edit(request):
     return render(request, "home/about_intro_form.html", {"intro": intro})
 
 
+@staff_required
+def about_video_tour_edit(request):
+    video_tour = AboutVideoTour.objects.first()
+
+    if request.method == "POST":
+        data = request.POST
+        if video_tour is None:
+            video_tour = AboutVideoTour()
+
+        video_tour.section_title = data.get("section_title", "").strip()
+        video_tour.section_description = data.get("section_description", "").strip()
+        video_tour.step_1_icon = data.get("step_1_icon", "").strip()
+        video_tour.step_1_title = data.get("step_1_title", "").strip()
+        video_tour.step_1_description = data.get("step_1_description", "").strip()
+        video_tour.step_2_icon = data.get("step_2_icon", "").strip()
+        video_tour.step_2_title = data.get("step_2_title", "").strip()
+        video_tour.step_2_description = data.get("step_2_description", "").strip()
+        video_tour.step_3_icon = data.get("step_3_icon", "").strip()
+        video_tour.step_3_title = data.get("step_3_title", "").strip()
+        video_tour.step_3_description = data.get("step_3_description", "").strip()
+        video_tour.save()
+        messages.success(request, "Đã cập nhật phần video tour / quy trình!")
+        return redirect("about_video_tour_edit")
+
+    return render(
+        request, "home/about_video_tour_form.html", {"video_tour": video_tour}
+    )
+
+
 # ===============why_choose_section_edit
 @staff_required
 def why_choose_section_edit(request):
@@ -2021,6 +2053,7 @@ def hero_edit(request):
         hero.btn_primary_url = request.POST.get("btn_primary_url", "").strip()
         hero.btn_outline_text = request.POST.get("btn_outline_text", "").strip()
         hero.btn_outline_url = request.POST.get("btn_outline_url", "").strip()
+        hero.text_theme = request.POST.get("text_theme", "light").strip() or "light"
 
         # Stats
         hero.stat_1_num = request.POST.get("stat_1_num", "").strip()
@@ -2055,6 +2088,7 @@ def hero_edit(request):
         "hero": hero,
         "carousel_images": carousel_images,
         "bg_type_choices": HeroSection.BG_TYPE_CHOICES,
+        "text_theme_choices": HeroSection.TEXT_THEME_CHOICES,
     })
 
 

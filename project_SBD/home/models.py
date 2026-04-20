@@ -217,6 +217,61 @@ class AboutIntro(models.Model):
         ]
 
 
+class AboutVideoTour(models.Model):
+    section_title = models.CharField(
+        max_length=255,
+        default="Quy Trình Triển Khai Dự Án",
+        verbose_name="Tiêu đề khối",
+    )
+    section_description = models.TextField(
+        default="Minh bạch từng bước — kiểm soát chất lượng và tiến độ theo tiêu chuẩn",
+        verbose_name="Mô tả khối",
+    )
+
+    step_1_icon = models.CharField(
+        max_length=100, default="fa fa-search", verbose_name="Icon bước 1"
+    )
+    step_1_title = models.CharField(
+        max_length=150, default="Khảo sát", verbose_name="Tiêu đề bước 1"
+    )
+    step_1_description = models.TextField(
+        default="Tiếp nhận nhu cầu, khảo sát hiện trạng và tư vấn phương án tối ưu.",
+        verbose_name="Mô tả bước 1",
+    )
+
+    step_2_icon = models.CharField(
+        max_length=100,
+        default="fa-solid fa-file-lines",
+        verbose_name="Icon bước 2",
+    )
+    step_2_title = models.CharField(
+        max_length=150, default="Báo giá", verbose_name="Tiêu đề bước 2"
+    )
+    step_2_description = models.TextField(
+        default="Lập hồ sơ kỹ thuật, dự toán chi tiết và thống nhất hợp đồng.",
+        verbose_name="Mô tả bước 2",
+    )
+
+    step_3_icon = models.CharField(
+        max_length=100, default="fa fa-gavel", verbose_name="Icon bước 3"
+    )
+    step_3_title = models.CharField(
+        max_length=150, default="Thi công", verbose_name="Tiêu đề bước 3"
+    )
+    step_3_description = models.TextField(
+        default="Triển khai theo tiến độ, nghiệm thu theo giai đoạn và bàn giao.",
+        verbose_name="Mô tả bước 3",
+    )
+
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Video tour trang giới thiệu"
+
+    def __str__(self):
+        return self.section_title
+
+
 # =========HomeWhyChooseSection
 class HomeWhyChooseSection(models.Model):
     section_title = models.CharField(
@@ -727,9 +782,14 @@ class HeroSection(models.Model):
         ('video', 'Video tự chạy'),
         ('carousel', 'Carousel nhiều ảnh'),
     ]
+    TEXT_THEME_CHOICES = [
+        ('light', 'Chữ sáng'),
+        ('dark', 'Chữ tối'),
+    ]
     bg_type = models.CharField(max_length=20, choices=BG_TYPE_CHOICES, default='color', verbose_name="Loại nền")
     bg_image = models.ImageField(upload_to='hero/', blank=True, null=True, verbose_name="Ảnh nền")
     bg_video = models.FileField(upload_to='hero/videos/', blank=True, null=True, verbose_name="Video nền (mp4)")
+    text_theme = models.CharField(max_length=10, choices=TEXT_THEME_CHOICES, default='light', verbose_name="Theme màu chữ")
 
     is_active = models.BooleanField(default=True)
     updated_at = models.DateTimeField(auto_now=True)

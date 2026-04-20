@@ -22,6 +22,15 @@
             <label>Mô tả</label>
             <textarea name="description" class="form-control" rows="3">{{ hero.description|default:'' }}</textarea>
         </div>
+        <div class="form-group">
+            <label>Theme màu chữ cho hero</label>
+            <select name="text_theme" class="form-control">
+                {% for value, label in text_theme_choices %}
+                <option value="{{ value }}" {% if hero.text_theme|default:'light' == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+            <small class="form-text text-muted">Dùng chữ sáng cho nền tối, và chữ tối cho nền sáng.</small>
+        </div>
         <div class="form-row">
             <div class="form-group col-md-6">
                 <label>Nút chính — text</label>
