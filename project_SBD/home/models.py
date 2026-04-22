@@ -811,3 +811,25 @@ class HeroCarouselImage(models.Model):
 
     def __str__(self):
         return f"Carousel ảnh #{self.order}"
+
+
+class Partner(models.Model):
+    name = models.CharField(max_length=200, verbose_name="Tên đối tác")
+    logo = models.ImageField(
+        upload_to="partners/",
+        blank=True,
+        null=True,
+        verbose_name="Logo",
+    )
+    website_url = models.URLField(blank=True, verbose_name="Website")
+    order = models.PositiveIntegerField(default=0, verbose_name="Thứ tự hiển thị")
+    is_active = models.BooleanField(default=True, verbose_name="Hiển thị")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["order", "created_at"]
+        verbose_name = "Đối tác"
+        verbose_name_plural = "Đối tác"
+
+    def __str__(self):
+        return self.name

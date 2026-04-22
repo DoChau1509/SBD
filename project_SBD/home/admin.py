@@ -12,6 +12,7 @@ from .models import (
     ContactInfo,
     Notification,
     Consultation,
+    Partner,
 )
 
 admin.site.register(ProjectCategory)
@@ -28,6 +29,7 @@ admin.site.register(AboutStatement)
 admin.site.register(ContactInfo)
 admin.site.register(Notification)
 admin.site.register(Consultation)
+admin.site.register(Partner)
 
 
 @admin.register(Project)

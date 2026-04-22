@@ -270,70 +270,9 @@
     </div>
   </div>
 </section>
-<!-- TESTIMONIALS -->
-{% comment %}
-<section class="testimonial-section">
-  <div class="container">
-    <div class="section-title text-center wow zoomIn">
-      <h2>Khách Hàng Nói Gì</h2>
-      <p>Sự hài lòng của khách hàng là thước đo thành công của chúng tôi</p>
-    </div>
-    <div class="row">
-      <div class="col-lg-4 col-md-6 mb-4 wow fadeInUp" data-wow-delay="0.1s">
-        <div class="testimonial-card">
-          <p>
-            Sao Bắc Đẩu đã thi công nhà xưởng của chúng tôi với tiến độ đúng hẹn
-            và chất lượng vượt kỳ vọng. Đội ngũ chuyên nghiệp, tư vấn nhiệt
-            tình. Chắc chắn sẽ tiếp tục hợp tác.
-          </p>
-          <div class="testimonial-author">
-            <div class="avatar" aria-hidden="true">TV</div>
-            <div>
-              <h6>Nguyễn Văn Thành</h6>
-              <span>Giám đốc — Công ty TNHH Sản Xuất Phú Long</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="col-lg-4 col-md-6 mb-4 wow fadeInUp" data-wow-delay="0.2s">
-        <div class="testimonial-card">
-          <p>
-            Tôi rất hài lòng với dự án biệt thự do Sao Bắc Đẩu thi công. Mọi chi
-            tiết nhỏ nhất đều được chú ý, thợ lành nghề và thái độ làm việc rất
-            chuyên nghiệp.
-          </p>
-          <div class="testimonial-author">
-            <div class="avatar" aria-hidden="true">HH</div>
-            <div>
-              <h6>Trần Thị Hương</h6>
-              <span>Chủ đầu tư — Dự án biệt thự Phú Mỹ Hưng</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="col-lg-4 col-md-6 mb-4 wow fadeInUp" data-wow-delay="0.3s">
-        <div class="testimonial-card">
-          <p>
-            Đơn vị uy tín, giá cả hợp lý, thi công bền đẹp. Chúng tôi đã phối
-            hợp với Sao Bắc Đẩu trong nhiều dự án hạ tầng và luôn đánh giá cao
-            sự chuyên nghiệp của họ.
-          </p>
-          <div class="testimonial-author">
-            <div class="avatar" aria-hidden="true">QH</div>
-            <div>
-              <h6>Lê Quốc Hùng</h6>
-              <span>Trưởng Ban QLDA — Ban Quản Lý KCN Tân Bình</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-{% endcomment %}
+
 
 <!-- PARTNERS -->
-{% comment %}
 <section class="partners-section">
   <div class="container">
     <div
@@ -343,31 +282,40 @@
       <h2 style="font-size: 26px">Đối Tác Tin Cậy</h2>
     </div>
     <div class="row align-items-center justify-content-center">
+      {% for partner in partners %}
       <div class="col">
-        <div class="partner-logo"><div class="partner-pill">Phú Long</div></div>
-      </div>
-      <div class="col">
-        <div class="partner-logo">
-          <div class="partner-pill">Vietcombank</div>
+        {% if partner.website_url %}
+        <a
+          href="{{ partner.website_url }}"
+          class="partner-logo d-flex align-items-center justify-content-center"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="{{ partner.name }}"
+        >
+          {% if partner.logo %}
+          <img src="{{ partner.logo.url }}" alt="{{ partner.name }}" />
+          {% else %}
+          <div class="partner-pill">{{ partner.name }}</div>
+          {% endif %}
+        </a>
+        {% else %}
+        <div class="partner-logo d-flex align-items-center justify-content-center">
+          {% if partner.logo %}
+          <img src="{{ partner.logo.url }}" alt="{{ partner.name }}" />
+          {% else %}
+          <div class="partner-pill">{{ partner.name }}</div>
+          {% endif %}
         </div>
+        {% endif %}
       </div>
-      <div class="col">
-        <div class="partner-logo">
-          <div class="partner-pill">Samsung VN</div>
-        </div>
+      {% empty %}
+      <div class="col-12 text-center text-muted">
+        Chưa có đối tác nào để hiển thị.
       </div>
-      <div class="col">
-        <div class="partner-logo">
-          <div class="partner-pill">Bureau Veritas</div>
-        </div>
-      </div>
-      <div class="col">
-        <div class="partner-logo"><div class="partner-pill">VACC</div></div>
-      </div>
+      {% endfor %}
     </div>
   </div>
 </section>
-{% endcomment %}
 
 <!-- CTA -->
 <section class="cta-section wow fadeIn">

@@ -1,25 +1,15 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<div class="container" style="margin-top:100px;">
-  <!-- HEADER -->
+<div class="container" style="margin-top: 100px">
   <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
     <div>
-      <h2 class="fw-bold mb-1">Danh mục sản phẩm</h2>
-      <p class="text-muted mb-0">Quản lý danh mục và trạng thái hiển thị</p>
+      <h2 class="fw-bold mb-1">Quản lý đối tác</h2>
+      <p class="text-muted mb-0">Danh sách đối tác hiển thị ở phần partner của trang chủ</p>
     </div>
-
-    <div class="d-flex gap-2 flex-wrap">
-      <a href="{% url 'product_list' %}" class="btn btn-outline-primary">
-        Sản phẩm
-      </a>
-      <a href="{% url 'product_category_add' %}" class="btn btn-primary">
-        + Thêm danh mục
-      </a>
-    </div>
+    <a href="{% url 'partner_add' %}" class="btn btn-primary">+ Thêm đối tác</a>
   </div>
 
-  <!-- MENU -->
   <div class="card shadow-sm mb-4">
     <div class="card-body d-flex flex-wrap gap-2">
       <a href="{% url 'dashboard' %}" class="btn btn-outline-primary">Dự án</a>
@@ -28,9 +18,9 @@
       <a href="{% url 'service_list' %}" class="btn btn-outline-primary">Dịch vụ</a>
       <a href="{% url 'service_type_list' %}" class="btn btn-outline-primary">Loại dịch vụ</a>
       <a href="{% url 'why_choose_item_list' %}" class="btn btn-outline-primary">Tại Sao Chọn Chúng Tôi</a>
-      <a href="{% url 'partner_list' %}" class="btn btn-outline-primary">Đối tác</a>
+      <a href="{% url 'partner_list' %}" class="btn btn-outline-primary active">Đối tác</a>
       <a href="{% url 'product_list' %}" class="btn btn-outline-primary">Sản phẩm</a>
-      <a href="{% url 'product_category_list' %}" class="btn btn-outline-primary active">Danh mục sản phẩm</a>
+      <a href="{% url 'product_category_list' %}" class="btn btn-outline-primary">Danh mục sản phẩm</a>
       <a href="{% url 'post_list' %}" class="btn btn-outline-primary">Bài viết</a>
       <a href="{% url 'post_category_list' %}" class="btn btn-outline-primary">Danh mục bài viết</a>
       <a href="{% url 'about_intro_edit' %}" class="btn btn-outline-primary">Giới thiệu</a>
@@ -43,68 +33,61 @@
     </div>
   </div>
 
-  {% if error %}
-  <div class="alert alert-warning">{{ error }}</div>
-  {% endif %}
-
-  <!-- TABLE -->
   <div class="card shadow-sm">
     <div class="table-responsive">
-      <table class="table table-hover align-middle mb-0">
+      <table class="table align-middle mb-0">
         <thead class="table-light">
           <tr>
-            <th>#</th>
-            <th>Tên</th>
-            <th>Slug</th>
+            <th style="width: 90px">Logo</th>
+            <th>Tên đối tác</th>
+            <th>Website</th>
+            <th>Thứ tự</th>
             <th>Trạng thái</th>
             <th class="text-end">Hành động</th>
           </tr>
         </thead>
         <tbody>
-
-          {% for c in categories %}
+          {% for partner in partners %}
           <tr>
-            <td>{{ forloop.counter }}</td>
-
-            <td class="fw-semibold">{{ c.name }}</td>
-
-            <td class="text-muted">
-              {{ c.slug|default:"—" }}
-            </td>
-
             <td>
-              {% if c.is_hidden %}
-                <span class="badge bg-secondary">Ẩn</span>
+              {% if partner.logo %}
+              <img src="{{ partner.logo.url }}" alt="{{ partner.name }}" class="rounded" style="width: 64px; height: 64px; object-fit: contain" />
               {% else %}
-                <span class="badge bg-success">Hiện</span>
+              <span class="text-muted small">Chưa có logo</span>
               {% endif %}
             </td>
-
+            <td class="fw-semibold">{{ partner.name }}</td>
+            <td>
+              {% if partner.website_url %}
+              <a href="{{ partner.website_url }}" target="_blank" rel="noopener noreferrer">
+                {{ partner.website_url }}
+              </a>
+              {% else %}
+              <span class="text-muted">Không có</span>
+              {% endif %}
+            </td>
+            <td>{{ partner.order }}</td>
+            <td>
+              {% if partner.is_active %}
+              <span class="badge bg-success">Hiện</span>
+              {% else %}
+              <span class="badge bg-secondary">Ẩn</span>
+              {% endif %}
+            </td>
             <td class="text-end">
-              <a href="{% url 'product_category_edit' c.id %}" 
-                 class="btn btn-sm btn-outline-warning">
-                Sửa
-              </a>
-              <a href="{% url 'product_category_delete' c.id %}" 
-                 class="btn btn-sm btn-outline-danger">
-                Xóa
-              </a>
+              <a href="{% url 'partner_edit' partner.id %}" class="btn btn-sm btn-warning">Sửa</a>
+              <a href="{% url 'partner_delete' partner.id %}" class="btn btn-sm btn-danger" onclick="return confirm('Xóa đối tác này?');">Xóa</a>
             </td>
           </tr>
-
           {% empty %}
           <tr>
-            <td colspan="5" class="text-center text-muted py-4">
-              Chưa có danh mục sản phẩm nào.
-            </td>
+            <td colspan="6" class="text-center text-muted py-4">Chưa có đối tác nào.</td>
           </tr>
           {% endfor %}
-
         </tbody>
       </table>
     </div>
   </div>
-
 </div>
 
 {% endblock %}

@@ -36,6 +36,7 @@ from .models import (
     HeroSection,
     HeroCarouselImage,
     AboutVideoTour,
+    Partner,
 )
 
 User = get_user_model()
@@ -100,6 +101,10 @@ def _is_management_path(path: str) -> bool:
         "/contact-info/add",
         "/contact-info/edit",
         "/contact-info/delete",
+        "/partners",
+        "/partner/add",
+        "/partner/edit",
+        "/partner/delete",
     )
     return path.startswith(management_prefixes)
 
@@ -188,6 +193,7 @@ def _can_move_consultation_status(current_status, new_status):
 def home(request):
     hero = HeroSection.objects.filter(is_active=True).first()
     projects = Project.objects.filter(is_featured=True)
+    partners = Partner.objects.filter(is_active=True).order_by("order", "created_at")
     services = (
         Service.objects.filter(is_active=True, service_type__is_active=True)
         .select_related("service_type")
@@ -212,7 +218,8 @@ def home(request):
             "services": services,
             "why_section": why_section,
             "why_items": why_items,
-            'hero': hero
+            "hero": hero,
+            "partners": partners,
         },
     )
 
@@ -2097,3 +2104,90 @@ def hero_carousel_delete(request, id):
     img = get_object_or_404(HeroCarouselImage, id=id)
     img.delete()
     return redirect("hero_edit")
+
+
+@staff_required
+def partner_list(request):
+    partners = Partner.objects.all().order_by("order", "created_at")
+    return render(request, "home/partner_list.html", {"partners": partners})
+
+
+@staff_required
+def partner_create(request):
+    if request.method == "POST":
+        name = (request.POST.get("name") or "").strip()
+        website_url = (request.POST.get("website_url") or "").strip()
+        order = int(request.POST.get("order") or 0)
+        is_active = request.POST.get("is_active") == "on"
+
+        if not name:
+            return render(
+                request,
+                "home/partner_form.html",
+                {
+                    "title_page": "Thêm đối tác",
+                    "error": "Bạn cần nhập tên đối tác.",
+                },
+            )
+
+        Partner.objects.create(
+            name=name,
+            website_url=website_url,
+            order=order,
+            is_active=is_active,
+            logo=request.FILES.get("logo"),
+        )
+        messages.success(request, "Đã thêm đối tác.")
+        return redirect("partner_list")
+
+    return render(
+        request,
+        "home/partner_form.html",
+        {"title_page": "Thêm đối tác"},
+    )
+
+
+@staff_required
+def partner_update(request, id):
+    partner = get_object_or_404(Partner, id=id)
+
+    if request.method == "POST":
+        name = (request.POST.get("name") or "").strip()
+        website_url = (request.POST.get("website_url") or "").strip()
+
+        if not name:
+            return render(
+                request,
+                "home/partner_form.html",
+                {
+                    "title_page": "Sửa đối tác",
+                    "partner": partner,
+                    "error": "Bạn cần nhập tên đối tác.",
+                },
+            )
+
+        partner.name = name
+        partner.website_url = website_url
+        partner.order = int(request.POST.get("order") or 0)
+        partner.is_active = request.POST.get("is_active") == "on"
+
+        if "logo" in request.FILES:
+            partner.logo = request.FILES["logo"]
+
+        partner.save()
+        messages.success(request, "Đã cập nhật đối tác.")
+        return redirect("partner_list")
+
+    return render(
+        request,
+        "home/partner_form.html",
+        {"title_page": "Sửa đối tác", "partner": partner},
+    )
+
+
+@staff_required
+def partner_delete(request, id):
+    partner = get_object_or_404(Partner, id=id)
+    partner.delete()
+    messages.success(request, "Đã xóa đối tác.")
+    return redirect("partner_list")

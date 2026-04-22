@@ -223,4 +223,8 @@ urlpatterns = [
     ),
     path('hero/', views.hero_edit, name='hero_edit'),
     path('hero/carousel/delete/<int:id>/', views.hero_carousel_delete, name='hero_carousel_delete'),
+    path("partners/", views.partner_list, name="partner_list"),
+    path("partner/add/", views.partner_create, name="partner_add"),
+    path("partner/edit/<int:id>/", views.partner_update, name="partner_edit"),
+    path("partner/delete/<int:id>/", views.partner_delete, name="partner_delete"),
 ]
