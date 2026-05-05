@@ -674,6 +674,99 @@ class ContactInfo(models.Model):
         return self.branch_name
 
 
+class EmailOTPSettings(models.Model):
+    sender_name = models.CharField(
+        max_length=150,
+        blank=True,
+        default="Sao Bac Dau Construction",
+        verbose_name="Tên hiển thị email gửi OTP",
+    )
+    sender_email = models.EmailField(blank=True, default="", verbose_name="Email gửi OTP")
+    smtp_host = models.CharField(
+        max_length=255,
+        blank=True,
+        default="",
+        verbose_name="SMTP host",
+    )
+    smtp_port = models.PositiveIntegerField(default=587, verbose_name="SMTP port")
+    smtp_username = models.CharField(
+        max_length=255,
+        blank=True,
+        default="",
+        verbose_name="SMTP username",
+    )
+    smtp_password = models.CharField(
+        max_length=255,
+        blank=True,
+        default="",
+        verbose_name="SMTP password / app password",
+    )
+    use_tls = models.BooleanField(default=True, verbose_name="Dùng TLS")
+    use_ssl = models.BooleanField(default=False, verbose_name="Dùng SSL")
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Cấu hình email OTP"
+        verbose_name_plural = "Cấu hình email OTP"
+
+    @classmethod
+    def get_solo(cls):
+        config = cls.objects.order_by("id").first()
+        if config is None:
+            config = cls.objects.create(
+                sender_email="",
+                smtp_host="smtp.gmail.com",
+                smtp_port=587,
+                smtp_username="",
+                smtp_password="",
+                use_tls=True,
+                use_ssl=False,
+            )
+        return config
+
+    @property
+    def from_email(self):
+        display_name = (self.sender_name or "").strip()
+        email = (self.sender_email or "").strip()
+        if display_name and email:
+            return f"{display_name} <{email}>"
+        return email
+
+    def __str__(self):
+        return self.sender_email or "Chưa cấu hình email OTP"
+
+
+class PasswordOTP(models.Model):
+    PURPOSE_CHOICES = [
+        ("forgot_password", "Quên mật khẩu"),
+        ("change_password", "Đổi mật khẩu"),
+    ]
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="password_otps",
+    )
+    email = models.EmailField(verbose_name="Email nhận OTP")
+    purpose = models.CharField(max_length=30, choices=PURPOSE_CHOICES)
+    code = models.CharField(max_length=6, verbose_name="Mã OTP")
+    expires_at = models.DateTimeField(verbose_name="Hết hạn lúc")
+    is_used = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = "OTP đổi mật khẩu"
+        verbose_name_plural = "OTP đổi mật khẩu"
+
+    @property
+    def is_expired(self):
+        return timezone.now() >= self.expires_at
+
+    def __str__(self):
+        return f"{self.user.username} - {self.purpose} - {self.code}"
+
+
 class Consultation(models.Model):
     PROJECT_TYPE_CHOICES = [
         ("dan-dung", "Xây dựng Dân dụng (Nhà ở, Biệt thự, Chung cư)"),

@@ -15,9 +15,43 @@ urlpatterns = [
     # AUTH
     path("login/", views.login_view, name="login"),
     path("register/", views.register_view, name="register"),
+    path("forgot-password/", views.forgot_password_request, name="forgot_password"),
+    path(
+        "forgot-password/verify/",
+        views.forgot_password_verify,
+        name="forgot_password_verify",
+    ),
+    path(
+        "change-password/",
+        views.change_password_request,
+        name="change_password_request",
+    ),
+    path(
+        "change-password/verify/",
+        views.change_password_verify,
+        name="change_password_verify",
+    ),
     path("logout/", views.logout_view, name="logout"),
+    path("system-settings/", views.system_settings, name="system_settings"),
     # DASHBOARD
     path("dashboard/", views.dashboard, name="dashboard"),
+    path("email-otp-settings/", views.email_otp_settings_edit, name="email_otp_settings"),
+    path("staff-accounts/", views.staff_account_list, name="staff_account_list"),
+    path(
+        "staff-accounts/add/",
+        views.staff_account_create,
+        name="staff_account_add",
+    ),
+    path(
+        "staff-accounts/<int:id>/edit/",
+        views.staff_account_update,
+        name="staff_account_edit",
+    ),
+    path(
+        "staff-accounts/<int:id>/toggle-status/",
+        views.staff_account_toggle_status,
+        name="staff_account_toggle_status",
+    ),
     # CRUD
     # project
     path("project/add/", views.project_create, name="project_add"),

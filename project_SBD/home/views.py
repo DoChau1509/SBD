@@ -1,18 +1,32 @@
 # views.py
+import json
+import random
+from datetime import timedelta
+from functools import wraps
+from urllib.parse import urlparse
+
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
+from django.conf import settings
+from django.core.mail import EmailMultiAlternatives, get_connection
 from django.db.models.deletion import ProtectedError
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse, reverse_lazy
+from django.utils import timezone
 from django.utils.text import slugify
 from django.utils.http import url_has_allowed_host_and_scheme
-from functools import wraps
-from urllib.parse import urlparse
-from .forms import UserRegistrationForm, LoginForm
-from django.db.models.deletion import ProtectedError
-import json
+from .forms import (
+    UserRegistrationForm,
+    LoginForm,
+    StaffAccountCreationForm,
+    StaffAccountUpdateForm,
+    ForgotPasswordRequestForm,
+    OTPPasswordResetForm,
+    ChangePasswordRequestForm,
+    EmailOTPSettingsForm,
+)
 from .models import (
     Product,
     ProductCategory,
@@ -37,6 +51,8 @@ from .models import (
     HeroCarouselImage,
     AboutVideoTour,
     Partner,
+    EmailOTPSettings,
+    PasswordOTP,
 )
 
 User = get_user_model()
@@ -68,6 +84,21 @@ def staff_required(view_func):
 
         messages.warning(request, "Bạn không có quyền truy cập trang quản lý.")
         return redirect("home")
+
+    return _wrapped
+
+
+def admin_required(view_func):
+    @wraps(view_func)
+    def _wrapped(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect(f"/login/?next={request.path}")
+
+        if request.user.is_superuser:
+            return view_func(request, *args, **kwargs)
+
+        messages.warning(request, "Chỉ quản trị viên mới có quyền quản lý tài khoản.")
+        return redirect("dashboard")
 
     return _wrapped
 
@@ -105,6 +136,7 @@ def _is_management_path(path: str) -> bool:
         "/partner/add",
         "/partner/edit",
         "/partner/delete",
+        "/staff-accounts",
     )
     return path.startswith(management_prefixes)
 
@@ -165,6 +197,106 @@ def _can_move_consultation_status(current_status, new_status):
     current_index = CONSULTATION_STATUS_ORDER.get(current_status, -1)
     new_index = CONSULTATION_STATUS_ORDER.get(new_status, -1)
     return new_index >= current_index
+
+
+def _mask_email(email):
+    email = (email or "").strip()
+    if not email or "@" not in email:
+        return ""
+    local_part, domain = email.split("@", 1)
+    if len(local_part) <= 2:
+        masked_local = local_part[:1] + "*"
+    else:
+        masked_local = local_part[:2] + "*" * max(len(local_part) - 2, 1)
+    return f"{masked_local}@{domain}"
+
+
+def _get_email_otp_settings():
+    return EmailOTPSettings.get_solo()
+
+
+def _build_email_connection(config):
+    backend = getattr(
+        settings,
+        "EMAIL_BACKEND",
+        "django.core.mail.backends.smtp.EmailBackend",
+    )
+    return get_connection(
+        backend=backend,
+        host=config.smtp_host,
+        port=config.smtp_port,
+        username=config.smtp_username or "",
+        password=config.smtp_password or "",
+        use_tls=config.use_tls,
+        use_ssl=config.use_ssl,
+        fail_silently=False,
+    )
+
+
+def _generate_otp_code():
+    return f"{random.SystemRandom().randint(0, 999999):06d}"
+
+
+def _send_password_otp_email(user, otp):
+    config = _get_email_otp_settings()
+
+    if not config.sender_email or not config.smtp_host:
+        raise ValueError("Chưa cấu hình email gửi OTP.")
+
+    purpose_text = dict(PasswordOTP.PURPOSE_CHOICES).get(otp.purpose, "Xác minh")
+    subject = f"[Sao Bac Dau] Ma OTP {purpose_text.lower()}"
+    body = (
+        f"Xin chao {user.get_full_name() or user.username},\n\n"
+        f"Ma OTP cua ban la: {otp.code}\n"
+        f"Ma co hieu luc den {timezone.localtime(otp.expires_at).strftime('%H:%M:%S %d/%m/%Y')}.\n"
+        "Neu ban khong thuc hien yeu cau nay, vui long bo qua email nay.\n\n"
+        "Sao Bac Dau Construction"
+    )
+
+    email_message = EmailMultiAlternatives(
+        subject=subject,
+        body=body,
+        from_email=config.from_email,
+        to=[otp.email],
+        connection=_build_email_connection(config),
+    )
+    email_message.send(fail_silently=False)
+
+
+def _issue_password_otp(user, purpose):
+    email = (user.email or "").strip().lower()
+    if not email:
+        raise ValueError("Tài khoản này chưa có email để nhận OTP.")
+
+    PasswordOTP.objects.filter(
+        user=user,
+        purpose=purpose,
+        is_used=False,
+    ).update(is_used=True)
+
+    otp = PasswordOTP.objects.create(
+        user=user,
+        email=email,
+        purpose=purpose,
+        code=_generate_otp_code(),
+        expires_at=timezone.now() + timedelta(minutes=10),
+    )
+    _send_password_otp_email(user, otp)
+    return otp
+
+
+def _get_active_otp(user, purpose, code):
+    return (
+        PasswordOTP.objects.filter(
+            user=user,
+            purpose=purpose,
+            code=(code or "").strip(),
+            is_used=False,
+            expires_at__gt=timezone.now(),
+        )
+        .order_by("-created_at")
+        .first()
+    )
 
 
 # ====================== PUBLIC PAGES ======================
@@ -498,6 +630,89 @@ def login_view(request):
     )
 
 
+def forgot_password_request(request):
+    if request.user.is_authenticated:
+        return redirect("change_password_request")
+
+    if request.method == "POST":
+        form = ForgotPasswordRequestForm(request.POST)
+        if form.is_valid():
+            identifier = (form.cleaned_data["identifier"] or "").strip()
+            user = User.objects.filter(username__iexact=identifier).first()
+            if user is None:
+                user = User.objects.filter(email__iexact=identifier).first()
+
+            request.session.pop("forgot_password_user_id", None)
+            request.session.pop("forgot_password_masked_email", None)
+
+            if user and user.email:
+                try:
+                    _issue_password_otp(user, "forgot_password")
+                    request.session["forgot_password_user_id"] = user.id
+                    request.session["forgot_password_masked_email"] = _mask_email(
+                        user.email
+                    )
+                except Exception:
+                    messages.error(
+                        request,
+                        "Không thể gửi OTP lúc này. Vui lòng kiểm tra cấu hình email hoặc thử lại sau.",
+                    )
+                    return redirect("forgot_password")
+
+            messages.success(
+                request,
+                "Nếu tài khoản hợp lệ, mã OTP đã được gửi tới email đã đăng ký.",
+            )
+            return redirect("forgot_password_verify")
+    else:
+        form = ForgotPasswordRequestForm()
+
+    return render(request, "accounts/forgot_password_request.html", {"form": form})
+
+
+def forgot_password_verify(request):
+    user_id = request.session.get("forgot_password_user_id")
+    masked_email = request.session.get("forgot_password_masked_email", "")
+
+    if not user_id:
+        messages.warning(request, "Bạn cần gửi yêu cầu OTP trước.")
+        return redirect("forgot_password")
+
+    user = get_object_or_404(User, id=user_id)
+
+    if request.method == "POST":
+        form = OTPPasswordResetForm(request.POST, user=user)
+        if form.is_valid():
+            otp = _get_active_otp(
+                user,
+                "forgot_password",
+                form.cleaned_data["otp_code"],
+            )
+            if otp is None:
+                form.add_error("otp_code", "Mã OTP không đúng hoặc đã hết hạn.")
+            else:
+                user.set_password(form.cleaned_data["password1"])
+                user.save(update_fields=["password"])
+                otp.is_used = True
+                otp.save(update_fields=["is_used"])
+                request.session.pop("forgot_password_user_id", None)
+                request.session.pop("forgot_password_masked_email", None)
+                messages.success(request, "Đặt lại mật khẩu thành công. Hãy đăng nhập lại.")
+                return redirect("login")
+    else:
+        form = OTPPasswordResetForm(user=user)
+
+    return render(
+        request,
+        "accounts/forgot_password_verify.html",
+        {
+            "form": form,
+            "masked_email": masked_email,
+            "page_title": "Xác nhận OTP để đặt lại mật khẩu",
+        },
+    )
+
+
 def register_view(request):
     if request.user.is_authenticated:
         if request.user.is_staff or request.user.is_superuser:
@@ -545,6 +760,85 @@ def logout_view(request):
     return render(request, "accounts/logout.html")
 
 
+@login_required
+def change_password_request(request):
+    if not request.user.email:
+        messages.warning(
+            request,
+            "Tài khoản của bạn chưa có email. Vui lòng liên hệ admin để cập nhật email trước khi đổi mật khẩu bằng OTP.",
+        )
+        return redirect("home")
+
+    if request.method == "POST":
+        form = ChangePasswordRequestForm(request.POST, user=request.user)
+        if form.is_valid():
+            try:
+                _issue_password_otp(request.user, "change_password")
+                request.session["change_password_user_id"] = request.user.id
+                request.session["change_password_masked_email"] = _mask_email(
+                    request.user.email
+                )
+                messages.success(
+                    request,
+                    "Mã OTP đã được gửi tới email của bạn.",
+                )
+                return redirect("change_password_verify")
+            except Exception:
+                messages.error(
+                    request,
+                    "Không thể gửi OTP lúc này. Vui lòng kiểm tra cấu hình email hoặc thử lại sau.",
+                )
+    else:
+        form = ChangePasswordRequestForm(user=request.user)
+
+    return render(request, "accounts/change_password_request.html", {"form": form})
+
+
+@login_required
+def change_password_verify(request):
+    user_id = request.session.get("change_password_user_id")
+    masked_email = request.session.get("change_password_masked_email", "")
+
+    if user_id != request.user.id:
+        messages.warning(request, "Bạn cần yêu cầu OTP đổi mật khẩu trước.")
+        return redirect("change_password_request")
+
+    if request.method == "POST":
+        form = OTPPasswordResetForm(request.POST, user=request.user)
+        if form.is_valid():
+            otp = _get_active_otp(
+                request.user,
+                "change_password",
+                form.cleaned_data["otp_code"],
+            )
+            if otp is None:
+                form.add_error("otp_code", "Mã OTP không đúng hoặc đã hết hạn.")
+            else:
+                request.user.set_password(form.cleaned_data["password1"])
+                request.user.save(update_fields=["password"])
+                otp.is_used = True
+                otp.save(update_fields=["is_used"])
+                request.session.pop("change_password_user_id", None)
+                request.session.pop("change_password_masked_email", None)
+                logout(request)
+                messages.success(
+                    request,
+                    "Đổi mật khẩu thành công. Vui lòng đăng nhập lại bằng mật khẩu mới.",
+                )
+                return redirect("login")
+    else:
+        form = OTPPasswordResetForm(user=request.user)
+
+    return render(
+        request,
+        "accounts/change_password_verify.html",
+        {
+            "form": form,
+            "masked_email": masked_email,
+        },
+    )
+
+
 @staff_required
 def dashboard(request):
     projects = Project.objects.all().order_by("-id")
@@ -561,6 +855,128 @@ def dashboard(request):
             "consultations_processing": consultations_processing,
         },
     )
+
+
+@admin_required
+def system_settings(request):
+    config = _get_email_otp_settings()
+    staff_accounts = User.objects.filter(is_staff=True, is_superuser=False).order_by(
+        "-is_active", "username"
+    )
+
+    if request.method == "POST":
+        form_type = (request.POST.get("form_type") or "").strip()
+
+        if form_type == "email_settings":
+            form = EmailOTPSettingsForm(request.POST, instance=config)
+            if form.is_valid():
+                form.save()
+                messages.success(request, "Đã cập nhật cấu hình email gửi OTP.")
+                return redirect("system_settings")
+        else:
+            form = EmailOTPSettingsForm(instance=config)
+    else:
+        form = EmailOTPSettingsForm(instance=config)
+
+    return render(
+        request,
+        "home/system_settings.html",
+        {
+            "form": form,
+            "config": config,
+            "staff_accounts": staff_accounts,
+        },
+    )
+
+
+@admin_required
+def email_otp_settings_edit(request):
+    return redirect("system_settings")
+
+
+@admin_required
+def staff_account_list(request):
+    return redirect("system_settings")
+
+
+@admin_required
+def staff_account_create(request):
+    if request.method == "POST":
+        form = StaffAccountCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Đã tạo tài khoản staff mới.")
+            return redirect("staff_account_list")
+    else:
+        form = StaffAccountCreationForm()
+
+    return render(
+        request,
+        "home/staff_account_form.html",
+        {
+            "form": form,
+            "page_title": "Tạo tài khoản staff",
+            "submit_label": "Tạo tài khoản",
+            "back_url": reverse("system_settings"),
+        },
+    )
+
+
+@admin_required
+def staff_account_update(request, id):
+    staff_account = get_object_or_404(
+        User,
+        id=id,
+        is_staff=True,
+        is_superuser=False,
+    )
+
+    if request.method == "POST":
+        form = StaffAccountUpdateForm(request.POST, instance=staff_account)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Đã cập nhật tài khoản staff.")
+            return redirect("staff_account_list")
+    else:
+        form = StaffAccountUpdateForm(instance=staff_account)
+
+    return render(
+        request,
+        "home/staff_account_form.html",
+        {
+            "form": form,
+            "page_title": "Cập nhật tài khoản staff",
+            "submit_label": "Lưu thay đổi",
+            "staff_account": staff_account,
+            "back_url": reverse("system_settings"),
+        },
+    )
+
+
+@admin_required
+def staff_account_toggle_status(request, id):
+    staff_account = get_object_or_404(
+        User,
+        id=id,
+        is_staff=True,
+        is_superuser=False,
+    )
+
+    if request.method == "POST":
+        staff_account.is_active = not staff_account.is_active
+        staff_account.save(update_fields=["is_active"])
+        if staff_account.is_active:
+            messages.success(
+                request,
+                f"Đã kích hoạt lại tài khoản {staff_account.username}.",
+            )
+        else:
+            messages.success(
+                request,
+                f"Đã khóa tài khoản {staff_account.username}.",
+            )
+
+    return redirect("staff_account_list")
 
 
 # ====================== CRUD PRODUCT ======================

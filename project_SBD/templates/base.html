@@ -76,63 +76,116 @@
           </nav>
 
           <!-- Right Actions -->
-          <div class="nav-actions d-none d-xl-flex">
+          <div class="nav-actions d-none d-xl-flex align-items-center" style="gap: 10px;">
+            
+            <!-- 🔔 Notifications -->
             <a
               href="{% url 'notifications' %}"
               class="btn btn-sm btn-outline-light position-relative"
+              title="Thông báo"
             >
               <i class="fa fa-bell"></i>
               {% if unread_notifications_count %}
               <span
-                class="badge badge-danger"
+                class="badge bg-danger"
                 style="
                   position: absolute;
-                  top: -7px;
-                  right: -7px;
-                  min-width: 20px;
-                  height: 20px;
+                  top: -6px;
+                  right: -6px;
+                  min-width: 18px;
+                  height: 18px;
                   border-radius: 999px;
-                  display: inline-flex;
+                  display: flex;
                   align-items: center;
                   justify-content: center;
-                  font-size: 11px;
+                  font-size: 10px;
                 "
               >
                 {{ unread_notifications_count }}
               </span>
               {% endif %}
             </a>
-            {% if user.is_authenticated %} {% if user.is_staff %}
-            <a href="{% url 'dashboard' %}" class="btn btn-sm btn-outline-light"
-              >Quản Lý</a
-            >
-            <a
-              href="{% url 'consultation_list' %}"
-              class="btn btn-outline-danger position-relative"
-            >
-              <i class="fa fa-comment"></i>
-              {% if consultations_unfinished %}
-              <span
-                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+
+            {% if user.is_authenticated %}
+
+              {% if user.is_staff %}
+              <!-- 💬 Consultation -->
+              <a
+                href="{% url 'consultation_list' %}"
+                class="btn btn-sm btn-outline-light position-relative"
+                title="Tư vấn"
               >
-                {{ consultations_unfinished }}
-              </span>
+                <i class="fa fa-comment"></i>
+                {% if consultations_unfinished %}
+                <span
+                  class="badge bg-danger position-absolute top-0 start-100 translate-middle rounded-pill"
+                  style="font-size: 10px;"
+                >
+                  {{ consultations_unfinished }}
+                </span>
+                {% endif %}
+              </a>
               {% endif %}
-            </a>
-            {% endif %}
-            <form method="post" action="{% url 'logout' %}" style="margin: 0">
-              {% csrf_token %}
-              <button type="submit" class="btn btn-sm btn-outline-light">
-                Đăng xuất
-              </button>
-            </form>
+
+              <!-- 👤 User Dropdown -->
+              <div class="dropdown">
+                <button
+                  class="btn btn-sm btn-outline-light dropdown-toggle"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                  title="Tài khoản"
+                >
+                  <i class="fa fa-user"></i>
+                </button>
+
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                  
+                  {% if user.is_staff %}
+                  <li>
+                    <a class="dropdown-item" href="{% url 'dashboard' %}">
+                      <i class="fa fa-chart-line me-2"></i> Quản lý
+                    </a>
+                  </li>
+                  {% endif %}
+
+                  {% if user.is_superuser %}
+                  <li>
+                    <a class="dropdown-item" href="{% url 'system_settings' %}">
+                      <i class="fa fa-gear me-2"></i> Cài đặt hệ thống
+                    </a>
+                  </li>
+                  {% endif %}
+
+                  <li>
+                    <a class="dropdown-item" href="{% url 'change_password_request' %}">
+                      <i class="fa fa-key me-2"></i> Đổi mật khẩu
+                    </a>
+                  </li>
+
+                  <li><hr class="dropdown-divider"></li>
+
+                  <li>
+                    <form method="post" action="{% url 'logout' %}" style="margin: 0;">
+                      {% csrf_token %}
+                      <button type="submit" class="dropdown-item">
+                        <i class="fa fa-sign-out-alt me-2"></i> Đăng xuất
+                      </button>
+                    </form>
+                  </li>
+
+                </ul>
+              </div>
+
             {% else %}
-            <a href="{% url 'register' %}" class="btn btn-sm btn-outline-light"
-              >Đăng ký</a
-            >
-            <a href="{% url 'login' %}" class="btn btn-sm btn-light"
-              >Đăng nhập</a
-            >
+
+              <a href="{% url 'register' %}" class="btn btn-sm btn-outline-light">
+                Đăng ký
+              </a>
+
+              <a href="{% url 'login' %}" class="btn btn-sm btn-light">
+                Đăng nhập
+              </a>
+
             {% endif %}
           </div>
 
@@ -191,6 +244,9 @@
             <li><a href="{% url 'product' %}" class="nav-link">Sản phẩm</a></li>
             <li><a href="{% url 'post' %}" class="nav-link">Bài Viết</a></li>
             <li><a href="{% url 'contact' %}" class="nav-link">Liên Hệ</a></li>
+            {% if user.is_authenticated and user.is_superuser %}
+            <li><a href="{% url 'system_settings' %}" class="nav-link">Cài Đặt Hệ Thống</a></li>
+            {% endif %}
           </ul>
         </nav>
 
@@ -200,6 +256,12 @@
             >Quản Lý</a
           >
           {% endif %}
+          <a
+            href="{% url 'change_password_request' %}"
+            class="btn btn-sm btn-outline-secondary w-100 mb-2"
+          >
+            Đổi mật khẩu
+          </a>
           <a
             href="{% url 'notifications' %}"
             class="btn btn-sm btn-outline-secondary w-100 mb-2"
