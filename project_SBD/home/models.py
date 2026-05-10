@@ -23,7 +23,60 @@ class ProductCategory(models.Model):
         return self.name
 
 
-class Project(models.Model):
+class ManagedMediaCleanupModel(models.Model):
+    managed_file_fields = ()
+
+    class Meta:
+        abstract = True
+
+    @classmethod
+    def _delete_file_if_unused(cls, field_name, file_name):
+        if not file_name:
+            return
+
+        if cls.objects.filter(**{field_name: file_name}).exists():
+            return
+
+        field = cls._meta.get_field(field_name)
+        field.storage.delete(file_name)
+
+    def save(self, *args, **kwargs):
+        files_to_delete = []
+
+        if self.pk:
+            old_instance = type(self).objects.filter(pk=self.pk).first()
+            if old_instance:
+                for field_name in self.managed_file_fields:
+                    old_file = getattr(old_instance, field_name, None)
+                    new_file = getattr(self, field_name, None)
+                    old_name = getattr(old_file, "name", None)
+                    new_name = getattr(new_file, "name", None)
+
+                    if old_name and old_name != new_name:
+                        files_to_delete.append((field_name, old_name))
+
+        super().save(*args, **kwargs)
+
+        for field_name, file_name in files_to_delete:
+            self._delete_file_if_unused(field_name, file_name)
+
+    def delete(self, *args, **kwargs):
+        files_to_delete = [
+            (field_name, getattr(getattr(self, field_name, None), "name", None))
+            for field_name in self.managed_file_fields
+        ]
+
+        result = super().delete(*args, **kwargs)
+
+        for field_name, file_name in files_to_delete:
+            self._delete_file_if_unused(field_name, file_name)
+
+        return result
+
+
+class Project(ManagedMediaCleanupModel):
+    managed_file_fields = ("image",)
+
     name = models.CharField(max_length=200)
     description = models.TextField()
     image = models.ImageField(upload_to="projects/")
@@ -38,7 +91,9 @@ class Project(models.Model):
     def __str__(self):
         return self.name
 
-class Product(models.Model):
+class Product(ManagedMediaCleanupModel):
+    managed_file_fields = ("image",)
+
     name = models.CharField(max_length=200)
     description = models.TextField(blank=True)
     image = models.ImageField(upload_to="products/", blank=True, null=True)
@@ -107,7 +162,9 @@ class PostCategory(models.Model):
         return self.name
 
 
-class Post(models.Model):
+class Post(ManagedMediaCleanupModel):
+    managed_file_fields = ("image",)
+
     title = models.CharField(max_length=200)
     summary = models.TextField(blank=True)
     content = models.TextField()
@@ -138,7 +195,9 @@ class FAQ(models.Model):
 
 
 ###### Trịnh gia đạt làm phần dữ liệu, thêm xóa sửa phần ban lãnh đạo trong trang giới thiệu
-class LeadershipMember(models.Model):
+class LeadershipMember(ManagedMediaCleanupModel):
+    managed_file_fields = ("image",)
+
     full_name = models.CharField(max_length=150, verbose_name="Họ và tên")
     role = models.CharField(max_length=150, verbose_name="Chức vụ")
     bio = models.TextField(verbose_name="Mô tả ngắn")
@@ -590,7 +649,9 @@ class Service(models.Model):
 
 
 # chứng chỉ và năng lực
-class Certificate(models.Model):
+class Certificate(ManagedMediaCleanupModel):
+    managed_file_fields = ("image",)
+
     ICON_CHOICES = [
         ("fa-certificate", "Giấy chứng nhận"),
         ("fa-shield", "Shield"),
@@ -847,7 +908,9 @@ class Notification(models.Model):
         return f"{self.user.username} - {self.message[:30]}"
 
 #carousel va video ảnh nền
-class HeroSection(models.Model):
+class HeroSection(ManagedMediaCleanupModel):
+    managed_file_fields = ("bg_image", "bg_video")
+
     # Text content
     badge_text = models.CharField(max_length=200, verbose_name="Badge text (vd: Hơn 15 năm...)")
     heading_line1 = models.CharField(max_length=300, verbose_name="Tiêu đề dòng 1")
@@ -894,7 +957,9 @@ class HeroSection(models.Model):
         return self.heading_line1
 
 
-class HeroCarouselImage(models.Model):
+class HeroCarouselImage(ManagedMediaCleanupModel):
+    managed_file_fields = ("image",)
+
     hero = models.ForeignKey(HeroSection, on_delete=models.CASCADE, related_name='carousel_images')
     image = models.ImageField(upload_to='hero/carousel/', verbose_name="Ảnh")
     order = models.PositiveIntegerField(default=0)
@@ -906,7 +971,9 @@ class HeroCarouselImage(models.Model):
         return f"Carousel ảnh #{self.order}"
 
 
-class Partner(models.Model):
+class Partner(ManagedMediaCleanupModel):
+    managed_file_fields = ("logo",)
+
     name = models.CharField(max_length=200, verbose_name="Tên đối tác")
     logo = models.ImageField(
         upload_to="partners/",
