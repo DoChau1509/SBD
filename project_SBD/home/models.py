@@ -993,3 +993,59 @@ class Partner(ManagedMediaCleanupModel):
 
     def __str__(self):
         return self.name
+
+
+class OfficeRental(ManagedMediaCleanupModel):
+    managed_file_fields = ("image",)
+
+    title = models.CharField(max_length=200, verbose_name="Tên văn phòng")
+    summary = models.TextField(blank=True, verbose_name="Mô tả ngắn")
+    content = models.TextField(verbose_name="Thông tin chi tiết")
+    image = models.ImageField(
+        upload_to="office_rentals/",
+        blank=True,
+        null=True,
+        verbose_name="Ảnh văn phòng",
+    )
+    area = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        verbose_name="Diện tích (m2)",
+    )
+    rent_price = models.DecimalField(
+        max_digits=15,
+        decimal_places=0,
+        verbose_name="Giá thuê (VNĐ)",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at", "-id"]
+        verbose_name = "Cho thuê văn phòng"
+        verbose_name_plural = "Cho thuê văn phòng"
+
+    def __str__(self):
+        return self.title
+
+
+class EducationSpaceDesign(ManagedMediaCleanupModel):
+    managed_file_fields = ("image",)
+
+    title = models.CharField(max_length=200, verbose_name="Tiêu đề")
+    summary = models.TextField(blank=True, verbose_name="Mô tả ngắn")
+    content = models.TextField(verbose_name="Nội dung chi tiết")
+    image = models.ImageField(
+        upload_to="education_spaces/",
+        blank=True,
+        null=True,
+        verbose_name="Ảnh minh họa",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at", "-id"]
+        verbose_name = "Thiết kế không gian giáo dục"
+        verbose_name_plural = "Thiết kế không gian giáo dục"
+
+    def __str__(self):
+        return self.title

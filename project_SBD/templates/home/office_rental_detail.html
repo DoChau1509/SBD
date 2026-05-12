@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% block content %}
+
+<section class="section-top">
+  <div class="container">
+    <div class="col-lg-10 offset-lg-1 col-xs-12 text-center">
+      <div class="section-top-title wow fadeInRight" data-wow-duration="1s" data-wow-delay="0.3s">
+        <h1>{{ office_rental.title }}</h1>
+        <div class="breadcrumb-nav">
+          <a href="{% url 'home' %}">Trang Chủ</a>
+          <span>/</span>
+          <a href="{% url 'office_rental' %}">Cho Thuê Văn Phòng</a>
+          <span>/</span>
+          <strong>{{ office_rental.title }}</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section style="padding: 90px 0; background: var(--light-bg);">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-10">
+        <div class="card border-0 shadow-sm" style="border-radius: 18px; overflow: hidden;">
+          {% if office_rental.image %}
+            <img src="{{ office_rental.image.url }}" alt="{{ office_rental.title }}" style="width: 100%; max-height: 480px; object-fit: cover;">
+          {% endif %}
+
+          <div class="card-body p-4 p-lg-5">
+            <div class="d-flex flex-wrap gap-2 mb-3">
+              <span class="badge text-bg-light border px-3 py-2">
+                <i class="fa-solid fa-ruler-combined me-1"></i>
+                {{ office_rental.area|floatformat:-2 }} m2
+              </span>
+              <span class="badge text-bg-light border px-3 py-2">
+                <i class="fa-solid fa-money-bill-wave me-1"></i>
+                {{ office_rental.rent_price|floatformat:0|intcomma }} VNĐ
+              </span>
+              <span class="badge text-bg-light border px-3 py-2">
+                <i class="fa-regular fa-calendar me-1"></i>
+                {{ office_rental.created_at|date:"d/m/Y" }}
+              </span>
+            </div>
+
+            {% if office_rental.summary %}
+              <div class="fs-5 text-muted mb-4" style="line-height: 1.8;">
+                {{ office_rental.summary }}
+              </div>
+            {% endif %}
+
+            <div style="line-height: 1.9; color: var(--text-color);">
+              {{ office_rental.content|linebreaksbr }}
+            </div>
+
+            <div class="mt-4">
+              <a href="{% url 'office_rental' %}" class="btn btn-secondary">Quay lại</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

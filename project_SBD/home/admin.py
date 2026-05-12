@@ -15,6 +15,8 @@ from .models import (
     Partner,
     EmailOTPSettings,
     PasswordOTP,
+    OfficeRental,
+    EducationSpaceDesign,
 )
 
 admin.site.register(ProjectCategory)
@@ -34,6 +36,8 @@ admin.site.register(Consultation)
 admin.site.register(Partner)
 admin.site.register(EmailOTPSettings)
 admin.site.register(PasswordOTP)
+admin.site.register(OfficeRental)
+admin.site.register(EducationSpaceDesign)
 
 
 @admin.register(Project)

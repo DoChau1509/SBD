@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% block content %}
+
+<style>
+  .office-section { padding: 90px 0; background: var(--light-bg); }
+  .office-card {
+    background: var(--white);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 12px 34px rgba(26, 46, 74, 0.08);
+    height: 100%;
+    transition: transform .25s ease, box-shadow .25s ease;
+  }
+  .office-card:hover { transform: translateY(-6px); box-shadow: 0 18px 44px rgba(26, 46, 74, 0.12); }
+  .office-thumb {
+    height: 240px;
+    background: linear-gradient(135deg, rgba(8, 28, 50, 0.96) 0%, rgba(26, 60, 94, 0.96) 60%, rgba(201, 150, 62, 0.22) 100%);
+    position: relative;
+  }
+  .office-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .office-fallback {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.9);
+  }
+  .office-fallback i { font-size: 56px; }
+  .office-body { padding: 22px; }
+  .office-meta {
+    display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px;
+  }
+  .office-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 7px 12px; border-radius: 999px;
+    background: rgba(201,150,62,0.12); color: var(--primary);
+    border: 1px solid rgba(201,150,62,0.35); font-weight: 600; font-size: 13px;
+  }
+  .office-title { margin: 0 0 10px; color: var(--primary); font-size: 24px; line-height: 1.4; }
+  .office-summary { color: var(--text-muted); line-height: 1.8; min-height: 76px; }
+</style>
+
+<section class="section-top">
+  <div class="container">
+    <div class="col-lg-10 offset-lg-1 col-xs-12 text-center">
+      <div class="section-top-title wow fadeInRight" data-wow-duration="1s" data-wow-delay="0.3s">
+        <h1>Cho Thuê Văn Phòng</h1>
+        <p>Thông tin mặt bằng văn phòng với diện tích và giá thuê rõ ràng</p>
+        <div class="breadcrumb-nav">
+          <a href="{% url 'home' %}">Trang Chủ</a>
+          <span>/</span>
+          <strong>Cho Thuê Văn Phòng</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="office-section">
+  <div class="container">
+    <div class="row">
+      {% for office in office_rentals %}
+        <div class="col-lg-4 col-md-6 mb-4 wow fadeInUp">
+          <a href="{% url 'office_rental_detail' office.id %}" style="text-decoration: none; color: inherit;">
+            <div class="office-card">
+              <div class="office-thumb">
+                {% if office.image %}
+                  <img src="{{ office.image.url }}" alt="{{ office.title }}">
+                {% else %}
+                  <div class="office-fallback"><i class="fa-solid fa-building"></i></div>
+                {% endif %}
+              </div>
+              <div class="office-body">
+                <div class="office-meta">
+                  <span class="office-badge">
+                    <i class="fa-solid fa-ruler-combined"></i>
+                    {{ office.area|floatformat:-2 }} m2
+                  </span>
+                  <span class="office-badge">
+                    <i class="fa-solid fa-money-bill-wave"></i>
+                    {{ office.rent_price|floatformat:0|intcomma }} VNĐ
+                  </span>
+                </div>
+                <h3 class="office-title">{{ office.title }}</h3>
+                <p class="office-summary">
+                  {% if office.summary %}
+                    {{ office.summary|truncatechars:140 }}
+                  {% else %}
+                    {{ office.content|truncatechars:140 }}
+                  {% endif %}
+                </p>
+              </div>
+            </div>
+          </a>
+        </div>
+      {% empty %}
+        <div class="col-12">
+          <div class="text-center text-muted" style="padding: 40px 0;">Chưa có văn phòng nào.</div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{% endblock %}

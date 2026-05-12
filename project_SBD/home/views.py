@@ -53,6 +53,8 @@ from .models import (
     Partner,
     EmailOTPSettings,
     PasswordOTP,
+    OfficeRental,
+    EducationSpaceDesign,
 )
 
 User = get_user_model()
@@ -124,6 +126,14 @@ def _is_management_path(path: str) -> bool:
         "/post/edit",
         "/post/delete",
         "/post-category",
+        "/office-rentals",
+        "/office-rental/add",
+        "/office-rental/edit",
+        "/office-rental/delete",
+        "/education-space-designs",
+        "/education-space-design/add",
+        "/education-space-design/edit",
+        "/education-space-design/delete",
         "/leadership",
         "/about-statements",
         "/service-types",
@@ -1095,6 +1105,44 @@ def post_detail(request, id):
     return render(request, "home/post_detail.html", {"post": post})
 
 
+def office_rental_public(request):
+    office_rentals = OfficeRental.objects.all().order_by("-created_at", "-id")
+    return render(
+        request,
+        "home/office_rental.html",
+        {"office_rentals": office_rentals},
+    )
+
+
+def office_rental_detail(request, id):
+    office_rental = get_object_or_404(OfficeRental, id=id)
+    return render(
+        request,
+        "home/office_rental_detail.html",
+        {"office_rental": office_rental},
+    )
+
+
+def education_space_design_public(request):
+    education_space_designs = EducationSpaceDesign.objects.all().order_by(
+        "-created_at", "-id"
+    )
+    return render(
+        request,
+        "home/education_space_design.html",
+        {"education_space_designs": education_space_designs},
+    )
+
+
+def education_space_design_detail(request, id):
+    education_space_design = get_object_or_404(EducationSpaceDesign, id=id)
+    return render(
+        request,
+        "home/education_space_design_detail.html",
+        {"education_space_design": education_space_design},
+    )
+
+
 @staff_required
 def post_create(request):
     categories = PostCategory.objects.filter(is_hidden=False).order_by("name")
@@ -1153,6 +1201,116 @@ def post_delete(request, id):
     post = get_object_or_404(Post, id=id)
     post.delete()
     return redirect("post_list")
+
+
+@staff_required
+def office_rental_list(request):
+    office_rentals = OfficeRental.objects.all().order_by("-id")
+    return render(
+        request,
+        "home/office_rental_list.html",
+        {"office_rentals": office_rentals},
+    )
+
+
+@staff_required
+def office_rental_create(request):
+    if request.method == "POST":
+        OfficeRental.objects.create(
+            title=request.POST.get("title"),
+            summary=request.POST.get("summary", ""),
+            content=request.POST.get("content"),
+            image=request.FILES.get("image"),
+            area=request.POST.get("area") or 0,
+            rent_price=request.POST.get("rent_price") or 0,
+        )
+        return redirect("office_rental_list")
+
+    return render(request, "home/office_rental_form.html")
+
+
+@staff_required
+def office_rental_update(request, id):
+    office_rental = get_object_or_404(OfficeRental, id=id)
+
+    if request.method == "POST":
+        office_rental.title = request.POST.get("title")
+        office_rental.summary = request.POST.get("summary", "")
+        office_rental.content = request.POST.get("content")
+        office_rental.area = request.POST.get("area") or 0
+        office_rental.rent_price = request.POST.get("rent_price") or 0
+
+        if "image" in request.FILES:
+            office_rental.image = request.FILES["image"]
+
+        office_rental.save()
+        return redirect("office_rental_list")
+
+    return render(
+        request,
+        "home/office_rental_form.html",
+        {"office_rental": office_rental},
+    )
+
+
+@staff_required
+def office_rental_delete(request, id):
+    office_rental = get_object_or_404(OfficeRental, id=id)
+    office_rental.delete()
+    return redirect("office_rental_list")
+
+
+@staff_required
+def education_space_design_list(request):
+    education_space_designs = EducationSpaceDesign.objects.all().order_by("-id")
+    return render(
+        request,
+        "home/education_space_design_list.html",
+        {"education_space_designs": education_space_designs},
+    )
+
+
+@staff_required
+def education_space_design_create(request):
+    if request.method == "POST":
+        EducationSpaceDesign.objects.create(
+            title=request.POST.get("title"),
+            summary=request.POST.get("summary", ""),
+            content=request.POST.get("content"),
+            image=request.FILES.get("image"),
+        )
+        return redirect("education_space_design_list")
+
+    return render(request, "home/education_space_design_form.html")
+
+
+@staff_required
+def education_space_design_update(request, id):
+    education_space_design = get_object_or_404(EducationSpaceDesign, id=id)
+
+    if request.method == "POST":
+        education_space_design.title = request.POST.get("title")
+        education_space_design.summary = request.POST.get("summary", "")
+        education_space_design.content = request.POST.get("content")
+
+        if "image" in request.FILES:
+            education_space_design.image = request.FILES["image"]
+
+        education_space_design.save()
+        return redirect("education_space_design_list")
+
+    return render(
+        request,
+        "home/education_space_design_form.html",
+        {"education_space_design": education_space_design},
+    )
+
+
+@staff_required
+def education_space_design_delete(request, id):
+    education_space_design = get_object_or_404(EducationSpaceDesign, id=id)
+    education_space_design.delete()
+    return redirect("education_space_design_list")
 
 
 @staff_required
