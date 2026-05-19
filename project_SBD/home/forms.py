@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.password_validation import validate_password
 
-from .models import EmailOTPSettings
+from .models import EmailOTPSettings, SiteBrandSettings
 
 User = get_user_model()
 
@@ -424,3 +424,81 @@ class EmailOTPSettingsForm(forms.ModelForm):
             raise forms.ValidationError("Chỉ nên bật một trong hai chế độ TLS hoặc SSL.")
 
         return cleaned_data
+
+
+class SiteBrandSettingsForm(forms.ModelForm):
+    class Meta:
+        model = SiteBrandSettings
+        fields = [
+            "logo_image",
+            "logo_icon",
+            "brand_name",
+            "brand_subtitle",
+            "footer_bottom_text",
+        ]
+        widgets = {
+            "logo_image": forms.ClearableFileInput(
+                attrs={"class": "form-control", "accept": "image/*"}
+            ),
+            "logo_icon": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "Ví dụ: fa-solid fa-star hoặc https://fontawesome.com/...",
+                }
+            ),
+            "brand_name": forms.TextInput(attrs={"class": "form-control"}),
+            "brand_subtitle": forms.TextInput(attrs={"class": "form-control"}),
+            "footer_bottom_text": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "© 2026 Công Ty Xây Dựng Sao Bắc Đẩu | MST: 0123456789",
+                }
+            ),
+        }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        current_image = getattr(self.instance, "logo_image", None)
+        clear_image = bool(self.data.get("logo_image-clear"))
+        logo_image = cleaned_data.get("logo_image") or (
+            None if clear_image else current_image
+        )
+        logo_icon = (cleaned_data.get("logo_icon") or "").strip()
+        logo_type = getattr(self.instance, "logo_type", SiteBrandSettings.LOGO_TYPE_ICON)
+        forced_logo_type = (self.data.get("force_logo_type") or "").strip()
+
+        if forced_logo_type in {
+            SiteBrandSettings.LOGO_TYPE_IMAGE,
+            SiteBrandSettings.LOGO_TYPE_ICON,
+        }:
+            logo_type = forced_logo_type
+        elif "logo_image" in self.changed_data and cleaned_data.get("logo_image"):
+            logo_type = SiteBrandSettings.LOGO_TYPE_IMAGE
+        elif "logo_icon" in self.changed_data and logo_icon:
+            logo_type = SiteBrandSettings.LOGO_TYPE_ICON
+        elif clear_image and logo_icon:
+            logo_type = SiteBrandSettings.LOGO_TYPE_ICON
+
+        cleaned_data["logo_type"] = logo_type
+
+        if logo_type == SiteBrandSettings.LOGO_TYPE_IMAGE and not logo_image:
+            self.add_error("logo_image", "Vui lòng tải ảnh logo khi chọn kiểu hình ảnh.")
+
+        if logo_type == SiteBrandSettings.LOGO_TYPE_ICON and not logo_icon:
+            self.add_error("logo_icon", "Vui lòng nhập class hoặc link icon Font Awesome.")
+
+        return cleaned_data
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        instance.logo_type = self.cleaned_data["logo_type"]
+
+        if instance.logo_type == SiteBrandSettings.LOGO_TYPE_ICON:
+            # Khi dùng icon thì bỏ ảnh logo để model cleanup xóa file cũ nếu không còn dùng.
+            instance.logo_image = None
+
+        if commit:
+            instance.save()
+            self.save_m2m()
+
+        return instance

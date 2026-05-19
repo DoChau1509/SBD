@@ -70,6 +70,7 @@ urlpatterns = [
     ),
     # CRUD
     # project
+    path("site-logo/", views.system_settings, name="site_logo"),
     path("project/add/", views.project_create, name="project_add"),
     path("project/edit/<int:id>/", views.project_update, name="project_edit"),
     path("project/delete/<int:id>/", views.project_delete, name="project_delete"),

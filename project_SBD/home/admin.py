@@ -13,6 +13,7 @@ from .models import (
     Notification,
     Consultation,
     Partner,
+    SiteBrandSettings,
     EmailOTPSettings,
     PasswordOTP,
     OfficeRental,
@@ -34,6 +35,7 @@ admin.site.register(ContactInfo)
 admin.site.register(Notification)
 admin.site.register(Consultation)
 admin.site.register(Partner)
+admin.site.register(SiteBrandSettings)
 admin.site.register(EmailOTPSettings)
 admin.site.register(PasswordOTP)
 admin.site.register(OfficeRental)

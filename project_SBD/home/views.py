@@ -26,6 +26,7 @@ from .forms import (
     OTPPasswordResetForm,
     ChangePasswordRequestForm,
     EmailOTPSettingsForm,
+    SiteBrandSettingsForm,
 )
 from .models import (
     Product,
@@ -53,6 +54,7 @@ from .models import (
     Partner,
     EmailOTPSettings,
     PasswordOTP,
+    SiteBrandSettings,
     OfficeRental,
     EducationSpaceDesign,
 )
@@ -870,6 +872,7 @@ def dashboard(request):
 @admin_required
 def system_settings(request):
     config = _get_email_otp_settings()
+    brand_config = SiteBrandSettings.get_solo()
     staff_accounts = User.objects.filter(is_staff=True, is_superuser=False).order_by(
         "-is_active", "username"
     )
@@ -879,20 +882,36 @@ def system_settings(request):
 
         if form_type == "email_settings":
             form = EmailOTPSettingsForm(request.POST, instance=config)
+            brand_form = SiteBrandSettingsForm(instance=brand_config)
             if form.is_valid():
                 form.save()
                 messages.success(request, "Đã cập nhật cấu hình email gửi OTP.")
                 return redirect("system_settings")
+        elif form_type == "brand_settings":
+            brand_form = SiteBrandSettingsForm(
+                request.POST,
+                request.FILES,
+                instance=brand_config,
+            )
+            form = EmailOTPSettingsForm(instance=config)
+            if brand_form.is_valid():
+                brand_form.save()
+                messages.success(request, "Đã cập nhật thành công.")
+                return redirect("system_settings")
         else:
             form = EmailOTPSettingsForm(instance=config)
+            brand_form = SiteBrandSettingsForm(instance=brand_config)
     else:
         form = EmailOTPSettingsForm(instance=config)
+        brand_form = SiteBrandSettingsForm(instance=brand_config)
 
     return render(
         request,
         "home/system_settings.html",
         {
             "form": form,
+            "brand_form": brand_form,
+            "brand_config": brand_config,
             "config": config,
             "staff_accounts": staff_accounts,
         },

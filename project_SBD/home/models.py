@@ -995,6 +995,129 @@ class Partner(ManagedMediaCleanupModel):
         return self.name
 
 
+class SiteBrandSettings(ManagedMediaCleanupModel):
+    managed_file_fields = ("logo_image",)
+
+    LOGO_TYPE_ICON = "icon"
+    LOGO_TYPE_IMAGE = "image"
+    LOGO_TYPE_CHOICES = [
+        (LOGO_TYPE_ICON, "Icon Font Awesome"),
+        (LOGO_TYPE_IMAGE, "Hình ảnh"),
+    ]
+
+    logo_type = models.CharField(
+        max_length=20,
+        choices=LOGO_TYPE_CHOICES,
+        default=LOGO_TYPE_ICON,
+        verbose_name="Kiểu logo",
+    )
+    logo_image = models.ImageField(
+        upload_to="branding/",
+        blank=True,
+        null=True,
+        verbose_name="Ảnh logo",
+    )
+    logo_icon = models.CharField(
+        max_length=500,
+        blank=True,
+        default="fa-solid fa-star",
+        verbose_name="Tên class / link icon Font Awesome",
+        help_text=(
+            "Có thể nhập fa-star, fa-solid fa-star, star "
+            "hoặc link icon từ Font Awesome."
+        ),
+    )
+    brand_name = models.CharField(
+        max_length=200,
+        default="Sao Bắc Đẩu",
+        verbose_name="Tên thương hiệu",
+    )
+    brand_subtitle = models.CharField(
+        max_length=200,
+        default="Construction",
+        verbose_name="Dòng phụ thương hiệu",
+    )
+    footer_bottom_text = models.CharField(
+        max_length=300,
+        default="© 2026 Công Ty Xây Dựng Sao Bắc Đẩu | MST: 0123456789",
+        verbose_name="Nội dung footer bottom",
+    )
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Cấu hình thương hiệu"
+        verbose_name_plural = "Cấu hình thương hiệu"
+
+    @classmethod
+    def get_solo(cls):
+        config = cls.objects.order_by("id").first()
+        if config is None:
+            config = cls.objects.create()
+        return config
+
+    @property
+    def icon_css_class(self):
+        raw = (self.logo_icon or "").strip()
+        fallback = "fa-solid fa-star"
+
+        if not raw:
+            return fallback
+
+        raw_lower = raw.lower()
+
+        if "fontawesome.com/" in raw_lower:
+            parsed = urlparse(raw)
+            path_parts = [part for part in parsed.path.split("/") if part]
+            icon_name = path_parts[-1] if path_parts else "star"
+            query = parse_qs(parsed.query)
+            style = (query.get("s", ["solid"])[0] or "solid").lower()
+            style_map = {
+                "solid": "fa-solid",
+                "regular": "fa-regular",
+                "brands": "fa-brands",
+                "brand": "fa-brands",
+                "light": "fa-light",
+                "thin": "fa-thin",
+                "duotone": "fa-duotone",
+            }
+            prefix = style_map.get(style, "fa-solid")
+            return f"{prefix} fa-{icon_name}"
+
+        parts = raw.split()
+        known_prefixes = {
+            "fa-solid",
+            "fa-regular",
+            "fa-brands",
+            "fa-light",
+            "fa-thin",
+            "fa-duotone",
+            "fa",
+            "fab",
+            "far",
+            "fas",
+        }
+
+        if any(part in known_prefixes for part in parts):
+            if raw.startswith("fa ") and len(parts) >= 2 and parts[1].startswith("fa-"):
+                return f"fa-solid {parts[1]}"
+            return raw
+
+        if raw.startswith("fa-"):
+            return f"fa-solid {raw}"
+
+        if "-" in raw and " " not in raw:
+            return f"fa-solid fa-{raw}"
+
+        return fallback
+
+    @property
+    def has_logo_image(self):
+        return bool(self.logo_image and getattr(self.logo_image, "url", ""))
+
+    def __str__(self):
+        return self.brand_name or "Cấu hình thương hiệu"
+
+
 class OfficeRental(ManagedMediaCleanupModel):
     managed_file_fields = ("image",)
 

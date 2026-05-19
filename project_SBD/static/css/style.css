@@ -184,6 +184,34 @@ ul {
     transition: var(--transition);
 }
 
+.logo-icon i {
+    line-height: 1;
+}
+
+.logo-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.logo-icon--sm {
+    width: 38px;
+    height: 38px;
+    font-size: 18px;
+}
+
+.logo-icon--footer {
+    width: 45px;
+    height: 45px;
+    font-size: 22px;
+}
+
+.logo-image--sm,
+.logo-image--footer {
+    object-fit: cover;
+}
+
 .site-logo a:hover .logo-icon {
     transform: rotate(20deg) scale(1.08);
 }

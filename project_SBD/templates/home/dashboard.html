@@ -8,6 +8,11 @@
       <p class="text-muted mb-0">Quản lý toàn bộ nội dung hệ thống</p>
     </div>
     <div>
+      {% if user.is_superuser %}
+      <a href="{% url 'system_settings' %}" class="btn btn-outline-secondary px-4">
+      Cài đặt hệ thống
+      </a>
+      {% endif %}
       <a href="{% url 'featured_project_list' %}" class="btn btn-primary px-4">
       Dự án nổi bật
       </a>
@@ -39,7 +44,10 @@
       <a href="{% url 'leadership_list' %}" class="btn btn-outline-primary">Ban lãnh đạo</a>
       <a href="{% url 'certificate_list' %}" class="btn btn-outline-primary">Chứng chỉ</a>
       <a href="{% url 'contact_info_list' %}" class="btn btn-outline-primary">Liên hệ</a>
-      <a href="{% url 'faq_list' %}" class="btn btn-outline-primary">FAQ</a> 
+      <a href="{% url 'faq_list' %}" class="btn btn-outline-primary">FAQ</a>
+      {% if user.is_superuser %}
+      <a href="{% url 'system_settings' %}" class="btn btn-outline-dark">Cài đặt hệ thống</a>
+      {% endif %}
     </div>
   </div>
 
