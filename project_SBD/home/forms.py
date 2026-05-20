@@ -431,13 +431,15 @@ class SiteBrandSettingsForm(forms.ModelForm):
         model = SiteBrandSettings
         fields = [
             "logo_image",
+            "preloader_image",
             "logo_icon",
-            "brand_name",
-            "brand_subtitle",
             "footer_bottom_text",
         ]
         widgets = {
             "logo_image": forms.ClearableFileInput(
+                attrs={"class": "form-control", "accept": "image/*"}
+            ),
+            "preloader_image": forms.ClearableFileInput(
                 attrs={"class": "form-control", "accept": "image/*"}
             ),
             "logo_icon": forms.TextInput(
@@ -446,8 +448,6 @@ class SiteBrandSettingsForm(forms.ModelForm):
                     "placeholder": "Ví dụ: fa-solid fa-star hoặc https://fontawesome.com/...",
                 }
             ),
-            "brand_name": forms.TextInput(attrs={"class": "form-control"}),
-            "brand_subtitle": forms.TextInput(attrs={"class": "form-control"}),
             "footer_bottom_text": forms.TextInput(
                 attrs={
                     "class": "form-control",

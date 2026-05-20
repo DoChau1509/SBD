@@ -45,9 +45,6 @@
       <a href="{% url 'certificate_list' %}" class="btn btn-outline-primary">Chứng chỉ</a>
       <a href="{% url 'contact_info_list' %}" class="btn btn-outline-primary">Liên hệ</a>
       <a href="{% url 'faq_list' %}" class="btn btn-outline-primary">FAQ</a>
-      {% if user.is_superuser %}
-      <a href="{% url 'system_settings' %}" class="btn btn-outline-dark">Cài đặt hệ thống</a>
-      {% endif %}
     </div>
   </div>
 

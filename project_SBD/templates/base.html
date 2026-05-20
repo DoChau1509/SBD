@@ -36,7 +36,17 @@
   <body>
     <!-- PRELOADER -->
     <div class="preloader">
+      {% if brand_settings.has_preloader_image %}
+      <div class="preloader-brand">
+        <img
+          src="{{ brand_settings.preloader_image.url }}"
+          alt="{{ brand_settings.brand_name }}"
+          class="preloader-logo"
+        />
+      </div>
+      {% else %}
       <div class="star-icon">★</div>
+      {% endif %}
     </div>
 
     <!-- NAVBAR -->
@@ -400,11 +410,11 @@
             <div class="footer-logo-wrap mb-3">
               {% include 'includes/site_logo.html' with link_style='display: flex; align-items: center; gap: 12px; text-decoration: none;' icon_wrapper_class='logo-icon--footer' icon_class='logo-fa-icon--footer' image_class='logo-image--footer' %}
             </div>
-            {% if hero %}
+            {% comment %} {% if hero %}
               <p class="footer-desc">
                 {{ hero.description }}                              
               </p>
-            {% endif %}
+            {% endif %} {% endcomment %}
 
             <div class="footer-social">
               {% if site_contact and site_contact.facebook_url %}

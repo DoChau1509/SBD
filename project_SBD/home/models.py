@@ -996,7 +996,7 @@ class Partner(ManagedMediaCleanupModel):
 
 
 class SiteBrandSettings(ManagedMediaCleanupModel):
-    managed_file_fields = ("logo_image",)
+    managed_file_fields = ("logo_image", "preloader_image")
 
     LOGO_TYPE_ICON = "icon"
     LOGO_TYPE_IMAGE = "image"
@@ -1016,6 +1016,12 @@ class SiteBrandSettings(ManagedMediaCleanupModel):
         blank=True,
         null=True,
         verbose_name="Ảnh logo",
+    )
+    preloader_image = models.ImageField(
+        upload_to="branding/preloader/",
+        blank=True,
+        null=True,
+        verbose_name="Ảnh màn hình loading",
     )
     logo_icon = models.CharField(
         max_length=500,
@@ -1113,6 +1119,10 @@ class SiteBrandSettings(ManagedMediaCleanupModel):
     @property
     def has_logo_image(self):
         return bool(self.logo_image and getattr(self.logo_image, "url", ""))
+
+    @property
+    def has_preloader_image(self):
+        return bool(self.preloader_image and getattr(self.preloader_image, "url", ""))
 
     def __str__(self):
         return self.brand_name or "Cấu hình thương hiệu"
