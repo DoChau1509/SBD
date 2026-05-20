@@ -460,12 +460,23 @@ class SiteBrandSettingsForm(forms.ModelForm):
         cleaned_data = super().clean()
         current_image = getattr(self.instance, "logo_image", None)
         clear_image = bool(self.data.get("logo_image-clear"))
+        current_preloader_image = getattr(self.instance, "preloader_image", None)
+        clear_preloader_image = bool(self.data.get("preloader_image-clear"))
+
+        if clear_image:
+            cleaned_data["logo_image"] = None
+        if clear_preloader_image:
+            cleaned_data["preloader_image"] = None
+
         logo_image = cleaned_data.get("logo_image") or (
             None if clear_image else current_image
         )
         logo_icon = (cleaned_data.get("logo_icon") or "").strip()
         logo_type = getattr(self.instance, "logo_type", SiteBrandSettings.LOGO_TYPE_ICON)
         forced_logo_type = (self.data.get("force_logo_type") or "").strip()
+        preloader_image = cleaned_data.get("preloader_image") or (
+            None if clear_preloader_image else current_preloader_image
+        )
 
         if forced_logo_type in {
             SiteBrandSettings.LOGO_TYPE_IMAGE,
@@ -487,11 +498,21 @@ class SiteBrandSettingsForm(forms.ModelForm):
         if logo_type == SiteBrandSettings.LOGO_TYPE_ICON and not logo_icon:
             self.add_error("logo_icon", "Vui lòng nhập class hoặc link icon Font Awesome.")
 
+        cleaned_data["clear_logo_image"] = clear_image
+        cleaned_data["clear_preloader_image"] = clear_preloader_image
+        cleaned_data["resolved_preloader_image"] = preloader_image
+
         return cleaned_data
 
     def save(self, commit=True):
         instance = super().save(commit=False)
         instance.logo_type = self.cleaned_data["logo_type"]
+
+        if self.cleaned_data.get("clear_logo_image"):
+            instance.logo_image = None
+
+        if self.cleaned_data.get("clear_preloader_image"):
+            instance.preloader_image = None
 
         if instance.logo_type == SiteBrandSettings.LOGO_TYPE_ICON:
             # Khi dùng icon thì bỏ ảnh logo để model cleanup xóa file cũ nếu không còn dùng.
