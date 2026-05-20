@@ -1,0 +1,27 @@
+# Bỏ qua môi trường ảo (Cực kỳ quan trọng)
+.venv/
+venv/
+env/
+
+# Bỏ qua file môi trường bảo mật (Sẽ truyền vào lúc chạy container)
+.env
+
+# Bỏ qua cache của Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Bỏ qua database local (Nếu dùng SQLite)
+db.sqlite3
+
+# Bỏ qua folder Git
+.git/
+.gitignore
+
+# Bỏ qua media/static local (Vì ông đã dùng OCI rồi)
+media/
+
+# Bỏ qua file log
+*.log
