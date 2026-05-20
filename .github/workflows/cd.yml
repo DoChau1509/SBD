@@ -7,7 +7,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: dpsgion/sbd
+  IMAGE_NAME: dochau1509/sbd
 
 jobs:
   build-and-push:
@@ -68,7 +68,7 @@ jobs:
             docker run -d \
               --name sbd_app \
               --restart unless-stopped \
-              -p $HOST_PORT:8000 \
+              -p 0.0.0.0:$HOST_PORT:8000 \
               --env-file $ENV_PATH \
               $IMAGE_TAG
             
