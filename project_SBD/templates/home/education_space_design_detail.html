@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<section class="section-top">
+  <div class="container">
+    <div class="col-lg-10 offset-lg-1 col-xs-12 text-center">
+      <div class="section-top-title wow fadeInRight" data-wow-duration="1s" data-wow-delay="0.3s">
+        <h1>{{ education_space_design.title }}</h1>
+        <div class="breadcrumb-nav">
+          <a href="{% url 'home' %}">Trang Chủ</a>
+          <span>/</span>
+          <a href="{% url 'education_space_design' %}">Thiết Kế Không Gian Giáo Dục</a>
+          <span>/</span>
+          <strong>{{ education_space_design.title }}</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section style="padding: 90px 0; background: var(--light-bg);">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-10">
+        <div class="card border-0 shadow-sm" style="border-radius: 18px; overflow: hidden;">
+          {% if education_space_design.image %}
+            <img src="{{ education_space_design.image.url }}" alt="{{ education_space_design.title }}" style="width: 100%; max-height: 480px; object-fit: cover;">
+          {% endif %}
+
+          <div class="card-body p-4 p-lg-5">
+            {% if education_space_design.summary %}
+              <div class="fs-5 text-muted mb-4" style="line-height: 1.8;">
+                {{ education_space_design.summary }}
+              </div>
+            {% endif %}
+
+            <div class="text-muted mb-3">
+              <i class="fa-regular fa-calendar me-1"></i>
+              {{ education_space_design.created_at|date:"d/m/Y H:i" }}
+            </div>
+
+            <div style="line-height: 1.9; color: var(--text-color);">
+              {{ education_space_design.content|linebreaksbr }}
+            </div>
+
+            <div class="mt-4">
+              <a href="{% url 'education_space_design' %}" class="btn btn-secondary">Quay lại</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

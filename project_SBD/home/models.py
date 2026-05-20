@@ -23,7 +23,60 @@ class ProductCategory(models.Model):
         return self.name
 
 
-class Project(models.Model):
+class ManagedMediaCleanupModel(models.Model):
+    managed_file_fields = ()
+
+    class Meta:
+        abstract = True
+
+    @classmethod
+    def _delete_file_if_unused(cls, field_name, file_name):
+        if not file_name:
+            return
+
+        if cls.objects.filter(**{field_name: file_name}).exists():
+            return
+
+        field = cls._meta.get_field(field_name)
+        field.storage.delete(file_name)
+
+    def save(self, *args, **kwargs):
+        files_to_delete = []
+
+        if self.pk:
+            old_instance = type(self).objects.filter(pk=self.pk).first()
+            if old_instance:
+                for field_name in self.managed_file_fields:
+                    old_file = getattr(old_instance, field_name, None)
+                    new_file = getattr(self, field_name, None)
+                    old_name = getattr(old_file, "name", None)
+                    new_name = getattr(new_file, "name", None)
+
+                    if old_name and old_name != new_name:
+                        files_to_delete.append((field_name, old_name))
+
+        super().save(*args, **kwargs)
+
+        for field_name, file_name in files_to_delete:
+            self._delete_file_if_unused(field_name, file_name)
+
+    def delete(self, *args, **kwargs):
+        files_to_delete = [
+            (field_name, getattr(getattr(self, field_name, None), "name", None))
+            for field_name in self.managed_file_fields
+        ]
+
+        result = super().delete(*args, **kwargs)
+
+        for field_name, file_name in files_to_delete:
+            self._delete_file_if_unused(field_name, file_name)
+
+        return result
+
+
+class Project(ManagedMediaCleanupModel):
+    managed_file_fields = ("image",)
+
     name = models.CharField(max_length=200)
     description = models.TextField()
     image = models.ImageField(upload_to="projects/")
@@ -38,7 +91,9 @@ class Project(models.Model):
     def __str__(self):
         return self.name
 
-class Product(models.Model):
+class Product(ManagedMediaCleanupModel):
+    managed_file_fields = ("image",)
+
     name = models.CharField(max_length=200)
     description = models.TextField(blank=True)
     image = models.ImageField(upload_to="products/", blank=True, null=True)
@@ -107,7 +162,9 @@ class PostCategory(models.Model):
         return self.name
 
 
-class Post(models.Model):
+class Post(ManagedMediaCleanupModel):
+    managed_file_fields = ("image",)
+
     title = models.CharField(max_length=200)
     summary = models.TextField(blank=True)
     content = models.TextField()
@@ -138,7 +195,9 @@ class FAQ(models.Model):
 
 
 ###### Trịnh gia đạt làm phần dữ liệu, thêm xóa sửa phần ban lãnh đạo trong trang giới thiệu
-class LeadershipMember(models.Model):
+class LeadershipMember(ManagedMediaCleanupModel):
+    managed_file_fields = ("image",)
+
     full_name = models.CharField(max_length=150, verbose_name="Họ và tên")
     role = models.CharField(max_length=150, verbose_name="Chức vụ")
     bio = models.TextField(verbose_name="Mô tả ngắn")
@@ -590,7 +649,9 @@ class Service(models.Model):
 
 
 # chứng chỉ và năng lực
-class Certificate(models.Model):
+class Certificate(ManagedMediaCleanupModel):
+    managed_file_fields = ("image",)
+
     ICON_CHOICES = [
         ("fa-certificate", "Giấy chứng nhận"),
         ("fa-shield", "Shield"),
@@ -847,7 +908,9 @@ class Notification(models.Model):
         return f"{self.user.username} - {self.message[:30]}"
 
 #carousel va video ảnh nền
-class HeroSection(models.Model):
+class HeroSection(ManagedMediaCleanupModel):
+    managed_file_fields = ("bg_image", "bg_video")
+
     # Text content
     badge_text = models.CharField(max_length=200, verbose_name="Badge text (vd: Hơn 15 năm...)")
     heading_line1 = models.CharField(max_length=300, verbose_name="Tiêu đề dòng 1")
@@ -894,7 +957,9 @@ class HeroSection(models.Model):
         return self.heading_line1
 
 
-class HeroCarouselImage(models.Model):
+class HeroCarouselImage(ManagedMediaCleanupModel):
+    managed_file_fields = ("image",)
+
     hero = models.ForeignKey(HeroSection, on_delete=models.CASCADE, related_name='carousel_images')
     image = models.ImageField(upload_to='hero/carousel/', verbose_name="Ảnh")
     order = models.PositiveIntegerField(default=0)
@@ -906,7 +971,9 @@ class HeroCarouselImage(models.Model):
         return f"Carousel ảnh #{self.order}"
 
 
-class Partner(models.Model):
+class Partner(ManagedMediaCleanupModel):
+    managed_file_fields = ("logo",)
+
     name = models.CharField(max_length=200, verbose_name="Tên đối tác")
     logo = models.ImageField(
         upload_to="partners/",
@@ -926,3 +993,192 @@ class Partner(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class SiteBrandSettings(ManagedMediaCleanupModel):
+    managed_file_fields = ("logo_image", "preloader_image")
+
+    LOGO_TYPE_ICON = "icon"
+    LOGO_TYPE_IMAGE = "image"
+    LOGO_TYPE_CHOICES = [
+        (LOGO_TYPE_ICON, "Icon Font Awesome"),
+        (LOGO_TYPE_IMAGE, "Hình ảnh"),
+    ]
+
+    logo_type = models.CharField(
+        max_length=20,
+        choices=LOGO_TYPE_CHOICES,
+        default=LOGO_TYPE_ICON,
+        verbose_name="Kiểu logo",
+    )
+    logo_image = models.ImageField(
+        upload_to="branding/",
+        blank=True,
+        null=True,
+        verbose_name="Ảnh logo",
+    )
+    preloader_image = models.ImageField(
+        upload_to="branding/preloader/",
+        blank=True,
+        null=True,
+        verbose_name="Ảnh màn hình loading",
+    )
+    logo_icon = models.CharField(
+        max_length=500,
+        blank=True,
+        default="fa-solid fa-star",
+        verbose_name="Tên class / link icon Font Awesome",
+        help_text=(
+            "Có thể nhập fa-star, fa-solid fa-star, star "
+            "hoặc link icon từ Font Awesome."
+        ),
+    )
+    brand_name = models.CharField(
+        max_length=200,
+        default="Sao Bắc Đẩu",
+        verbose_name="Tên thương hiệu",
+    )
+    brand_subtitle = models.CharField(
+        max_length=200,
+        default="Construction",
+        verbose_name="Dòng phụ thương hiệu",
+    )
+    footer_bottom_text = models.CharField(
+        max_length=300,
+        default="© 2026 Công Ty Xây Dựng Sao Bắc Đẩu | MST: 0123456789",
+        verbose_name="Nội dung footer bottom",
+    )
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Cấu hình thương hiệu"
+        verbose_name_plural = "Cấu hình thương hiệu"
+
+    @classmethod
+    def get_solo(cls):
+        config = cls.objects.order_by("id").first()
+        if config is None:
+            config = cls.objects.create()
+        return config
+
+    @property
+    def icon_css_class(self):
+        raw = (self.logo_icon or "").strip()
+        fallback = "fa-solid fa-star"
+
+        if not raw:
+            return fallback
+
+        raw_lower = raw.lower()
+
+        if "fontawesome.com/" in raw_lower:
+            parsed = urlparse(raw)
+            path_parts = [part for part in parsed.path.split("/") if part]
+            icon_name = path_parts[-1] if path_parts else "star"
+            query = parse_qs(parsed.query)
+            style = (query.get("s", ["solid"])[0] or "solid").lower()
+            style_map = {
+                "solid": "fa-solid",
+                "regular": "fa-regular",
+                "brands": "fa-brands",
+                "brand": "fa-brands",
+                "light": "fa-light",
+                "thin": "fa-thin",
+                "duotone": "fa-duotone",
+            }
+            prefix = style_map.get(style, "fa-solid")
+            return f"{prefix} fa-{icon_name}"
+
+        parts = raw.split()
+        known_prefixes = {
+            "fa-solid",
+            "fa-regular",
+            "fa-brands",
+            "fa-light",
+            "fa-thin",
+            "fa-duotone",
+            "fa",
+            "fab",
+            "far",
+            "fas",
+        }
+
+        if any(part in known_prefixes for part in parts):
+            if raw.startswith("fa ") and len(parts) >= 2 and parts[1].startswith("fa-"):
+                return f"fa-solid {parts[1]}"
+            return raw
+
+        if raw.startswith("fa-"):
+            return f"fa-solid {raw}"
+
+        if "-" in raw and " " not in raw:
+            return f"fa-solid fa-{raw}"
+
+        return fallback
+
+    @property
+    def has_logo_image(self):
+        return bool(self.logo_image and getattr(self.logo_image, "url", ""))
+
+    @property
+    def has_preloader_image(self):
+        return bool(self.preloader_image and getattr(self.preloader_image, "url", ""))
+
+    def __str__(self):
+        return self.brand_name or "Cấu hình thương hiệu"
+
+
+class OfficeRental(ManagedMediaCleanupModel):
+    managed_file_fields = ("image",)
+
+    title = models.CharField(max_length=200, verbose_name="Tên văn phòng")
+    summary = models.TextField(blank=True, verbose_name="Mô tả ngắn")
+    content = models.TextField(verbose_name="Thông tin chi tiết")
+    image = models.ImageField(
+        upload_to="office_rentals/",
+        blank=True,
+        null=True,
+        verbose_name="Ảnh văn phòng",
+    )
+    area = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        verbose_name="Diện tích (m2)",
+    )
+    rent_price = models.DecimalField(
+        max_digits=15,
+        decimal_places=0,
+        verbose_name="Giá thuê (VNĐ)",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at", "-id"]
+        verbose_name = "Cho thuê văn phòng"
+        verbose_name_plural = "Cho thuê văn phòng"
+
+    def __str__(self):
+        return self.title
+
+
+class EducationSpaceDesign(ManagedMediaCleanupModel):
+    managed_file_fields = ("image",)
+
+    title = models.CharField(max_length=200, verbose_name="Tiêu đề")
+    summary = models.TextField(blank=True, verbose_name="Mô tả ngắn")
+    content = models.TextField(verbose_name="Nội dung chi tiết")
+    image = models.ImageField(
+        upload_to="education_spaces/",
+        blank=True,
+        null=True,
+        verbose_name="Ảnh minh họa",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at", "-id"]
+        verbose_name = "Thiết kế không gian giáo dục"
+        verbose_name_plural = "Thiết kế không gian giáo dục"
+
+    def __str__(self):
+        return self.title

@@ -13,8 +13,11 @@ from .models import (
     Notification,
     Consultation,
     Partner,
+    SiteBrandSettings,
     EmailOTPSettings,
     PasswordOTP,
+    OfficeRental,
+    EducationSpaceDesign,
 )
 
 admin.site.register(ProjectCategory)
@@ -32,8 +35,11 @@ admin.site.register(ContactInfo)
 admin.site.register(Notification)
 admin.site.register(Consultation)
 admin.site.register(Partner)
+admin.site.register(SiteBrandSettings)
 admin.site.register(EmailOTPSettings)
 admin.site.register(PasswordOTP)
+admin.site.register(OfficeRental)
+admin.site.register(EducationSpaceDesign)
 
 
 @admin.register(Project)

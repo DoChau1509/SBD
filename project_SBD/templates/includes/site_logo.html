@@ -1,0 +1,13 @@
+<a href="{% url 'home' %}" aria-label="{{ brand_settings.brand_name }}"{% if link_style %} style="{{ link_style }}"{% endif %}>
+  <div class="logo-icon {% if brand_settings.logo_type == 'image' and brand_settings.has_logo_image %}logo-icon--image{% endif %} {{ icon_wrapper_class|default:'' }}">
+    {% if brand_settings.logo_type == 'image' and brand_settings.has_logo_image %}
+    <img
+      src="{{ brand_settings.logo_image.url }}"
+      alt="{{ brand_settings.brand_name }}"
+      class="logo-image {{ image_class|default:'' }}"
+    />
+    {% else %}
+    <i class="{{ brand_settings.icon_css_class }} {{ icon_class|default:'' }}" aria-hidden="true"></i>
+    {% endif %}
+  </div>
+</a>

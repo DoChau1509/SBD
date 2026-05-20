@@ -36,7 +36,17 @@
   <body>
     <!-- PRELOADER -->
     <div class="preloader">
+      {% if brand_settings.has_preloader_image %}
+      <div class="preloader-brand">
+        <img
+          src="{{ brand_settings.preloader_image.url }}"
+          alt="{{ brand_settings.brand_name }}"
+          class="preloader-logo"
+        />
+      </div>
+      {% else %}
       <div class="star-icon">★</div>
+      {% endif %}
     </div>
 
     <!-- NAVBAR -->
@@ -48,13 +58,7 @@
         <div class="navbar-inner">
           <!-- Logo -->
           <div class="site-logo">
-            <a href="{% url 'home' %}">
-              <div class="logo-icon">★</div>
-              <div class="logo-text">
-                <span>Sao Bắc Đẩu</span>
-                <span>Construction</span>
-              </div>
-            </a>
+            {% include 'includes/site_logo.html' %}
           </div>
 
           <!-- Menu Desktop -->
@@ -67,6 +71,26 @@
               <li><a href="{% url 'project' %}" class="nav-link">Dự Án</a></li>
               <li>
                 <a href="{% url 'product' %}" class="nav-link">Sản phẩm</a>
+              </li>
+              <li class="dropdown">
+                <a
+                  href="#"
+                  class="nav-link dropdown-toggle"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                >Dịch vụ</a>
+                <ul class="dropdown-menu shadow-sm">
+                  <li>
+                    <a class="dropdown-item" href="{% url 'office_rental' %}">
+                      Cho thuê văn phòng
+                    </a>
+                  </li>
+                  <li>
+                    <a class="dropdown-item" href="{% url 'education_space_design' %}">
+                      Thiết kế không gian giáo dục
+                    </a>
+                  </li>
+                </ul>
               </li>
               <li><a href="{% url 'post' %}" class="nav-link">Bài Viết</a></li>
               <li>
@@ -215,18 +239,7 @@
     >
       <div class="offcanvas-header">
         <div class="site-logo" id="mobileNavLabel">
-          <a href="{% url 'home' %}" style="gap: 10px">
-            <div
-              class="logo-icon"
-              style="width: 38px; height: 38px; font-size: 18px"
-            >
-              ★
-            </div>
-            <div class="logo-text">
-              <span>Sao Bắc Đẩu</span>
-              <span>Construction</span>
-            </div>
-          </a>
+          {% include 'includes/site_logo.html' with link_style='gap: 10px' icon_wrapper_class='logo-icon--sm' icon_class='logo-fa-icon--sm' image_class='logo-image--sm' %}
         </div>
         <button
           type="button"
@@ -242,6 +255,17 @@
             <li><a href="{% url 'about' %}" class="nav-link">Giới Thiệu</a></li>
             <li><a href="{% url 'project' %}" class="nav-link">Dự Án</a></li>
             <li><a href="{% url 'product' %}" class="nav-link">Sản phẩm</a></li>
+            <li class="mt-2 mb-1 fw-semibold text-uppercase text-muted small">Dịch vụ</li>
+            <li>
+              <a href="{% url 'office_rental' %}" class="nav-link">
+                Cho thuê văn phòng
+              </a>
+            </li>
+            <li>
+              <a href="{% url 'education_space_design' %}" class="nav-link">
+                Thiết kế không gian giáo dục
+              </a>
+            </li>
             <li><a href="{% url 'post' %}" class="nav-link">Bài Viết</a></li>
             <li><a href="{% url 'contact' %}" class="nav-link">Liên Hệ</a></li>
             {% if user.is_authenticated and user.is_superuser %}
@@ -382,34 +406,15 @@
       <div class="container">
         <div class="row gy-4">
           <!-- Col 1: Brand -->
-          <div class="col-lg-4 col-md-6">
+          <div class="col-lg-3 col-md-6">
             <div class="footer-logo-wrap mb-3">
-              <a
-                href="{% url 'home' %}"
-                style="
-                  display: flex;
-                  align-items: center;
-                  gap: 12px;
-                  text-decoration: none;
-                "
-              >
-                <div
-                  class="logo-icon"
-                  style="width: 45px; height: 45px; font-size: 22px"
-                >
-                  ★
-                </div>
-                <div class="logo-text">
-                  <span>Sao Bắc Đẩu</span>
-                  <span>Construction</span>
-                </div>
-              </a>
+              {% include 'includes/site_logo.html' with link_style='display: flex; align-items: center; gap: 12px; text-decoration: none;' icon_wrapper_class='logo-icon--footer' icon_class='logo-fa-icon--footer' image_class='logo-image--footer' %}
             </div>
-            {% if hero %}
+            {% comment %} {% if hero %}
               <p class="footer-desc">
                 {{ hero.description }}                              
               </p>
-            {% endif %}
+            {% endif %} {% endcomment %}
 
             <div class="footer-social">
               {% if site_contact and site_contact.facebook_url %}
@@ -449,32 +454,38 @@
           </div>
 
           <!-- Col 2 -->
-          <div class="col-lg-2 col-md-6">
+          <div class="col-lg-3 col-md-6">
             <div class="footer-heading">Điều Hướng</div>
             <ul class="footer-links">
               <li><a href="{% url 'home' %}">Trang Chủ</a></li>
               <li><a href="{% url 'about' %}">Giới Thiệu</a></li>
               <li><a href="{% url 'project' %}">Dự Án</a></li>
               <li><a href="{% url 'product' %}">Sản phẩm</a></li>
+              <li><a href="{% url 'office_rental' %}">Cho thuê văn phòng</a></li>
+              <li><a href="{% url 'education_space_design' %}">Thiết kế không gian giáo dục</a></li>
               <li><a href="{% url 'post' %}">Bài Viết</a></li>
               <li><a href="{% url 'contact' %}">Liên Hệ</a></li>
             </ul>
           </div>
 
           <!-- Col 3 -->
-          <div class="col-lg-2 col-md-6">
+          <div class="col-lg-3 col-md-6">
             <div class="footer-heading">Dịch Vụ</div>
             <ul class="footer-links">
-          {% for service in services %}
-          <li><a href="#">{{ service.title }}</a></li>
-          {% empty %}
-              <li>Hiện chưa có dữ liệu dịch vụ để hiển thị trên trang chủ.</li>
-          {% endfor %}
+              <li>
+                <a class="dropdown-item" href="{% url 'office_rental' %}">
+                  Cho thuê văn phòng
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item" href="{% url 'education_space_design' %}">
+                  Thiết kế không gian giáo dục
+                </a>
             </ul>
           </div>
 
           <!-- Col 4 -->
-          <div class="col-lg-4 col-md-6">
+          <div class="col-lg-3 col-md-6">
             <div class="footer-heading">Liên Hệ</div>
             <ul class="footer-contact-info">
               {% if site_contact %}
@@ -508,7 +519,7 @@
       <!-- Bottom -->
       <div class="footer-bottom">
         <div class="container text-center">
-          <p>© 2026 Công Ty Xây Dựng Sao Bắc Đẩu | MST: 0123456789</p>
+          <p>{{ brand_settings.footer_bottom_text }}</p>
         </div>
       </div>
     </footer>

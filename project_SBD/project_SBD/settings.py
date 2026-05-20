@@ -12,22 +12,44 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 import os
 from pathlib import Path
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv()
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-ev3m-g3wlzc7%qvqt7yc(g1!_c0(@b79s8zz&-&$$1%m@vryp1"
+SECRET_KEY = os.getenv(
+    "SECRET_KEY",
+    "django-insecure-dev-key"
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv("DEBUG") == "True"
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.getenv(
+    "ALLOWED_HOSTS",
+    ""
+).split(",")
 
+CSRF_TRUSTED_ORIGINS = os.getenv(
+    "CSRF_TRUSTED_ORIGINS",
+    ""
+).split(",")
+
+SECURE_PROXY_SSL_HEADER = (
+    "HTTP_X_FORWARDED_PROTO",
+    "https",
+)
+
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Application definition
 
@@ -44,6 +66,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -76,13 +99,23 @@ WSGI_APPLICATION = "project_SBD.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.sqlite3",
+#         "NAME": BASE_DIR / "db.sqlite3",
+#     }
+# }
+
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.getenv("DB_NAME"),
+        "USER": os.getenv("DB_USER"),
+        "PASSWORD": os.getenv("DB_PASSWORD"),
+        "HOST": os.getenv("DB_HOST"),
+        "PORT": os.getenv("DB_PORT"),
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -120,7 +153,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = "static/"
+STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 
 MEDIA_URL = "/media/"
@@ -134,3 +167,41 @@ LOGOUT_REDIRECT_URL = "/"
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+# OCI Object Storage settings
+OCI_OBJECT_STORAGE = {
+    "ENDPOINT": os.getenv("OCI_ENDPOINT"),
+    "NAMESPACE": os.getenv("OCI_NAMESPACE"),
+    "BUCKET_NAME": os.getenv("OCI_BUCKET_NAME"),
+    "ACCESS_KEY": os.getenv("OCI_ACCESS_KEY"),
+    "SECRET_KEY": os.getenv("OCI_SECRET_KEY"),
+}
+
+# Mapping OCI sang chuẩn S3 để thư viện hoạt động
+AWS_ACCESS_KEY_ID = OCI_OBJECT_STORAGE["ACCESS_KEY"]
+AWS_SECRET_ACCESS_KEY = OCI_OBJECT_STORAGE["SECRET_KEY"]
+AWS_STORAGE_BUCKET_NAME = OCI_OBJECT_STORAGE["BUCKET_NAME"]
+AWS_S3_ENDPOINT_URL = OCI_OBJECT_STORAGE["ENDPOINT"]
+
+# Các cấu hình quan trọng khác cho OCI
+AWS_S3_FILE_OVERWRITE = False  # Tránh ghi đè file trùng tên
+AWS_DEFAULT_ACL = None         # OCI thường quản lý quyền bằng Bucket Policy
+AWS_S3_SIGNATURE_VERSION = 's3v4'
+AWS_S3_REGION_NAME = 'ap-singapore-1' # Thay bằng region của ông (vd: ap-singapore-1)
+AWS_S3_ADDRESSING_STYLE = "path"
+
+# Thiết lập Storage Backend (Dùng cho Django >= 4.2)
+STORAGES = {
+    "default": {
+        # Media files (upload hình) → luôn dùng S3
+        "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+    },
+    "staticfiles": {
+        # Static files → whitenoise trên production, mặc định ở local
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage" if not DEBUG else "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
+
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True

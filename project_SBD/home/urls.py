@@ -12,6 +12,22 @@ urlpatterns = [
     path("product/<int:id>/", views.product_detail, name="product_detail"),
     path("post/", views.post_public, name="post"),
     path("post/<int:id>/", views.post_detail, name="post_detail"),
+    path("office-rental/", views.office_rental_public, name="office_rental"),
+    path(
+        "office-rental/<int:id>/",
+        views.office_rental_detail,
+        name="office_rental_detail",
+    ),
+    path(
+        "education-space-design/",
+        views.education_space_design_public,
+        name="education_space_design",
+    ),
+    path(
+        "education-space-design/<int:id>/",
+        views.education_space_design_detail,
+        name="education_space_design_detail",
+    ),
     # AUTH
     path("login/", views.login_view, name="login"),
     path("register/", views.register_view, name="register"),
@@ -54,6 +70,7 @@ urlpatterns = [
     ),
     # CRUD
     # project
+    path("site-logo/", views.system_settings, name="site_logo"),
     path("project/add/", views.project_create, name="project_add"),
     path("project/edit/<int:id>/", views.project_update, name="project_edit"),
     path("project/delete/<int:id>/", views.project_delete, name="project_delete"),
@@ -72,6 +89,42 @@ urlpatterns = [
     path("post/add/", views.post_create, name="post_add"),
     path("post/edit/<int:id>/", views.post_update, name="post_edit"),
     path("post/delete/<int:id>/", views.post_delete, name="post_delete"),
+    path(
+        "office-rentals/",
+        views.office_rental_list,
+        name="office_rental_list",
+    ),
+    path("office-rental/add/", views.office_rental_create, name="office_rental_add"),
+    path(
+        "office-rental/edit/<int:id>/",
+        views.office_rental_update,
+        name="office_rental_edit",
+    ),
+    path(
+        "office-rental/delete/<int:id>/",
+        views.office_rental_delete,
+        name="office_rental_delete",
+    ),
+    path(
+        "education-space-designs/",
+        views.education_space_design_list,
+        name="education_space_design_list",
+    ),
+    path(
+        "education-space-design/add/",
+        views.education_space_design_create,
+        name="education_space_design_add",
+    ),
+    path(
+        "education-space-design/edit/<int:id>/",
+        views.education_space_design_update,
+        name="education_space_design_edit",
+    ),
+    path(
+        "education-space-design/delete/<int:id>/",
+        views.education_space_design_delete,
+        name="education_space_design_delete",
+    ),
     # project category
     path(
         "project-category/", views.project_category_list, name="project_category_list"
