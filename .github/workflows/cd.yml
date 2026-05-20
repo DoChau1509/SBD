@@ -51,6 +51,7 @@ jobs:
         env:
           IMAGE_TAG: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}
           ENV_PATH: ${{ vars.ENV_FILE_PATH }}
+          HOST_PORT: ${{ vars.HOST_PORT }}
         run: |
           ssh -i ~/.ssh/deploy_key ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << EOF
             echo "1. Đăng nhập GHCR bằng GITHUB_TOKEN mặc định..."
@@ -67,7 +68,7 @@ jobs:
             docker run -d \
               --name sbd_app \
               --restart unless-stopped \
-              -p 8000:8000 \
+              -p $HOST_PORT:8000 \
               --env-file $ENV_PATH \
               $IMAGE_TAG
             
