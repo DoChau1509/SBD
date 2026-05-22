@@ -203,5 +203,14 @@ STORAGES = {
     },
 }
 
+# STORAGES = {
+#     "default": {
+#         "BACKEND": "django.core.files.storage.FileSystemStorage",
+#     },
+#     "staticfiles": {
+#         "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+#     },
+# }
+
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
