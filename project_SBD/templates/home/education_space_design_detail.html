@@ -24,7 +24,9 @@
       <div class="col-lg-10">
         <div class="card border-0 shadow-sm" style="border-radius: 18px; overflow: hidden;">
           {% if education_space_design.image %}
-            <img src="{{ education_space_design.image.url }}" alt="{{ education_space_design.title }}" style="width: 100%; max-height: 480px; object-fit: cover;">
+            <div style="width: 100%; min-height: 320px; max-height: 480px; display: flex; align-items: center; justify-content: center; padding: 24px; background: linear-gradient(135deg, rgba(8, 28, 50, 0.96) 0%, rgba(26, 60, 94, 0.96) 60%, rgba(201, 150, 62, 0.22) 100%);">
+              <img src="{{ education_space_design.image.url }}" alt="{{ education_space_design.title }}" style="width: 100%; max-height: 432px; object-fit: contain;">
+            </div>
           {% endif %}
 
           <div class="card-body p-4 p-lg-5">

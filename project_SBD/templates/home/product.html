@@ -55,6 +55,10 @@
   .product-thumb {
     height: 220px;
     position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
     background:
       radial-gradient(
         900px 320px at 20% 15%,
@@ -71,7 +75,8 @@
   .product-thumb img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
+    object-position: center;
     display: block;
   }
   .product-thumb .fallback {
