@@ -58,13 +58,9 @@
     max-width: 920px;
     padding: 52px 58px;
     border-radius: 32px;
-<<<<<<< HEAD
-    background: linear-gradient(145deg, rgba(248, 245, 240, 0.88) 0%, rgba(248, 245, 240, 0.76) 72%, rgba(224, 177, 92, 0.30) 100%);
-    border: 1px solid rgba(212, 164, 74, 0.26);
-    box-shadow: 0 24px 70px rgba(51, 35, 14, 0.18);
-    backdrop-filter: blur(14px);
-=======
->>>>>>> deploy
+    background: transparent;
+    border: 0;
+    box-shadow: none;
 }
 
 .hero-actions {
@@ -75,29 +71,6 @@
 }
 
 .hero-text--light {
-<<<<<<< HEAD
-    --hero-title-color: #2f2212;
-    --hero-highlight-color: #e0b15c;
-    --hero-body-color: rgba(47, 34, 18, 0.84);
-    --hero-badge-bg: rgba(212, 164, 74, 0.14);
-    --hero-badge-border: rgba(212, 164, 74, 0.48);
-    --hero-badge-color: #6a4a14;
-    --hero-stat-number-color: #d4a44a;
-    --hero-stat-label-color: rgba(47, 34, 18, 0.72);
-    --hero-stat-border-color: rgba(47, 34, 18, 0.12);
-}
-
-.hero-text--dark {
-    --hero-title-color: #24190d;
-    --hero-highlight-color: #d4a44a;
-    --hero-body-color: rgba(36, 25, 13, 0.86);
-    --hero-badge-bg: rgba(212, 164, 74, 0.14);
-    --hero-badge-border: rgba(212, 164, 74, 0.44);
-    --hero-badge-color: #5d4112;
-    --hero-stat-number-color: #d4a44a;
-    --hero-stat-label-color: rgba(36, 25, 13, 0.74);
-    --hero-stat-border-color: rgba(36, 25, 13, 0.12);
-=======
     --hero-title-color: #ffffff;
     --hero-highlight-color: #e0b15c;
     --hero-body-color: rgba(255, 255, 255, 0.92);
@@ -125,7 +98,6 @@
     --hero-text-stroke: rgba(0, 0, 0, 0.94);
     --hero-text-shadow: rgba(0, 0, 0, 0.72);
     --hero-content-shadow: rgba(0, 0, 0, 0.66);
->>>>>>> deploy
 }
 
 .hero-badge {
@@ -139,38 +111,11 @@
     text-transform: uppercase;
     padding: 9px 22px;
     border-radius: 999px;
-    margin-bottom: 28px;
     margin-bottom: 36px;
     text-shadow:
         0 2px 6px var(--hero-content-shadow),
         0 1px 2px rgba(0, 0, 0, 0.75);
     box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
-}
-
-.hero-text {
-    text-align: center;
-    margin: 0 auto;
-    max-width: 920px;
-    padding: 52px 58px;
-    border-radius: 32px;
-
-    background: rgba(0, 0, 0, 0.35);
-
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-
-    border: 1px solid rgba(255, 255, 255, 0.12);
-
-    box-shadow:
-        0 10px 40px rgba(0, 0, 0, 0.35);
-}
-
-.hero-text h2 {
-    color: #ffffff;
-    text-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
-    background: transparent;
-    border: 0;
-    box-shadow: none;
 }
 
 .hero-text h2 {
@@ -191,22 +136,12 @@
 .hero-text h2 span {
     color: var(--hero-highlight-color);
     font-style: italic;
-}
-
-.hero-text p {
-    font-size: 18px;
-    line-height: 1.85;
-
-    color: rgba(255, 255, 255, 0.92);
-
-    max-width: 680px;
-    margin: 0 auto 40px;
-
-    text-shadow:
-        0 2px 10px rgba(0, 0, 0, 0.45);
     display: inline-block;
     margin-top: 16px;
     line-height: 1.24;
+    text-shadow:
+        0 8px 20px var(--hero-text-shadow),
+        0 2px 5px rgba(0, 0, 0, 0.76);
     -webkit-text-stroke: 1.5px rgba(0, 0, 0, 0.9);
 }
 
@@ -214,10 +149,8 @@
     font-size: 16px;
     line-height: 1.72;
     color: var(--hero-body-color);
-
     max-width: 680px;
     margin: 0 auto 44px;
-
     text-shadow:
         0 4px 14px var(--hero-content-shadow),
         0 2px 4px rgba(0, 0, 0, 0.76);
@@ -291,7 +224,6 @@
     font-weight: 800;
     color: var(--hero-stat-number-color);
     line-height: 1;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.28);
     text-shadow:
         0 4px 12px var(--hero-content-shadow),
         0 1px 3px rgba(0, 0, 0, 0.72);
@@ -299,10 +231,9 @@
 
 .hero-stat-item .label {
     font-size: 12.5px;
-    color: #5f4a26;
+    color: var(--hero-stat-label-color);
     margin-top: 6px;
     letter-spacing: 0.3px;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.24);
     text-shadow:
         0 3px 8px var(--hero-content-shadow),
         0 1px 2px rgba(0, 0, 0, 0.72);
@@ -348,7 +279,6 @@
     }
 
     .hero-text h2 {
-        line-height: 1.02;
         font-size: clamp(36px, 6vw, 54px);
         line-height: 1.14;
     }
@@ -376,15 +306,6 @@
     .hero-badge {
         letter-spacing: 1.8px;
         padding: 8px 18px;
-    }
-
-    .hero-text h2 {
-        font-size: clamp(40px, 14vw, 58px);
-    }
-
-    .hero-text p {
-        font-size: 15px;
-        margin-bottom: 32px;
         margin-bottom: 28px;
     }
 
