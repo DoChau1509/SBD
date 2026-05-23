@@ -203,6 +203,7 @@ STORAGES = {
     },
 }
 
+#local
 # STORAGES = {
 #     "default": {
 #         "BACKEND": "django.core.files.storage.FileSystemStorage",
