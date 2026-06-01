@@ -23,6 +23,9 @@
     --radius: 8px;
     --navbar-h: 82px;
     --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --font-sans: 'Inter', 'Roboto', 'Open Sans', Arial, sans-serif;
+    --bs-font-sans-serif: var(--font-sans);
+    --bs-body-font-family: var(--font-sans);
 }
 
 /* ===== RESET & BASE ===== */
@@ -39,7 +42,7 @@ html {
 }
 
 body {
-    font-family: 'Be Vietnam Pro', sans-serif;
+    font-family: var(--font-sans);
     font-size: 15px;
     line-height: 1.7;
     color: var(--text-dark);
@@ -61,7 +64,7 @@ h1,
 h2,
 h3,
 h4 {
-    font-family: 'Playfair Display', serif;
+    font-family: var(--font-sans);
     line-height: 1.2;
 }
 
@@ -164,11 +167,42 @@ ul {
     margin: 0 auto;
 }
 
-.navbar-inner {
+/* .navbar-inner {
     display: flex;
     align-items: center;
     justify-content: space-between;
     width: 100%;
+} */
+.navbar-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 40px;
+}
+
+.site-navigation {
+    flex: 1;
+}
+
+/* .site-menu {
+    display: flex;
+    align-items: center;
+    gap: 36px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+} */
+
+.site-navigation {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.site-menu {
+    display: flex;
+    gap: 32px;
+    align-items: center;
 }
 
 .nav-actions {
@@ -179,6 +213,73 @@ ul {
 
 .nav-actions .btn {
     border-radius: 999px;
+}
+
+.nav-search {
+    position: relative;
+    width: clamp(158px, 13vw, 220px);
+    flex-shrink: 0;
+}
+
+.nav-search input {
+    width: 100%;
+    height: 38px;
+    border: 1px solid rgba(255, 255, 255, 0.24);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--white);
+    font-size: 13.5px;
+    line-height: 1;
+    outline: none;
+    padding: 0 42px 0 15px;
+    transition: var(--transition);
+}
+
+.nav-search input::placeholder {
+    color: rgba(255, 255, 255, 0.68);
+}
+
+.nav-search input:focus {
+    border-color: rgba(232, 184, 112, 0.72);
+    background: rgba(255, 255, 255, 0.14);
+    box-shadow: 0 0 0 3px rgba(201, 150, 62, 0.14);
+}
+
+.nav-search button {
+    position: absolute;
+    top: 50%;
+    right: 6px;
+    width: 30px;
+    height: 30px;
+    transform: translateY(-50%);
+    border: 0;
+    border-radius: 50%;
+    background: var(--accent);
+    color: var(--primary);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    transition: var(--transition);
+}
+
+.nav-search button:hover {
+    background: var(--accent-light);
+}
+
+.mobile-nav-search {
+    width: 100%;
+    margin-bottom: 18px;
+}
+
+.mobile-nav-search input {
+    border-color: rgba(26, 46, 74, 0.14);
+    background: var(--light-bg);
+    color: var(--text-dark);
+}
+
+.mobile-nav-search input::placeholder {
+    color: var(--text-muted);
 }
 
 /* Logo */
@@ -280,6 +381,7 @@ ul {
 
 
 .site-menu li a {
+    white-space: nowrap;
     position: relative;
     display: inline-flex;
     align-items: center;
@@ -671,7 +773,7 @@ ul {
 }
 
 .footer-heading {
-    font-family: 'Be Vietnam Pro', sans-serif;
+    font-family: var(--font-sans);
     font-size: 11px;
     font-weight: 700;
     letter-spacing: 2.5px;
@@ -932,7 +1034,7 @@ ul {
 }
 
 .hero-stat-item .num {
-    font-family: 'Playfair Display', serif;
+    font-family: var(--font-sans);
     font-size: 38px;
     font-weight: 800;
     color: var(--accent-light);
@@ -1144,7 +1246,7 @@ ul {
 }
 
 .why-item-content h5 {
-    font-family: 'Be Vietnam Pro', sans-serif;
+    font-family: var(--font-sans);
     font-size: 16px;
     font-weight: 700;
     color: var(--white);
@@ -1185,7 +1287,7 @@ ul {
 }
 
 .experience-badge .years {
-    font-family: 'Playfair Display', serif;
+    font-family: var(--font-sans);
     font-size: 48px;
     font-weight: 800;
     line-height: 1;
@@ -1226,7 +1328,7 @@ ul {
     position: absolute;
     top: 18px;
     left: 26px;
-    font-family: 'Playfair Display', serif;
+    font-family: var(--font-sans);
     font-size: 88px;
     line-height: 1;
     color: var(--accent);
@@ -1256,7 +1358,7 @@ ul {
 }
 
 .testimonial-author h6 {
-    font-family: 'Be Vietnam Pro', sans-serif;
+    font-family: var(--font-sans);
     font-size: 15px;
     font-weight: 700;
     color: var(--primary);

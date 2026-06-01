@@ -42,7 +42,7 @@
 }
 
 .about-media-inner .title {
-	font-family: 'Playfair Display', serif;
+	font-family: var(--font-sans);
 	font-size: 44px;
 	font-weight: 800;
 	line-height: 1.05;
@@ -79,7 +79,7 @@
 	border-left: 4px solid var(--accent);
 }
 .about-img-badge .num {
-	font-family: 'Playfair Display', serif;
+	font-family: var(--font-sans);
 	font-size: 40px; font-weight: 800;
 	color: var(--accent); line-height: 1;
 }
@@ -102,7 +102,7 @@
 .numbers-section { background: var(--primary); padding: 80px 0; }
 .number-item { text-align: center; padding: 20px; }
 .number-item .num {
-	font-family: 'Playfair Display', serif;
+	font-family: var(--font-sans);
 	font-size: 52px; font-weight: 800;
 	color: var(--accent); line-height: 1;
 }
@@ -136,7 +136,7 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	font-family: 'Playfair Display', serif;
+	font-family: var(--font-sans);
 	font-size: 46px;
 	font-weight: 800;
 	color: var(--white);

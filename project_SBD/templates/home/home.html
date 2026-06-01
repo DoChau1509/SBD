@@ -31,9 +31,9 @@
 <section class="home_bg">
     <div>
 {% endif %}
-        <div class="container">
+        <div class="container-fluid">
             <div class="row">
-                <div class="col-lg-10 offset-lg-1 col-sm-12 text-center">
+                <div class="col-12 text-center">
                     <div class="hero-text {% if hero and hero.text_theme %}hero-text--{{ hero.text_theme }}{% else %}hero-text--light{% endif %}">
                         {% if hero %}
                             <div class="hero-badge">{{ hero.badge_text }}</div>
@@ -68,7 +68,7 @@
         Cung cấp đầy đủ giải pháp xây dựng — từ thiết kế đến thi công hoàn thiện
       </p>
     </div>
-    <div class="row">
+    <div class="row g-5">
       {% for service in services %}
       <div class="col-lg-4 col-md-6">
         <div class="service-card wow fadeInUp">
@@ -215,9 +215,9 @@
     <div class="row align-items-center">
       <div class="col-lg-6 wow fadeInLeft">
         <div class="section-title text-left">
-          <h2>
+          <h3>
             {{ why_section.section_title|default:"Tại Sao Chọn Sao Bắc Đẩu?" }}
-          </h2>
+          </h3>
         </div>
 
         {% for item in why_items %}

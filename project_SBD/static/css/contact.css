@@ -28,7 +28,7 @@
 }
 .contact-info-content h6 {
 	color: var(--accent-light);
-	font-family: 'Be Vietnam Pro', sans-serif;
+	font-family: var(--font-sans);
 	font-size: 11px; font-weight: 700;
 	letter-spacing: 1.5px; text-transform: uppercase;
 	margin-bottom: 6px;
@@ -99,7 +99,7 @@
 	color: var(--text-dark) !important;
 	background: var(--light-bg) !important;
 	transition: border-color 0.3s, background 0.3s !important;
-	font-family: 'Be Vietnam Pro', sans-serif !important;
+	font-family: var(--font-sans) !important;
 }
 .form-control:focus {
 	outline: none !important;
@@ -119,7 +119,7 @@ textarea.form-control { resize: vertical; min-height: 140px; }
 	cursor: pointer;
 	transition: all 0.3s;
 	display: inline-flex; align-items: center; gap: 10px;
-	font-family: 'Be Vietnam Pro', sans-serif;
+	font-family: var(--font-sans);
 }
 .btn-submit:hover { background: var(--accent); }
 .form-row-half { display: flex; gap: 20px; }

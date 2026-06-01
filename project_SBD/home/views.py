@@ -11,6 +11,7 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives, get_connection
+from django.db.models import Q
 from django.db.models.deletion import ProtectedError
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse, reverse_lazy
@@ -470,6 +471,91 @@ def contact(request):
             "budget_choices": CONSULTATION_BUDGET_CHOICES,
             "user_consultations": user_consultations,
             "status_labels": CONSULTATION_STATUS_LABELS,
+        },
+    )
+
+
+def search(request):
+    query = (request.GET.get("q") or "").strip()
+
+    projects = []
+    products = []
+    posts = []
+    office_rentals = []
+    education_space_designs = []
+
+    if query:
+        projects = list(
+            Project.objects.select_related("category")
+            .filter(
+                Q(name__icontains=query)
+                | Q(description__icontains=query)
+                | Q(category__name__icontains=query)
+            )
+            .distinct()
+            .order_by("-created_at", "-id")[:8]
+        )
+        products = list(
+            Product.objects.select_related("category")
+            .filter(
+                Q(name__icontains=query)
+                | Q(description__icontains=query)
+                | Q(supplier_name__icontains=query)
+                | Q(supplier_address__icontains=query)
+                | Q(category__name__icontains=query)
+            )
+            .distinct()
+            .order_by("-created_at", "-id")[:8]
+        )
+        posts = list(
+            Post.objects.select_related("category")
+            .filter(
+                Q(title__icontains=query)
+                | Q(summary__icontains=query)
+                | Q(content__icontains=query)
+                | Q(category__name__icontains=query)
+            )
+            .distinct()
+            .order_by("-created_at", "-id")[:8]
+        )
+        office_rentals = list(
+            OfficeRental.objects.filter(
+                Q(title__icontains=query)
+                | Q(summary__icontains=query)
+                | Q(content__icontains=query)
+            )
+            .distinct()
+            .order_by("-created_at", "-id")[:8]
+        )
+        education_space_designs = list(
+            EducationSpaceDesign.objects.filter(
+                Q(title__icontains=query)
+                | Q(summary__icontains=query)
+                | Q(content__icontains=query)
+            )
+            .distinct()
+            .order_by("-created_at", "-id")[:8]
+        )
+
+    result_count = (
+        len(projects)
+        + len(products)
+        + len(posts)
+        + len(office_rentals)
+        + len(education_space_designs)
+    )
+
+    return render(
+        request,
+        "home/search_results.html",
+        {
+            "query": query,
+            "projects": projects,
+            "products": products,
+            "posts": posts,
+            "office_rentals": office_rentals,
+            "education_space_designs": education_space_designs,
+            "result_count": result_count,
         },
     )
 

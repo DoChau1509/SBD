@@ -1,0 +1,336 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+  .search-results-section {
+    padding: 90px 0;
+    background: var(--light-bg);
+  }
+
+  .search-page-form {
+    position: relative;
+    max-width: 720px;
+    margin: 0 auto 34px;
+  }
+
+  .search-page-form input {
+    width: 100%;
+    height: 56px;
+    border: 1px solid rgba(26, 46, 74, 0.14);
+    border-radius: 999px;
+    background: var(--white);
+    color: var(--text-dark);
+    font-size: 15px;
+    outline: none;
+    padding: 0 62px 0 22px;
+    box-shadow: 0 10px 30px rgba(26, 46, 74, 0.08);
+  }
+
+  .search-page-form input:focus {
+    border-color: rgba(201, 150, 62, 0.64);
+    box-shadow: 0 0 0 4px rgba(201, 150, 62, 0.14);
+  }
+
+  .search-page-form button {
+    position: absolute;
+    top: 50%;
+    right: 8px;
+    width: 42px;
+    height: 42px;
+    transform: translateY(-50%);
+    border: 0;
+    border-radius: 50%;
+    background: var(--primary);
+    color: var(--white);
+  }
+
+  .search-summary {
+    text-align: center;
+    color: var(--text-muted);
+    margin-bottom: 38px;
+  }
+
+  .search-group {
+    margin-top: 42px;
+  }
+
+  .search-group-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    color: var(--primary);
+  }
+
+  .search-group-title i {
+    color: var(--accent);
+  }
+
+  .search-card {
+    display: flex;
+    gap: 16px;
+    height: 100%;
+    padding: 16px;
+    border-radius: 10px;
+    background: var(--white);
+    color: inherit;
+    text-decoration: none;
+    box-shadow: 0 8px 28px rgba(26, 46, 74, 0.08);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  .search-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 14px 38px rgba(26, 46, 74, 0.12);
+    color: inherit;
+  }
+
+  .search-thumb {
+    width: 96px;
+    height: 84px;
+    flex: 0 0 96px;
+    border-radius: 8px;
+    overflow: hidden;
+    background: linear-gradient(135deg, rgba(8, 28, 50, 0.96), rgba(201, 150, 62, 0.28));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  .search-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .search-thumb i {
+    font-size: 30px;
+  }
+
+  .search-card-body {
+    min-width: 0;
+  }
+
+  .search-type {
+    display: inline-block;
+    color: var(--accent-dark);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+  }
+
+  .search-card h3 {
+    color: var(--primary);
+    font-size: 18px;
+    line-height: 1.35;
+    margin: 0 0 6px;
+  }
+
+  .search-card p {
+    color: var(--text-muted);
+    font-size: 13.5px;
+    line-height: 1.65;
+    margin: 0;
+  }
+
+  .search-empty {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 34px;
+    border-radius: 10px;
+    background: var(--white);
+    text-align: center;
+    color: var(--text-muted);
+    box-shadow: 0 8px 28px rgba(26, 46, 74, 0.08);
+  }
+
+  @media (max-width: 575px) {
+    .search-card {
+      flex-direction: column;
+    }
+
+    .search-thumb {
+      width: 100%;
+      height: 160px;
+      flex-basis: auto;
+    }
+  }
+</style>
+
+<section class="section-top">
+  <div class="container">
+    <div class="col-lg-10 offset-lg-1 col-xs-12 text-center">
+      <div class="section-top-title wow fadeInRight" data-wow-duration="1s" data-wow-delay="0.3s">
+        <h1>Tìm Kiếm</h1>
+        <p>{% if query %}Kết quả phù hợp với từ khóa "{{ query }}"{% else %}Tìm nội dung trên website Sao Bắc Đẩu{% endif %}</p>
+        <div class="breadcrumb-nav">
+          <a href="{% url 'home' %}">Trang Chủ</a>
+          <span>/</span>
+          <strong>Tìm Kiếm</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="search-results-section">
+  <div class="container">
+    <form class="search-page-form" action="{% url 'search' %}" method="get" role="search">
+      <input type="search" name="q" value="{{ query }}" placeholder="Nhập từ khóa cần tìm..." aria-label="Tìm kiếm">
+      <button type="submit" aria-label="Tìm kiếm">
+        <i class="fa fa-search" aria-hidden="true"></i>
+      </button>
+    </form>
+
+    {% if query %}
+      <div class="search-summary">
+        Tìm thấy {{ result_count }} kết quả cho <strong>{{ query }}</strong>
+      </div>
+
+      {% if result_count %}
+        {% if projects %}
+          <div class="search-group">
+            <h2 class="search-group-title"><i class="fa fa-building"></i> Dự Án</h2>
+            <div class="row gy-4">
+              {% for item in projects %}
+                <div class="col-lg-6">
+                  <a class="search-card" href="{% url 'project_detail' item.id %}">
+                    <div class="search-thumb">
+                      {% if item.image %}
+                        <img src="{{ item.image.url }}" alt="{{ item.name }}">
+                      {% else %}
+                        <i class="fa fa-building"></i>
+                      {% endif %}
+                    </div>
+                    <div class="search-card-body">
+                      <span class="search-type">{{ item.category.name }}</span>
+                      <h3>{{ item.name }}</h3>
+                      <p>{{ item.description|truncatechars:135 }}</p>
+                    </div>
+                  </a>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+
+        {% if products %}
+          <div class="search-group">
+            <h2 class="search-group-title"><i class="fa fa-cube"></i> Sản Phẩm</h2>
+            <div class="row gy-4">
+              {% for item in products %}
+                <div class="col-lg-6">
+                  <a class="search-card" href="{% url 'product_detail' item.id %}">
+                    <div class="search-thumb">
+                      {% if item.image %}
+                        <img src="{{ item.image.url }}" alt="{{ item.name }}">
+                      {% else %}
+                        <i class="fa fa-cube"></i>
+                      {% endif %}
+                    </div>
+                    <div class="search-card-body">
+                      <span class="search-type">{{ item.category.name }}</span>
+                      <h3>{{ item.name }}</h3>
+                      <p>{{ item.description|default:item.supplier_name|truncatechars:135 }}</p>
+                    </div>
+                  </a>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+
+        {% if posts %}
+          <div class="search-group">
+            <h2 class="search-group-title"><i class="fa fa-newspaper"></i> Bài Viết</h2>
+            <div class="row gy-4">
+              {% for item in posts %}
+                <div class="col-lg-6">
+                  <a class="search-card" href="{% url 'post_detail' item.id %}">
+                    <div class="search-thumb">
+                      {% if item.image %}
+                        <img src="{{ item.image.url }}" alt="{{ item.title }}">
+                      {% else %}
+                        <i class="fa fa-newspaper"></i>
+                      {% endif %}
+                    </div>
+                    <div class="search-card-body">
+                      <span class="search-type">{{ item.category.name }}</span>
+                      <h3>{{ item.title }}</h3>
+                      <p>{% if item.summary %}{{ item.summary|truncatechars:135 }}{% else %}{{ item.content|truncatechars:135 }}{% endif %}</p>
+                    </div>
+                  </a>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+
+        {% if office_rentals %}
+          <div class="search-group">
+            <h2 class="search-group-title"><i class="fa fa-briefcase"></i> Cho Thuê Văn Phòng</h2>
+            <div class="row gy-4">
+              {% for item in office_rentals %}
+                <div class="col-lg-6">
+                  <a class="search-card" href="{% url 'office_rental_detail' item.id %}">
+                    <div class="search-thumb">
+                      {% if item.image %}
+                        <img src="{{ item.image.url }}" alt="{{ item.title }}">
+                      {% else %}
+                        <i class="fa fa-briefcase"></i>
+                      {% endif %}
+                    </div>
+                    <div class="search-card-body">
+                      <span class="search-type">Văn phòng</span>
+                      <h3>{{ item.title }}</h3>
+                      <p>{% if item.summary %}{{ item.summary|truncatechars:135 }}{% else %}{{ item.content|truncatechars:135 }}{% endif %}</p>
+                    </div>
+                  </a>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+
+        {% if education_space_designs %}
+          <div class="search-group">
+            <h2 class="search-group-title"><i class="fa fa-school"></i> Thiết Kế Không Gian Giáo Dục</h2>
+            <div class="row gy-4">
+              {% for item in education_space_designs %}
+                <div class="col-lg-6">
+                  <a class="search-card" href="{% url 'education_space_design_detail' item.id %}">
+                    <div class="search-thumb">
+                      {% if item.image %}
+                        <img src="{{ item.image.url }}" alt="{{ item.title }}">
+                      {% else %}
+                        <i class="fa fa-school"></i>
+                      {% endif %}
+                    </div>
+                    <div class="search-card-body">
+                      <span class="search-type">Không gian giáo dục</span>
+                      <h3>{{ item.title }}</h3>
+                      <p>{% if item.summary %}{{ item.summary|truncatechars:135 }}{% else %}{{ item.content|truncatechars:135 }}{% endif %}</p>
+                    </div>
+                  </a>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+      {% else %}
+        <div class="search-empty">
+          Không tìm thấy kết quả phù hợp. Hãy thử một từ khóa ngắn hơn hoặc tên danh mục khác.
+        </div>
+      {% endif %}
+    {% else %}
+      <div class="search-empty">
+        Nhập từ khóa để tìm dự án, sản phẩm, bài viết và dịch vụ đang có trên website.
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+{% endblock %}

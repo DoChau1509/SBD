@@ -9,7 +9,7 @@
 
     <!-- Google Fonts -->
     <link
-      href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Cormorant+Garamond:wght@600;700&family=Playfair+Display:wght@700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Roboto:wght@400;500;700&family=Open+Sans:wght@400;600;700&display=swap"
       rel="stylesheet"
     />
     <!-- Bootstrap -->
@@ -101,6 +101,18 @@
 
           <!-- Right Actions -->
           <div class="nav-actions d-none d-xl-flex align-items-center" style="gap: 10px;">
+            <form class="nav-search" action="{% url 'search' %}" method="get" role="search">
+              <input
+                type="search"
+                name="q"
+                value="{{ request.GET.q|default:'' }}"
+                placeholder="Tìm kiếm..."
+                aria-label="Tìm kiếm"
+              />
+              <button type="submit" aria-label="Tìm kiếm">
+                <i class="fa fa-search" aria-hidden="true"></i>
+              </button>
+            </form>
             
             <!-- 🔔 Notifications -->
             <a
@@ -249,6 +261,19 @@
         ></button>
       </div>
       <div class="offcanvas-body">
+        <form class="nav-search mobile-nav-search" action="{% url 'search' %}" method="get" role="search">
+          <input
+            type="search"
+            name="q"
+            value="{{ request.GET.q|default:'' }}"
+            placeholder="Tìm kiếm..."
+            aria-label="Tìm kiếm"
+          />
+          <button type="submit" aria-label="Tìm kiếm">
+            <i class="fa fa-search" aria-hidden="true"></i>
+          </button>
+        </form>
+
         <nav class="site-navigation">
           <ul class="site-menu" style="flex-direction: column; gap: 6px">
             <li><a href="{% url 'home' %}" class="nav-link">Trang Chủ</a></li>
