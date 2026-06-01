@@ -31,10 +31,10 @@ SECRET_KEY = os.getenv(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG") == "True"
 
-# ALLOWED_HOSTS = os.getenv(
-#     "ALLOWED_HOSTS",
-#     ""
-# ).split(",")
+ALLOWED_HOSTS = os.getenv(
+    "ALLOWED_HOSTS",
+    ""
+).split(",")
 
 CSRF_TRUSTED_ORIGINS = os.getenv(
     "CSRF_TRUSTED_ORIGINS",
@@ -192,26 +192,26 @@ AWS_S3_REGION_NAME = 'ap-singapore-1' # Thay bằng region của ông (vd: ap-si
 AWS_S3_ADDRESSING_STYLE = "path"
 
 # Thiết lập Storage Backend (Dùng cho Django >= 4.2)
-# STORAGES = {
-#     "default": {
-#         # Media files (upload hình) → luôn dùng S3
-#         "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
-#     },
-#     "staticfiles": {
-#         # Static files → whitenoise trên production, mặc định ở local
-#         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage" if not DEBUG else "django.contrib.staticfiles.storage.StaticFilesStorage",
-#     },
-# }
-
-# local
 STORAGES = {
     "default": {
-        "BACKEND": "django.core.files.storage.FileSystemStorage",
+        # Media files (upload hình) → luôn dùng S3
+        "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
     },
     "staticfiles": {
-        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+        # Static files → whitenoise trên production, mặc định ở local
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage" if not DEBUG else "django.contrib.staticfiles.storage.StaticFilesStorage",
     },
 }
+
+# local
+# STORAGES = {
+#     "default": {
+#         "BACKEND": "django.core.files.storage.FileSystemStorage",
+#     },
+#     "staticfiles": {
+#         "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+#     },
+# }
 
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
