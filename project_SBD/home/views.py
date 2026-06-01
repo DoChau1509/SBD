@@ -561,14 +561,23 @@ def search(request):
 
 
 def project(request):
+    query = (request.GET.get("q") or "").strip()
     categories = ProjectCategory.objects.filter(is_hidden=False).order_by("name")
     projects = (
         Project.objects.select_related("category").all().order_by("-created_at", "-id")
     )
+
+    if query:
+        projects = projects.filter(
+            Q(name__icontains=query)
+            | Q(description__icontains=query)
+            | Q(category__name__icontains=query)
+        ).distinct()
+
     return render(
         request,
         "home/project.html",
-        {"projects": projects, "categories": categories},
+        {"projects": projects, "categories": categories, "query": query},
     )
 
 
@@ -1102,14 +1111,25 @@ def product_list(request):
 
 
 def product_public(request):
+    query = (request.GET.get("q") or "").strip()
     categories = ProductCategory.objects.filter(is_hidden=False).order_by("name")
     products = (
         Product.objects.select_related("category").all().order_by("-created_at", "-id")
     )
+
+    if query:
+        products = products.filter(
+            Q(name__icontains=query)
+            | Q(description__icontains=query)
+            | Q(supplier_name__icontains=query)
+            | Q(supplier_address__icontains=query)
+            | Q(category__name__icontains=query)
+        ).distinct()
+
     return render(
         request,
         "home/product.html",
-        {"products": products, "categories": categories},
+        {"products": products, "categories": categories, "query": query},
     )
 
 
@@ -1211,11 +1231,20 @@ def post_detail(request, id):
 
 
 def office_rental_public(request):
+    query = (request.GET.get("q") or "").strip()
     office_rentals = OfficeRental.objects.all().order_by("-created_at", "-id")
+
+    if query:
+        office_rentals = office_rentals.filter(
+            Q(title__icontains=query)
+            | Q(summary__icontains=query)
+            | Q(content__icontains=query)
+        ).distinct()
+
     return render(
         request,
         "home/office_rental.html",
-        {"office_rentals": office_rentals},
+        {"office_rentals": office_rentals, "query": query},
     )
 
 
@@ -1229,13 +1258,22 @@ def office_rental_detail(request, id):
 
 
 def education_space_design_public(request):
+    query = (request.GET.get("q") or "").strip()
     education_space_designs = EducationSpaceDesign.objects.all().order_by(
         "-created_at", "-id"
     )
+
+    if query:
+        education_space_designs = education_space_designs.filter(
+            Q(title__icontains=query)
+            | Q(summary__icontains=query)
+            | Q(content__icontains=query)
+        ).distinct()
+
     return render(
         request,
         "home/education_space_design.html",
-        {"education_space_designs": education_space_designs},
+        {"education_space_designs": education_space_designs, "query": query},
     )
 
 
@@ -2155,6 +2193,7 @@ def service_type_delete(request, id):
 # ====================== CRUD SERVICES ======================
 @staff_required
 def service_list(request):
+    query = (request.GET.get("q") or "").strip()
     services = (
         Service.objects.select_related("service_type")
         .all()
@@ -2162,11 +2201,20 @@ def service_list(request):
             "service_type__order", "service_type__created_at", "order", "created_at"
         )
     )
+
+    if query:
+        services = services.filter(
+            Q(title__icontains=query)
+            | Q(content__icontains=query)
+            | Q(icon__icontains=query)
+            | Q(service_type__name__icontains=query)
+        ).distinct()
+
     error = request.GET.get("error")
     return render(
         request,
         "home/service_list.html",
-        {"services": services, "error": error},
+        {"services": services, "error": error, "query": query},
     )
 
 

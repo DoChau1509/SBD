@@ -4,6 +4,27 @@
 
 <style>
   .office-section { padding: 90px 0; background: var(--light-bg); }
+  .local-search {
+    max-width: 720px;
+    margin: 0 auto 34px;
+  }
+  .local-search .input-group {
+    box-shadow: 0 8px 26px rgba(26,46,74,0.08);
+  }
+  .local-search .form-control {
+    height: 50px;
+    border-color: rgba(26,46,74,0.16);
+    font-size: 15px;
+  }
+  .local-search .btn {
+    min-width: 112px;
+    font-weight: 700;
+  }
+  .local-search-note {
+    margin-top: 10px;
+    color: var(--text-muted);
+    font-size: 14px;
+  }
   .office-card {
     background: var(--white);
     border-radius: 14px;
@@ -59,6 +80,21 @@
 
 <section class="office-section">
   <div class="container">
+    <form class="local-search wow fadeInUp" method="get" action="{% url 'office_rental' %}">
+      <div class="input-group">
+        <input type="search" name="q" class="form-control" value="{{ query }}" placeholder="Tìm kiếm văn phòng theo tên hoặc mô tả" aria-label="Tìm kiếm văn phòng">
+        <button class="btn btn-primary" type="submit">
+          <i class="fa fa-search"></i> Tìm
+        </button>
+        {% if query %}
+          <a class="btn btn-outline-secondary" href="{% url 'office_rental' %}">Xóa</a>
+        {% endif %}
+      </div>
+      {% if query %}
+        <div class="local-search-note">Kết quả tìm kiếm cho "{{ query }}".</div>
+      {% endif %}
+    </form>
+
     <div class="row">
       {% for office in office_rentals %}
         <div class="col-lg-4 col-md-6 mb-4 wow fadeInUp">

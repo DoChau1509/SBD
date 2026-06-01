@@ -5,6 +5,27 @@
   .filter-wrap {
     margin-bottom: 40px;
   }
+  .local-search {
+    max-width: 720px;
+    margin: 0 auto 26px;
+  }
+  .local-search .input-group {
+    box-shadow: 0 8px 26px rgba(26, 46, 74, 0.08);
+  }
+  .local-search .form-control {
+    height: 50px;
+    border-color: rgba(26, 46, 74, 0.16);
+    font-size: 15px;
+  }
+  .local-search .btn {
+    min-width: 112px;
+    font-weight: 700;
+  }
+  .local-search-note {
+    margin-top: 10px;
+    color: var(--text-muted);
+    font-size: 14px;
+  }
   .portfolio-filters {
     padding: 0;
     list-style: none;
@@ -157,6 +178,28 @@
       <h2>Danh Sách Sản Phẩm</h2>
       <p>Lọc theo danh mục để tìm sản phẩm phù hợp</p>
     </div>
+
+    <form class="local-search wow fadeInUp" method="get" action="{% url 'product' %}">
+      <div class="input-group">
+        <input
+          type="search"
+          name="q"
+          class="form-control"
+          value="{{ query }}"
+          placeholder="Tìm kiếm sản phẩm theo tên, mô tả, nhà cung cấp hoặc danh mục"
+          aria-label="Tìm kiếm sản phẩm"
+        />
+        <button class="btn btn-primary" type="submit">
+          <i class="fa fa-search"></i> Tìm
+        </button>
+        {% if query %}
+        <a class="btn btn-outline-secondary" href="{% url 'product' %}">Xóa</a>
+        {% endif %}
+      </div>
+      {% if query %}
+      <div class="local-search-note">Kết quả tìm kiếm cho "{{ query }}".</div>
+      {% endif %}
+    </form>
 
     <div class="filter-wrap text-center wow fadeInUp">
       <ul class="portfolio-filters" id="filter-list">

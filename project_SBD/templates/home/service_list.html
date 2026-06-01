@@ -5,6 +5,12 @@
   .service-preview-icon {
     font-size: 18px;
   }
+  .admin-search {
+    max-width: 720px;
+  }
+  .admin-search .form-control {
+    height: 42px;
+  }
 </style>
 
 <div class="container" style="margin-top: 100px">
@@ -54,6 +60,21 @@
   {% if error %}
     <div class="alert alert-danger">{{ error }}</div>
   {% endif %}
+
+  <form class="admin-search mb-4" method="get" action="{% url 'service_list' %}">
+    <div class="input-group">
+      <input type="search" name="q" class="form-control" value="{{ query }}" placeholder="Tìm dịch vụ theo tiêu đề, nội dung, icon hoặc loại dịch vụ" aria-label="Tìm kiếm dịch vụ">
+      <button class="btn btn-primary" type="submit">
+        <i class="fa fa-search"></i> Tìm
+      </button>
+      {% if query %}
+        <a class="btn btn-outline-secondary" href="{% url 'service_list' %}">Xóa</a>
+      {% endif %}
+    </div>
+    {% if query %}
+      <div class="text-muted small mt-2">Kết quả tìm kiếm cho "{{ query }}".</div>
+    {% endif %}
+  </form>
 
   <!-- TABLE -->
   <div class="card shadow-sm">
