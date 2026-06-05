@@ -108,6 +108,10 @@
     font-size: 30px;
   }
 
+  .search-thumb--function {
+    background: linear-gradient(135deg, var(--primary), #315d89);
+  }
+
   .search-card-body {
     min-width: 0;
   }
@@ -191,6 +195,30 @@
       </div>
 
       {% if result_count %}
+        {% if management_actions %}
+          <div class="search-group">
+            <h2 class="search-group-title">
+              <i class="fa-solid fa-table-cells-large"></i> Chức Năng Quản Trị
+            </h2>
+            <div class="row gy-4">
+              {% for action in management_actions %}
+                <div class="col-lg-6">
+                  <a class="search-card" href="{{ action.url }}">
+                    <div class="search-thumb search-thumb--function">
+                      <i class="{{ action.icon }}"></i>
+                    </div>
+                    <div class="search-card-body">
+                      <span class="search-type">Chức năng</span>
+                      <h3>{{ action.title }}</h3>
+                      <p>{{ action.description }}</p>
+                    </div>
+                  </a>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+
         {% if projects %}
           <div class="search-group">
             <h2 class="search-group-title"><i class="fa fa-building"></i> Dự Án</h2>
@@ -320,6 +348,32 @@
             </div>
           </div>
         {% endif %}
+
+        {% if specialized_service_contents %}
+          <div class="search-group">
+            <h2 class="search-group-title"><i class="fa fa-layer-group"></i> Dịch Vụ Chuyên Ngành</h2>
+            <div class="row gy-4">
+              {% for item in specialized_service_contents %}
+                <div class="col-lg-6">
+                  <a class="search-card" href="{% url item.detail_url_name item.id %}">
+                    <div class="search-thumb">
+                      {% if item.image %}
+                        <img src="{{ item.image.url }}" alt="{{ item.title }}">
+                      {% else %}
+                        <i class="fa fa-building"></i>
+                      {% endif %}
+                    </div>
+                    <div class="search-card-body">
+                      <span class="search-type">{{ item.get_sector_display }}</span>
+                      <h3>{{ item.title }}</h3>
+                      <p>{% if item.summary %}{{ item.summary|truncatechars:135 }}{% else %}{{ item.content|truncatechars:135 }}{% endif %}</p>
+                    </div>
+                  </a>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
       {% else %}
         <div class="search-empty">
           Không tìm thấy kết quả phù hợp. Hãy thử một từ khóa ngắn hơn hoặc tên danh mục khác.
@@ -327,7 +381,7 @@
       {% endif %}
     {% else %}
       <div class="search-empty">
-        Nhập từ khóa để tìm dự án, sản phẩm, bài viết và dịch vụ đang có trên website.
+        Nhập từ khóa để tìm dự án, sản phẩm, bài viết, dịch vụ{% if user.is_staff %} và chức năng quản trị{% endif %}.
       </div>
     {% endif %}
   </div>

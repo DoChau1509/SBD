@@ -1,6 +1,7 @@
 # views.py
 import json
 import random
+import unicodedata
 from datetime import timedelta
 from functools import wraps
 from urllib.parse import urlparse
@@ -58,6 +59,7 @@ from .models import (
     SiteBrandSettings,
     OfficeRental,
     EducationSpaceDesign,
+    SpecializedServiceContent,
 )
 
 User = get_user_model()
@@ -76,6 +78,332 @@ CONSULTATION_STATUS_LABELS = dict(Consultation.STATUS_CHOICES)
 CONSULTATION_STATUS_ORDER = {
     status: index for index, (status, _) in enumerate(Consultation.STATUS_CHOICES)
 }
+
+SPECIALIZED_SERVICE_SECTORS = {
+    SpecializedServiceContent.INDUSTRIAL: {
+        "title": "Công Nghiệp",
+        "description": "Giải pháp thiết kế và xây dựng công trình công nghiệp hiệu quả, an toàn và bền vững",
+        "icon": "fa-solid fa-industry",
+        "public_url_name": "industrial",
+        "detail_url_name": "industrial_detail",
+        "list_url_name": "industrial_list",
+        "add_url_name": "industrial_add",
+        "edit_url_name": "industrial_edit",
+        "delete_url_name": "industrial_delete",
+    },
+    SpecializedServiceContent.CIVIL: {
+        "title": "Dân Dụng",
+        "description": "Giải pháp thiết kế và xây dựng công trình dân dụng tiện nghi, thẩm mỹ và bền vững",
+        "icon": "fa-solid fa-house",
+        "public_url_name": "civil",
+        "detail_url_name": "civil_detail",
+        "list_url_name": "civil_list",
+        "add_url_name": "civil_add",
+        "edit_url_name": "civil_edit",
+        "delete_url_name": "civil_delete",
+    },
+    SpecializedServiceContent.ENERGY_GREEN: {
+        "title": "Năng Lượng Và Công Trình Xanh",
+        "description": "Giải pháp năng lượng hiệu quả và công trình xanh thân thiện với môi trường",
+        "icon": "fa-solid fa-leaf",
+        "public_url_name": "energy_green",
+        "detail_url_name": "energy_green_detail",
+        "list_url_name": "energy_green_list",
+        "add_url_name": "energy_green_add",
+        "edit_url_name": "energy_green_edit",
+        "delete_url_name": "energy_green_delete",
+    },
+    SpecializedServiceContent.INTERIOR_COMMERCIAL: {
+        "title": "Nội Thất Và Thương Mại",
+        "description": "Giải pháp thiết kế nội thất và không gian thương mại tối ưu công năng, trải nghiệm và nhận diện",
+        "icon": "fa-solid fa-couch",
+        "public_url_name": "interior_commercial",
+        "detail_url_name": "interior_commercial_detail",
+        "list_url_name": "interior_commercial_list",
+        "add_url_name": "interior_commercial_add",
+        "edit_url_name": "interior_commercial_edit",
+        "delete_url_name": "interior_commercial_delete",
+    },
+}
+
+
+def _get_specialized_service_config(sector):
+    config = SPECIALIZED_SERVICE_SECTORS.get(sector)
+    if config is None:
+        raise ValueError(f"Unsupported specialized service sector: {sector}")
+    return config
+
+
+MANAGEMENT_SEARCH_ACTIONS = [
+    {
+        "title": "Quản lý dự án",
+        "description": "Xem, sửa và xóa các dự án.",
+        "url_name": "dashboard",
+        "icon": "fa-solid fa-building",
+        "keywords": "du an cong trinh project",
+    },
+    {
+        "title": "Thêm dự án",
+        "description": "Tạo một dự án mới.",
+        "url_name": "project_add",
+        "icon": "fa-solid fa-plus",
+        "keywords": "du an cong trinh tao moi",
+    },
+    {
+        "title": "Dự án nổi bật",
+        "description": "Chọn các dự án hiển thị nổi bật trên trang chủ.",
+        "url_name": "featured_project_list",
+        "icon": "fa-solid fa-star",
+        "keywords": "du an noi bat trang chu",
+    },
+    {
+        "title": "Danh mục dự án",
+        "description": "Quản lý các danh mục dự án.",
+        "url_name": "project_category_list",
+        "icon": "fa-solid fa-folder-tree",
+        "keywords": "danh muc loai du an",
+    },
+    {
+        "title": "Quản lý sản phẩm",
+        "description": "Xem, thêm, sửa và xóa sản phẩm.",
+        "url_name": "product_list",
+        "icon": "fa-solid fa-box-open",
+        "keywords": "san pham product hang hoa",
+    },
+    {
+        "title": "Thêm sản phẩm",
+        "description": "Tạo một sản phẩm mới.",
+        "url_name": "product_add",
+        "icon": "fa-solid fa-plus",
+        "keywords": "san pham tao moi",
+    },
+    {
+        "title": "Danh mục sản phẩm",
+        "description": "Quản lý các danh mục sản phẩm.",
+        "url_name": "product_category_list",
+        "icon": "fa-solid fa-folder-tree",
+        "keywords": "danh muc loai san pham",
+    },
+    {
+        "title": "Quản lý bài viết",
+        "description": "Xem, thêm, sửa và xóa bài viết.",
+        "url_name": "post_list",
+        "icon": "fa-solid fa-newspaper",
+        "keywords": "bai viet tin tuc post",
+    },
+    {
+        "title": "Thêm bài viết",
+        "description": "Tạo một bài viết mới.",
+        "url_name": "post_add",
+        "icon": "fa-solid fa-plus",
+        "keywords": "bai viet tin tuc tao moi",
+    },
+    {
+        "title": "Danh mục bài viết",
+        "description": "Quản lý các danh mục bài viết.",
+        "url_name": "post_category_list",
+        "icon": "fa-solid fa-folder-tree",
+        "keywords": "danh muc loai bai viet tin tuc",
+    },
+    {
+        "title": "Quản lý dịch vụ",
+        "description": "Quản lý nội dung dịch vụ trên trang chủ.",
+        "url_name": "service_list",
+        "icon": "fa-solid fa-screwdriver-wrench",
+        "keywords": "dich vu trang chu service",
+    },
+    {
+        "title": "Loại dịch vụ",
+        "description": "Quản lý các loại dịch vụ.",
+        "url_name": "service_type_list",
+        "icon": "fa-solid fa-list",
+        "keywords": "danh muc loai dich vu",
+    },
+    {
+        "title": "Cho thuê văn phòng",
+        "description": "Quản lý nội dung văn phòng cho thuê.",
+        "url_name": "office_rental_list",
+        "icon": "fa-solid fa-briefcase",
+        "keywords": "van phong cho thue office rental",
+    },
+    {
+        "title": "Thiết kế không gian giáo dục",
+        "description": "Quản lý nội dung dịch vụ không gian giáo dục.",
+        "url_name": "education_space_design_list",
+        "icon": "fa-solid fa-school",
+        "keywords": "giao duc truong hoc khong gian",
+    },
+    {
+        "title": "Dịch vụ công nghiệp",
+        "description": "Quản lý nội dung dịch vụ công nghiệp.",
+        "url_name": "industrial_list",
+        "icon": "fa-solid fa-industry",
+        "keywords": "cong nghiep nha may industrial",
+    },
+    {
+        "title": "Dịch vụ dân dụng",
+        "description": "Quản lý nội dung dịch vụ dân dụng.",
+        "url_name": "civil_list",
+        "icon": "fa-solid fa-house",
+        "keywords": "dan dung nha o civil",
+    },
+    {
+        "title": "Năng lượng và công trình xanh",
+        "description": "Quản lý nội dung năng lượng và công trình xanh.",
+        "url_name": "energy_green_list",
+        "icon": "fa-solid fa-leaf",
+        "keywords": "nang luong cong trinh xanh moi truong",
+    },
+    {
+        "title": "Nội thất và thương mại",
+        "description": "Quản lý nội dung nội thất và thương mại.",
+        "url_name": "interior_commercial_list",
+        "icon": "fa-solid fa-couch",
+        "keywords": "noi that thuong mai commercial",
+    },
+    {
+        "title": "Hero trang chủ",
+        "description": "Chỉnh sửa hình ảnh và nội dung Hero.",
+        "url_name": "hero_edit",
+        "icon": "fa-solid fa-images",
+        "keywords": "hero banner trang chu slide carousel",
+    },
+    {
+        "title": "Tại sao chọn chúng tôi",
+        "description": "Quản lý các lý do và nội dung nổi bật.",
+        "url_name": "why_choose_item_list",
+        "icon": "fa-solid fa-circle-check",
+        "keywords": "tai sao chon chung toi ly do",
+    },
+    {
+        "title": "Đối tác",
+        "description": "Quản lý logo và thông tin đối tác.",
+        "url_name": "partner_list",
+        "icon": "fa-solid fa-handshake",
+        "keywords": "doi tac partner logo",
+    },
+    {
+        "title": "Giới thiệu công ty",
+        "description": "Chỉnh sửa phần giới thiệu công ty.",
+        "url_name": "about_intro_edit",
+        "icon": "fa-solid fa-circle-info",
+        "keywords": "gioi thieu cong ty about",
+    },
+    {
+        "title": "Tầm nhìn và sứ mệnh",
+        "description": "Quản lý nội dung tầm nhìn và sứ mệnh.",
+        "url_name": "statement_list",
+        "icon": "fa-solid fa-eye",
+        "keywords": "tam nhin su menh gia tri",
+    },
+    {
+        "title": "Quy trình giới thiệu",
+        "description": "Chỉnh sửa quy trình triển khai trên trang giới thiệu.",
+        "url_name": "about_video_tour_edit",
+        "icon": "fa-solid fa-list-check",
+        "keywords": "quy trinh gioi thieu video tour",
+    },
+    {
+        "title": "Ban lãnh đạo",
+        "description": "Quản lý thông tin thành viên ban lãnh đạo.",
+        "url_name": "leadership_list",
+        "icon": "fa-solid fa-user-tie",
+        "keywords": "ban lanh dao nhan su thanh vien",
+    },
+    {
+        "title": "Chứng chỉ",
+        "description": "Quản lý chứng chỉ và thành tựu.",
+        "url_name": "certificate_list",
+        "icon": "fa-solid fa-certificate",
+        "keywords": "chung chi thanh tuu certificate",
+    },
+    {
+        "title": "Thông tin liên hệ",
+        "description": "Quản lý địa chỉ, số điện thoại và mạng xã hội.",
+        "url_name": "contact_info_list",
+        "icon": "fa-solid fa-address-book",
+        "keywords": "lien he dia chi dien thoai email contact",
+    },
+    {
+        "title": "Câu hỏi thường gặp",
+        "description": "Quản lý danh sách câu hỏi và câu trả lời.",
+        "url_name": "faq_list",
+        "icon": "fa-solid fa-circle-question",
+        "keywords": "faq cau hoi thuong gap",
+    },
+    {
+        "title": "Yêu cầu tư vấn",
+        "description": "Xem và xử lý yêu cầu tư vấn của khách hàng.",
+        "url_name": "consultation_list",
+        "icon": "fa-solid fa-comments",
+        "keywords": "tu van yeu cau khach hang consultation",
+    },
+    {
+        "title": "Cài đặt hệ thống",
+        "description": "Quản lý thương hiệu, email OTP và tài khoản staff.",
+        "url_name": "system_settings",
+        "icon": "fa-solid fa-gear",
+        "keywords": "cai dat he thong logo email otp staff",
+        "admin_only": True,
+    },
+    {
+        "title": "Icon tab trình duyệt",
+        "description": "Thay ảnh favicon xuất hiện cạnh tiêu đề trên tab trình duyệt.",
+        "url_name": "system_settings",
+        "url_fragment": "favicon-settings",
+        "icon": "fa-solid fa-window-maximize",
+        "keywords": "favicon icon dau trang tab trinh duyet base hinh anh",
+        "admin_only": True,
+    },
+    {
+        "title": "Tạo tài khoản staff",
+        "description": "Tạo tài khoản nhân viên quản trị mới.",
+        "url_name": "staff_account_add",
+        "icon": "fa-solid fa-user-plus",
+        "keywords": "tao tai khoan staff nhan vien admin",
+        "admin_only": True,
+    },
+]
+
+
+def _normalize_search_text(value):
+    normalized = unicodedata.normalize("NFD", (value or "").lower())
+    return "".join(
+        character
+        for character in normalized
+        if unicodedata.category(character) != "Mn"
+    ).replace("đ", "d")
+
+
+def _search_management_actions(user, query):
+    if not query or not user.is_authenticated or not (
+        user.is_staff or user.is_superuser
+    ):
+        return []
+
+    normalized_query = _normalize_search_text(query)
+    results = []
+
+    for action in MANAGEMENT_SEARCH_ACTIONS:
+        if action.get("admin_only") and not user.is_superuser:
+            continue
+
+        searchable_text = " ".join(
+            [
+                action["title"],
+                action["description"],
+                action.get("keywords", ""),
+            ]
+        )
+        if normalized_query not in _normalize_search_text(searchable_text):
+            continue
+
+        url = reverse(action["url_name"])
+        if action.get("url_fragment"):
+            url = f"{url}#{action['url_fragment']}"
+        results.append({**action, "url": url})
+
+    return results[:12]
 
 
 def staff_required(view_func):
@@ -137,6 +465,22 @@ def _is_management_path(path: str) -> bool:
         "/education-space-design/add",
         "/education-space-design/edit",
         "/education-space-design/delete",
+        "/industrial-services",
+        "/industrial/add",
+        "/industrial/edit",
+        "/industrial/delete",
+        "/civil-services",
+        "/civil/add",
+        "/civil/edit",
+        "/civil/delete",
+        "/energy-green-services",
+        "/energy-green/add",
+        "/energy-green/edit",
+        "/energy-green/delete",
+        "/interior-commercial-services",
+        "/interior-commercial/add",
+        "/interior-commercial/edit",
+        "/interior-commercial/delete",
         "/leadership",
         "/about-statements",
         "/service-types",
@@ -483,8 +827,11 @@ def search(request):
     posts = []
     office_rentals = []
     education_space_designs = []
+    specialized_service_contents = []
+    management_actions = []
 
     if query:
+        management_actions = _search_management_actions(request.user, query)
         projects = list(
             Project.objects.select_related("category")
             .filter(
@@ -536,6 +883,15 @@ def search(request):
             .distinct()
             .order_by("-created_at", "-id")[:8]
         )
+        specialized_service_contents = list(
+            SpecializedServiceContent.objects.filter(
+                Q(title__icontains=query)
+                | Q(summary__icontains=query)
+                | Q(content__icontains=query)
+            )
+            .distinct()
+            .order_by("-created_at", "-id")[:12]
+        )
 
     result_count = (
         len(projects)
@@ -543,6 +899,8 @@ def search(request):
         + len(posts)
         + len(office_rentals)
         + len(education_space_designs)
+        + len(specialized_service_contents)
+        + len(management_actions)
     )
 
     return render(
@@ -555,6 +913,8 @@ def search(request):
             "posts": posts,
             "office_rentals": office_rentals,
             "education_space_designs": education_space_designs,
+            "specialized_service_contents": specialized_service_contents,
+            "management_actions": management_actions,
             "result_count": result_count,
         },
     )
@@ -1286,6 +1646,35 @@ def education_space_design_detail(request, id):
     )
 
 
+def specialized_service_public(request, sector):
+    config = _get_specialized_service_config(sector)
+    query = (request.GET.get("q") or "").strip()
+    items = SpecializedServiceContent.objects.filter(sector=sector)
+
+    if query:
+        items = items.filter(
+            Q(title__icontains=query)
+            | Q(summary__icontains=query)
+            | Q(content__icontains=query)
+        ).distinct()
+
+    return render(
+        request,
+        "home/specialized_service.html",
+        {"items": items, "query": query, "service_config": config},
+    )
+
+
+def specialized_service_detail(request, id, sector):
+    config = _get_specialized_service_config(sector)
+    item = get_object_or_404(SpecializedServiceContent, id=id, sector=sector)
+    return render(
+        request,
+        "home/specialized_service_detail.html",
+        {"item": item, "service_config": config},
+    )
+
+
 @staff_required
 def post_create(request):
     categories = PostCategory.objects.filter(is_hidden=False).order_by("name")
@@ -1454,6 +1843,73 @@ def education_space_design_delete(request, id):
     education_space_design = get_object_or_404(EducationSpaceDesign, id=id)
     education_space_design.delete()
     return redirect("education_space_design_list")
+
+
+@staff_required
+def specialized_service_list(request, sector):
+    config = _get_specialized_service_config(sector)
+    items = SpecializedServiceContent.objects.filter(sector=sector).order_by("-id")
+    return render(
+        request,
+        "home/specialized_service_list.html",
+        {
+            "items": items,
+            "service_config": config,
+            "service_sectors": SPECIALIZED_SERVICE_SECTORS.values(),
+        },
+    )
+
+
+@staff_required
+def specialized_service_create(request, sector):
+    config = _get_specialized_service_config(sector)
+
+    if request.method == "POST":
+        SpecializedServiceContent.objects.create(
+            sector=sector,
+            title=request.POST.get("title"),
+            summary=request.POST.get("summary", ""),
+            content=request.POST.get("content"),
+            image=request.FILES.get("image"),
+        )
+        return redirect(config["list_url_name"])
+
+    return render(
+        request,
+        "home/specialized_service_form.html",
+        {"service_config": config},
+    )
+
+
+@staff_required
+def specialized_service_update(request, id, sector):
+    config = _get_specialized_service_config(sector)
+    item = get_object_or_404(SpecializedServiceContent, id=id, sector=sector)
+
+    if request.method == "POST":
+        item.title = request.POST.get("title")
+        item.summary = request.POST.get("summary", "")
+        item.content = request.POST.get("content")
+
+        if "image" in request.FILES:
+            item.image = request.FILES["image"]
+
+        item.save()
+        return redirect(config["list_url_name"])
+
+    return render(
+        request,
+        "home/specialized_service_form.html",
+        {"item": item, "service_config": config},
+    )
+
+
+@staff_required
+def specialized_service_delete(request, id, sector):
+    config = _get_specialized_service_config(sector)
+    item = get_object_or_404(SpecializedServiceContent, id=id, sector=sector)
+    item.delete()
+    return redirect(config["list_url_name"])
 
 
 @staff_required

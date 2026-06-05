@@ -432,6 +432,7 @@ class SiteBrandSettingsForm(forms.ModelForm):
         fields = [
             "logo_image",
             "preloader_image",
+            "favicon_image",
             "logo_icon",
             "footer_bottom_text",
         ]
@@ -441,6 +442,12 @@ class SiteBrandSettingsForm(forms.ModelForm):
             ),
             "preloader_image": forms.ClearableFileInput(
                 attrs={"class": "form-control", "accept": "image/*"}
+            ),
+            "favicon_image": forms.ClearableFileInput(
+                attrs={
+                    "class": "form-control",
+                    "accept": "image/png,image/x-icon,image/vnd.microsoft.icon,image/svg+xml,image/webp",
+                }
             ),
             "logo_icon": forms.TextInput(
                 attrs={
@@ -462,11 +469,14 @@ class SiteBrandSettingsForm(forms.ModelForm):
         clear_image = bool(self.data.get("logo_image-clear"))
         current_preloader_image = getattr(self.instance, "preloader_image", None)
         clear_preloader_image = bool(self.data.get("preloader_image-clear"))
+        clear_favicon_image = bool(self.data.get("favicon_image-clear"))
 
         if clear_image:
             cleaned_data["logo_image"] = None
         if clear_preloader_image:
             cleaned_data["preloader_image"] = None
+        if clear_favicon_image:
+            cleaned_data["favicon_image"] = None
 
         logo_image = cleaned_data.get("logo_image") or (
             None if clear_image else current_image
@@ -500,6 +510,7 @@ class SiteBrandSettingsForm(forms.ModelForm):
 
         cleaned_data["clear_logo_image"] = clear_image
         cleaned_data["clear_preloader_image"] = clear_preloader_image
+        cleaned_data["clear_favicon_image"] = clear_favicon_image
         cleaned_data["resolved_preloader_image"] = preloader_image
 
         return cleaned_data
@@ -513,6 +524,9 @@ class SiteBrandSettingsForm(forms.ModelForm):
 
         if self.cleaned_data.get("clear_preloader_image"):
             instance.preloader_image = None
+
+        if self.cleaned_data.get("clear_favicon_image"):
+            instance.favicon_image = None
 
         if instance.logo_type == SiteBrandSettings.LOGO_TYPE_ICON:
             # Khi dùng icon thì bỏ ảnh logo để model cleanup xóa file cũ nếu không còn dùng.

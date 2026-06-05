@@ -6,6 +6,11 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Sao Bắc Đẩu - Công Ty Xây Dựng</title>
+    {% if brand_settings.has_favicon_image %}
+    <link rel="icon" href="{{ brand_settings.favicon_image.url }}">
+    {% elif brand_settings.has_logo_image %}
+    <link rel="icon" href="{{ brand_settings.logo_image.url }}">
+    {% endif %}
 
     <!-- Google Fonts -->
     <link
@@ -32,6 +37,112 @@
     <link rel="stylesheet" href="{% static 'css/home.css' %}" />
     <link rel="stylesheet" href="{% static 'css/about.css' %}" />
     <link rel="stylesheet" href="{% static 'css/contact.css' %}" />
+    <style>
+      .management-nav {
+        position: fixed;
+        bottom: 22px;
+        right: 18px;
+        z-index: 9500;
+      }
+      .management-nav-toggle {
+        border: 0;
+        border-radius: 999px;
+        padding: 10px 16px;
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        color: #fff;
+        background: var(--primary);
+        box-shadow: 0 10px 28px rgba(8, 28, 50, .22);
+        font-size: 13px;
+        font-weight: 700;
+      }
+      .management-nav-menu,
+      .management-nav .management-nav-menu.show {
+        position: fixed !important;
+        top: calc(var(--navbar-h) + 12px) !important;
+        right: 18px !important;
+        bottom: 78px !important;
+        left: auto !important;
+        transform: none !important;
+        width: min(760px, calc(100vw - 24px));
+        max-height: none;
+        overflow-y: auto;
+        border: 0;
+        border-radius: 14px;
+        padding: 0;
+        margin: 0 !important;
+        z-index: 9501;
+      }
+      .management-nav-header {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        padding: 16px 18px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        color: #fff;
+        background: var(--primary);
+      }
+      .management-nav-header strong,
+      .management-nav-header small { display: block; }
+      .management-nav-header small { margin-top: 2px; color: rgba(255,255,255,.7); }
+      .management-nav-grid {
+        padding: 16px;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        background: #f7f9fc;
+      }
+      .management-nav-group {
+        padding: 12px;
+        border: 1px solid rgba(26,46,74,.1);
+        border-radius: 10px;
+        background: #fff;
+      }
+      .management-nav-group.is-active { border-color: rgba(201,150,62,.65); }
+      .management-nav-title {
+        margin-bottom: 7px;
+        color: var(--primary);
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: .5px;
+        text-transform: uppercase;
+      }
+      .management-nav-title i { width: 18px; color: var(--accent); }
+      .management-nav-group a {
+        padding: 6px 8px;
+        display: block;
+        border-radius: 6px;
+        color: var(--text-muted);
+        font-size: 13px;
+        line-height: 1.35;
+        text-decoration: none;
+      }
+      .management-nav-group a:hover,
+      .management-nav-group a.active {
+        color: var(--primary);
+        background: rgba(201,150,62,.14);
+      }
+      @media (max-width: 767.98px) {
+        .management-nav { right: 10px; bottom: 12px; }
+        .management-nav-menu,
+        .management-nav .management-nav-menu.show {
+          top: calc(var(--navbar-h) + 8px) !important;
+          right: 10px !important;
+          bottom: 64px !important;
+          width: calc(100vw - 20px);
+        }
+        .management-nav-toggle span { display: none; }
+        .management-nav-toggle { width: 42px; height: 42px; padding: 0; justify-content: center; }
+        .management-nav-grid { grid-template-columns: 1fr 1fr; }
+      }
+      @media (max-width: 480px) {
+        .management-nav-grid { grid-template-columns: 1fr; }
+      }
+    </style>
   </head>
   <body>
     <!-- PRELOADER -->
@@ -90,6 +201,10 @@
                       Thiết kế không gian giáo dục
                     </a>
                   </li>
+                  <li><a class="dropdown-item" href="{% url 'industrial' %}">Công nghiệp</a></li>
+                  <li><a class="dropdown-item" href="{% url 'civil' %}">Dân dụng</a></li>
+                  <li><a class="dropdown-item" href="{% url 'energy_green' %}">Năng lượng và công trình xanh</a></li>
+                  <li><a class="dropdown-item" href="{% url 'interior_commercial' %}">Nội thất và thương mại</a></li>
                 </ul>
               </li>
               <li><a href="{% url 'post' %}" class="nav-link">Bài Viết</a></li>
@@ -291,6 +406,10 @@
                 Thiết kế không gian giáo dục
               </a>
             </li>
+            <li><a href="{% url 'industrial' %}" class="nav-link">Công nghiệp</a></li>
+            <li><a href="{% url 'civil' %}" class="nav-link">Dân dụng</a></li>
+            <li><a href="{% url 'energy_green' %}" class="nav-link">Năng lượng và công trình xanh</a></li>
+            <li><a href="{% url 'interior_commercial' %}" class="nav-link">Nội thất và thương mại</a></li>
             <li><a href="{% url 'post' %}" class="nav-link">Bài Viết</a></li>
             <li><a href="{% url 'contact' %}" class="nav-link">Liên Hệ</a></li>
             {% if user.is_authenticated and user.is_superuser %}
@@ -423,6 +542,10 @@
     </div>
     {% endif %}
 
+    {% if show_management_nav %}
+      {% include 'includes/management_nav.html' %}
+    {% endif %}
+
     <!-- MAIN CONTENT -->
     {% block content %} {% endblock %}
 
@@ -488,6 +611,10 @@
               <li><a href="{% url 'product' %}">Sản phẩm</a></li>
               <li><a href="{% url 'office_rental' %}">Cho thuê văn phòng</a></li>
               <li><a href="{% url 'education_space_design' %}">Thiết kế không gian giáo dục</a></li>
+              <li><a href="{% url 'industrial' %}">Công nghiệp</a></li>
+              <li><a href="{% url 'civil' %}">Dân dụng</a></li>
+              <li><a href="{% url 'energy_green' %}">Năng lượng và công trình xanh</a></li>
+              <li><a href="{% url 'interior_commercial' %}">Nội thất và thương mại</a></li>
               <li><a href="{% url 'post' %}">Bài Viết</a></li>
               <li><a href="{% url 'contact' %}">Liên Hệ</a></li>
             </ul>
@@ -506,6 +633,11 @@
                 <a class="dropdown-item" href="{% url 'education_space_design' %}">
                   Thiết kế không gian giáo dục
                 </a>
+              </li>
+              <li><a href="{% url 'industrial' %}">Công nghiệp</a></li>
+              <li><a href="{% url 'civil' %}">Dân dụng</a></li>
+              <li><a href="{% url 'energy_green' %}">Năng lượng và công trình xanh</a></li>
+              <li><a href="{% url 'interior_commercial' %}">Nội thất và thương mại</a></li>
             </ul>
           </div>
 

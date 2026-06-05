@@ -996,7 +996,7 @@ class Partner(ManagedMediaCleanupModel):
 
 
 class SiteBrandSettings(ManagedMediaCleanupModel):
-    managed_file_fields = ("logo_image", "preloader_image")
+    managed_file_fields = ("logo_image", "preloader_image", "favicon_image")
 
     LOGO_TYPE_ICON = "icon"
     LOGO_TYPE_IMAGE = "image"
@@ -1022,6 +1022,12 @@ class SiteBrandSettings(ManagedMediaCleanupModel):
         blank=True,
         null=True,
         verbose_name="Ảnh màn hình loading",
+    )
+    favicon_image = models.ImageField(
+        upload_to="branding/favicon/",
+        blank=True,
+        null=True,
+        verbose_name="Ảnh icon trình duyệt",
     )
     logo_icon = models.CharField(
         max_length=500,
@@ -1124,6 +1130,10 @@ class SiteBrandSettings(ManagedMediaCleanupModel):
     def has_preloader_image(self):
         return bool(self.preloader_image and getattr(self.preloader_image, "url", ""))
 
+    @property
+    def has_favicon_image(self):
+        return bool(self.favicon_image and getattr(self.favicon_image, "url", ""))
+
     def __str__(self):
         return self.brand_name or "Cấu hình thương hiệu"
 
@@ -1182,3 +1192,53 @@ class EducationSpaceDesign(ManagedMediaCleanupModel):
 
     def __str__(self):
         return self.title
+
+
+class SpecializedServiceContent(ManagedMediaCleanupModel):
+    INDUSTRIAL = "industrial"
+    CIVIL = "civil"
+    ENERGY_GREEN = "energy_green"
+    INTERIOR_COMMERCIAL = "interior_commercial"
+
+    SECTOR_CHOICES = [
+        (INDUSTRIAL, "Công nghiệp"),
+        (CIVIL, "Dân dụng"),
+        (ENERGY_GREEN, "Năng lượng và công trình xanh"),
+        (INTERIOR_COMMERCIAL, "Nội thất và thương mại"),
+    ]
+
+    managed_file_fields = ("image",)
+
+    sector = models.CharField(
+        max_length=30,
+        choices=SECTOR_CHOICES,
+        db_index=True,
+        verbose_name="Lĩnh vực",
+    )
+    title = models.CharField(max_length=200, verbose_name="Tiêu đề")
+    summary = models.TextField(blank=True, verbose_name="Mô tả ngắn")
+    content = models.TextField(verbose_name="Nội dung chi tiết")
+    image = models.ImageField(
+        upload_to="specialized_services/",
+        blank=True,
+        null=True,
+        verbose_name="Ảnh minh họa",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at", "-id"]
+        verbose_name = "Nội dung dịch vụ chuyên ngành"
+        verbose_name_plural = "Nội dung dịch vụ chuyên ngành"
+
+    @property
+    def detail_url_name(self):
+        return {
+            self.INDUSTRIAL: "industrial_detail",
+            self.CIVIL: "civil_detail",
+            self.ENERGY_GREEN: "energy_green_detail",
+            self.INTERIOR_COMMERCIAL: "interior_commercial_detail",
+        }.get(self.sector, "home")
+
+    def __str__(self):
+        return f"{self.get_sector_display()} - {self.title}"

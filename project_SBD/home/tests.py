@@ -4,7 +4,13 @@ from django.contrib.messages import get_messages
 from django.test import TestCase
 from django.urls import reverse
 
-from .models import Consultation, EmailOTPSettings, PasswordOTP
+from .models import (
+    Consultation,
+    EmailOTPSettings,
+    PasswordOTP,
+    SiteBrandSettings,
+    SpecializedServiceContent,
+)
 
 User = get_user_model()
 
@@ -219,3 +225,206 @@ class PasswordOTPFlowTests(TestCase):
         self.assertRedirects(verify_response, reverse("login"))
         self.user.refresh_from_db()
         self.assertTrue(self.user.check_password("AnotherStrongPass123!"))
+
+
+class SpecializedServiceContentTests(TestCase):
+    def setUp(self):
+        self.staff_user = User.objects.create_user(
+            username="service_staff",
+            password="StrongPass123!",
+            is_staff=True,
+        )
+
+    def test_public_pages_only_show_the_requested_sector(self):
+        industrial = SpecializedServiceContent.objects.create(
+            sector=SpecializedServiceContent.INDUSTRIAL,
+            title="Nha may",
+            content="Noi dung cong nghiep",
+        )
+        SpecializedServiceContent.objects.create(
+            sector=SpecializedServiceContent.CIVIL,
+            title="Nha o",
+            content="Noi dung dan dung",
+        )
+
+        response = self.client.get(reverse("industrial"))
+
+        self.assertContains(response, industrial.title)
+        self.assertNotContains(response, "Nha o")
+        self.assertContains(
+            self.client.get(reverse("industrial_detail", args=[industrial.id])),
+            industrial.content,
+        )
+
+    def test_staff_can_create_update_and_delete_sector_content(self):
+        self.client.force_login(self.staff_user)
+
+        self.assertEqual(self.client.get(reverse("energy_green_list")).status_code, 200)
+        self.assertEqual(self.client.get(reverse("energy_green_add")).status_code, 200)
+
+        create_response = self.client.post(
+            reverse("energy_green_add"),
+            {
+                "title": "Dien mat troi",
+                "summary": "Giai phap xanh",
+                "content": "Noi dung chi tiet",
+            },
+        )
+        item = SpecializedServiceContent.objects.get(title="Dien mat troi")
+        self.assertRedirects(create_response, reverse("energy_green_list"))
+        self.assertEqual(item.sector, SpecializedServiceContent.ENERGY_GREEN)
+
+        update_response = self.client.post(
+            reverse("energy_green_edit", args=[item.id]),
+            {
+                "title": "Nang luong mat troi",
+                "summary": "Giai phap xanh",
+                "content": "Noi dung da cap nhat",
+            },
+        )
+        self.assertRedirects(update_response, reverse("energy_green_list"))
+        item.refresh_from_db()
+        self.assertEqual(item.title, "Nang luong mat troi")
+
+        delete_response = self.client.get(
+            reverse("energy_green_delete", args=[item.id])
+        )
+        self.assertRedirects(delete_response, reverse("energy_green_list"))
+        self.assertFalse(SpecializedServiceContent.objects.filter(id=item.id).exists())
+
+    def test_non_staff_cannot_access_management_pages(self):
+        response = self.client.get(reverse("civil_list"))
+        self.assertRedirects(response, f"/login/?next={reverse('civil_list')}")
+
+
+class ManagementNavigationTests(TestCase):
+    def setUp(self):
+        self.staff_user = User.objects.create_user(
+            username="navigation_staff",
+            password="StrongPass123!",
+            is_staff=True,
+        )
+        self.admin_user = User.objects.create_superuser(
+            username="navigation_admin",
+            password="StrongPass123!",
+            email="navigation_admin@example.com",
+        )
+
+    def test_staff_sees_compact_navigation_on_list_and_form_pages(self):
+        self.client.force_login(self.staff_user)
+
+        for url_name in ("dashboard", "product_add", "service_add"):
+            response = self.client.get(reverse(url_name))
+            self.assertEqual(response.status_code, 200)
+            self.assertContains(response, "Điều hướng quản trị")
+            self.assertContains(response, reverse("industrial_list"))
+            self.assertContains(response, reverse("contact_info_list"))
+
+        self.assertNotContains(response, "Cài đặt hệ thống")
+
+    def test_admin_sees_system_navigation(self):
+        self.client.force_login(self.admin_user)
+
+        response = self.client.get(reverse("system_settings"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Điều hướng quản trị")
+        self.assertContains(response, "Cài đặt hệ thống")
+        self.assertContains(response, reverse("staff_account_add"))
+
+
+class SearchFunctionPermissionTests(TestCase):
+    def setUp(self):
+        self.customer = User.objects.create_user(
+            username="search_customer",
+            password="StrongPass123!",
+        )
+        self.staff_user = User.objects.create_user(
+            username="search_staff",
+            password="StrongPass123!",
+            is_staff=True,
+        )
+        self.admin_user = User.objects.create_superuser(
+            username="search_admin",
+            password="StrongPass123!",
+            email="search_admin@example.com",
+        )
+
+    def test_guest_and_customer_cannot_see_management_functions(self):
+        guest_response = self.client.get(reverse("search"), {"q": "san pham"})
+        self.assertNotContains(guest_response, "Chức Năng Quản Trị")
+        self.assertNotContains(guest_response, "Quản lý sản phẩm")
+
+        self.client.force_login(self.customer)
+        customer_response = self.client.get(reverse("search"), {"q": "san pham"})
+        self.assertNotContains(customer_response, "Chức Năng Quản Trị")
+        self.assertNotContains(customer_response, "Quản lý sản phẩm")
+
+    def test_staff_can_search_management_functions_without_accents(self):
+        self.client.force_login(self.staff_user)
+
+        response = self.client.get(reverse("search"), {"q": "san pham"})
+
+        self.assertContains(response, "Chức Năng Quản Trị")
+        self.assertContains(response, "Quản lý sản phẩm")
+        self.assertContains(response, reverse("product_list"))
+        self.assertContains(response, reverse("product_add"))
+
+    def test_system_functions_are_only_visible_to_admin(self):
+        self.client.force_login(self.staff_user)
+        staff_response = self.client.get(reverse("search"), {"q": "cai dat"})
+        self.assertNotContains(staff_response, "Cài đặt hệ thống")
+
+        self.client.force_login(self.admin_user)
+        admin_response = self.client.get(reverse("search"), {"q": "cai dat"})
+        self.assertContains(admin_response, "Cài đặt hệ thống")
+        self.assertContains(admin_response, reverse("system_settings"))
+
+
+class FaviconSettingsTests(TestCase):
+    def setUp(self):
+        self.admin_user = User.objects.create_superuser(
+            username="favicon_admin",
+            password="StrongPass123!",
+            email="favicon_admin@example.com",
+        )
+
+    def test_base_uses_custom_favicon(self):
+        config = SiteBrandSettings.get_solo()
+        config.favicon_image = "branding/favicon/custom.png"
+        config.save()
+
+        response = self.client.get(reverse("home"))
+
+        self.assertContains(response, 'href="/media/branding/favicon/custom.png"')
+
+    def test_base_falls_back_to_logo_image(self):
+        config = SiteBrandSettings.get_solo()
+        config.logo_image = "branding/logo.png"
+        config.favicon_image = None
+        config.save()
+
+        response = self.client.get(reverse("home"))
+
+        self.assertContains(response, 'href="/media/branding/logo.png"')
+
+    def test_admin_can_access_favicon_field(self):
+        self.client.force_login(self.admin_user)
+
+        response = self.client.get(reverse("system_settings"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Icon đầu trang / tab trình duyệt (favicon)")
+        self.assertContains(response, 'name="favicon_image"')
+        self.assertContains(response, 'id="favicon-settings"')
+
+    def test_admin_can_search_direct_favicon_link(self):
+        self.client.force_login(self.admin_user)
+
+        response = self.client.get(reverse("search"), {"q": "favicon"})
+
+        self.assertContains(response, "Icon tab trình duyệt")
+        self.assertContains(
+            response,
+            f'{reverse("system_settings")}#favicon-settings',
+        )

@@ -18,6 +18,7 @@ from .models import (
     PasswordOTP,
     OfficeRental,
     EducationSpaceDesign,
+    SpecializedServiceContent,
 )
 
 admin.site.register(ProjectCategory)
@@ -40,6 +41,7 @@ admin.site.register(EmailOTPSettings)
 admin.site.register(PasswordOTP)
 admin.site.register(OfficeRental)
 admin.site.register(EducationSpaceDesign)
+admin.site.register(SpecializedServiceContent)
 
 
 @admin.register(Project)

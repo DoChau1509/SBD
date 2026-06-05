@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+  .specialized-section { padding: 90px 0; background: var(--light-bg); }
+  .local-search { max-width: 720px; margin: 0 auto 34px; }
+  .local-search .input-group { box-shadow: 0 8px 26px rgba(26,46,74,0.08); }
+  .local-search .form-control { height: 50px; border-color: rgba(26,46,74,0.16); font-size: 15px; }
+  .local-search .btn { min-width: 112px; font-weight: 700; }
+  .local-search-note { margin-top: 10px; color: var(--text-muted); font-size: 14px; }
+  .specialized-card {
+    background: var(--white);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 12px 34px rgba(26,46,74,0.08);
+    height: 100%;
+    transition: transform .25s ease, box-shadow .25s ease;
+  }
+  .specialized-card:hover { transform: translateY(-6px); box-shadow: 0 18px 44px rgba(26,46,74,0.12); }
+  .specialized-thumb {
+    height: 220px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    background: radial-gradient(900px 320px at 20% 15%, rgba(201,150,62,.35) 0%, transparent 60%), linear-gradient(135deg, rgba(8,28,50,.96) 0%, rgba(26,60,94,.96) 60%, rgba(201,150,62,.22) 100%);
+  }
+  .specialized-thumb img { width: 100%; height: 100%; object-fit: contain; object-position: center; display: block; }
+  .specialized-fallback { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,.92); }
+  .specialized-fallback i { font-size: 56px; }
+  .specialized-body { padding: 20px; }
+  .specialized-title { font-size: 22px; color: var(--primary); margin: 0 0 10px; line-height: 1.45; }
+  .specialized-summary { color: var(--text-muted); font-size: 14px; line-height: 1.8; min-height: 75px; }
+</style>
+
+<section class="section-top">
+  <div class="container">
+    <div class="col-lg-10 offset-lg-1 col-xs-12 text-center">
+      <div class="section-top-title wow fadeInRight" data-wow-duration="1s" data-wow-delay="0.3s">
+        <h1>{{ service_config.title }}</h1>
+        <p>{{ service_config.description }}</p>
+        <div class="breadcrumb-nav">
+          <a href="{% url 'home' %}">Trang Chủ</a>
+          <span>/</span>
+          <strong>{{ service_config.title }}</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="specialized-section">
+  <div class="container">
+    <form class="local-search wow fadeInUp" method="get" action="{% url service_config.public_url_name %}">
+      <div class="input-group">
+        <input type="search" name="q" class="form-control" value="{{ query }}" placeholder="Tìm kiếm nội dung theo tiêu đề hoặc mô tả" aria-label="Tìm kiếm {{ service_config.title }}">
+        <button class="btn btn-primary" type="submit"><i class="fa fa-search"></i> Tìm</button>
+        {% if query %}
+          <a class="btn btn-outline-secondary" href="{% url service_config.public_url_name %}">Xóa</a>
+        {% endif %}
+      </div>
+      {% if query %}
+        <div class="local-search-note">Kết quả tìm kiếm cho "{{ query }}".</div>
+      {% endif %}
+    </form>
+
+    <div class="row">
+      {% for item in items %}
+        <div class="col-lg-4 col-md-6 mb-4 wow fadeInUp">
+          <a href="{% url service_config.detail_url_name item.id %}" style="text-decoration:none;color:inherit;">
+            <div class="specialized-card">
+              <div class="specialized-thumb">
+                {% if item.image %}
+                  <img src="{{ item.image.url }}" alt="{{ item.title }}">
+                {% else %}
+                  <div class="specialized-fallback"><i class="{{ service_config.icon }}"></i></div>
+                {% endif %}
+              </div>
+              <div class="specialized-body">
+                <h3 class="specialized-title">{{ item.title }}</h3>
+                <p class="specialized-summary">
+                  {% if item.summary %}{{ item.summary|truncatechars:130 }}{% else %}{{ item.content|truncatechars:130 }}{% endif %}
+                </p>
+                <div class="text-muted small">
+                  <i class="fa-regular fa-calendar"></i> {{ item.created_at|date:"d/m/Y" }}
+                </div>
+              </div>
+            </div>
+          </a>
+        </div>
+      {% empty %}
+        <div class="col-12">
+          <div class="text-center text-muted" style="padding:40px 0;">Chưa có nội dung nào.</div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{% endblock %}

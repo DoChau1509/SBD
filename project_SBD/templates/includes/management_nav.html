@@ -1,0 +1,79 @@
+<div class="management-nav dropup">
+  <button
+    class="management-nav-toggle dropdown-toggle"
+    type="button"
+    data-bs-toggle="dropdown"
+    data-bs-auto-close="outside"
+    aria-expanded="false"
+  >
+    <i class="fa-solid fa-table-cells-large"></i>
+    <span>Điều hướng quản trị</span>
+  </button>
+
+  <div class="dropdown-menu dropdown-menu-end management-nav-menu shadow-lg">
+    <div class="management-nav-header">
+      <div>
+        <strong>Quản lý nội dung</strong>
+        <small>Chọn nhanh trang cần thao tác</small>
+      </div>
+      <a href="{% url 'dashboard' %}" class="btn btn-sm btn-primary">Tổng quan</a>
+    </div>
+
+    <div class="management-nav-grid">
+      <div class="management-nav-group{% if management_group == 'projects' %} is-active{% endif %}">
+        <div class="management-nav-title"><i class="fa-solid fa-building"></i> Dự án</div>
+        <a href="{% url 'dashboard' %}"{% if management_url_name == 'dashboard' %} class="active"{% endif %}>Danh sách dự án</a>
+        <a href="{% url 'featured_project_list' %}"{% if management_url_name == 'featured_project_list' %} class="active"{% endif %}>Dự án nổi bật</a>
+        <a href="{% url 'project_category_list' %}"{% if management_url_name == 'project_category_list' %} class="active"{% endif %}>Danh mục dự án</a>
+      </div>
+
+      <div class="management-nav-group{% if management_group == 'products_posts' %} is-active{% endif %}">
+        <div class="management-nav-title"><i class="fa-solid fa-box-open"></i> Sản phẩm & bài viết</div>
+        <a href="{% url 'product_list' %}"{% if management_url_name == 'product_list' %} class="active"{% endif %}>Sản phẩm</a>
+        <a href="{% url 'product_category_list' %}"{% if management_url_name == 'product_category_list' %} class="active"{% endif %}>Danh mục sản phẩm</a>
+        <a href="{% url 'post_list' %}"{% if management_url_name == 'post_list' %} class="active"{% endif %}>Bài viết</a>
+        <a href="{% url 'post_category_list' %}"{% if management_url_name == 'post_category_list' %} class="active"{% endif %}>Danh mục bài viết</a>
+      </div>
+
+      <div class="management-nav-group{% if management_group == 'services' %} is-active{% endif %}">
+        <div class="management-nav-title"><i class="fa-solid fa-screwdriver-wrench"></i> Dịch vụ</div>
+        <a href="{% url 'service_list' %}"{% if management_url_name == 'service_list' %} class="active"{% endif %}>Dịch vụ trang chủ</a>
+        <a href="{% url 'service_type_list' %}"{% if management_url_name == 'service_type_list' %} class="active"{% endif %}>Loại dịch vụ</a>
+        <a href="{% url 'office_rental_list' %}"{% if management_url_name == 'office_rental_list' %} class="active"{% endif %}>Cho thuê văn phòng</a>
+        <a href="{% url 'education_space_design_list' %}"{% if management_url_name == 'education_space_design_list' %} class="active"{% endif %}>Không gian giáo dục</a>
+        <a href="{% url 'industrial_list' %}"{% if management_url_name == 'industrial_list' %} class="active"{% endif %}>Công nghiệp</a>
+        <a href="{% url 'civil_list' %}"{% if management_url_name == 'civil_list' %} class="active"{% endif %}>Dân dụng</a>
+        <a href="{% url 'energy_green_list' %}"{% if management_url_name == 'energy_green_list' %} class="active"{% endif %}>Năng lượng & công trình xanh</a>
+        <a href="{% url 'interior_commercial_list' %}"{% if management_url_name == 'interior_commercial_list' %} class="active"{% endif %}>Nội thất & thương mại</a>
+      </div>
+
+      <div class="management-nav-group{% if management_group == 'site_content' %} is-active{% endif %}">
+        <div class="management-nav-title"><i class="fa-solid fa-pen-ruler"></i> Nội dung website</div>
+        <a href="{% url 'hero_edit' %}"{% if management_url_name == 'hero_edit' %} class="active"{% endif %}>Hero / Trang chủ</a>
+        <a href="{% url 'why_choose_item_list' %}"{% if management_url_name == 'why_choose_item_list' %} class="active"{% endif %}>Tại sao chọn chúng tôi</a>
+        <a href="{% url 'partner_list' %}"{% if management_url_name == 'partner_list' %} class="active"{% endif %}>Đối tác</a>
+        <a href="{% url 'about_intro_edit' %}"{% if management_url_name == 'about_intro_edit' %} class="active"{% endif %}>Giới thiệu</a>
+        <a href="{% url 'statement_list' %}"{% if management_url_name == 'statement_list' %} class="active"{% endif %}>Tầm nhìn / Sứ mệnh</a>
+        <a href="{% url 'statement_type_list' %}"{% if management_url_name == 'statement_type_list' %} class="active"{% endif %}>Loại tầm nhìn</a>
+        <a href="{% url 'about_video_tour_edit' %}"{% if management_url_name == 'about_video_tour_edit' %} class="active"{% endif %}>Quy trình giới thiệu</a>
+        <a href="{% url 'leadership_list' %}"{% if management_url_name == 'leadership_list' %} class="active"{% endif %}>Ban lãnh đạo</a>
+        <a href="{% url 'certificate_list' %}"{% if management_url_name == 'certificate_list' %} class="active"{% endif %}>Chứng chỉ</a>
+      </div>
+
+      <div class="management-nav-group{% if management_group == 'contact' %} is-active{% endif %}">
+        <div class="management-nav-title"><i class="fa-solid fa-address-book"></i> Liên hệ</div>
+        <a href="{% url 'contact_info_list' %}"{% if management_url_name == 'contact_info_list' %} class="active"{% endif %}>Thông tin liên hệ</a>
+        <a href="{% url 'faq_list' %}"{% if management_url_name == 'faq_list' %} class="active"{% endif %}>Câu hỏi thường gặp</a>
+        <a href="{% url 'consultation_list' %}"{% if management_url_name == 'consultation_list' %} class="active"{% endif %}>Yêu cầu tư vấn</a>
+      </div>
+
+      {% if user.is_superuser %}
+      <div class="management-nav-group{% if management_group == 'system' %} is-active{% endif %}">
+        <div class="management-nav-title"><i class="fa-solid fa-gear"></i> Hệ thống</div>
+        <a href="{% url 'system_settings' %}"{% if management_url_name == 'system_settings' %} class="active"{% endif %}>Cài đặt hệ thống</a>
+        <a href="{% url 'staff_account_add' %}"{% if management_url_name == 'staff_account_add' %} class="active"{% endif %}>Tạo tài khoản staff</a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>

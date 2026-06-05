@@ -32,7 +32,7 @@
             <div>
               <h4 class="fw-bold mb-1">Logo thương hiệu</h4>
               <p class="text-muted mb-0">
-                Dùng ảnh cho logo chính, ảnh riêng cho loading và icon làm phương án dự phòng.
+                Quản lý logo chính, icon trình duyệt, ảnh loading và icon dự phòng.
               </p>
             </div>
           </div>
@@ -51,6 +51,38 @@
             {% endif %}
 
             <div class="row g-3">
+
+              <div class="col-12" id="favicon-settings" style="scroll-margin-top: 110px;">
+                <div class="rounded border border-primary-subtle bg-primary-subtle p-3">
+                  <div class="d-flex align-items-center gap-2 mb-2">
+                    <i class="fa-solid fa-window-maximize text-primary"></i>
+                    <label class="form-label fw-bold mb-0">Icon đầu trang / tab trình duyệt (favicon)</label>
+                  </div>
+
+                  {{ brand_form.favicon_image }}
+
+                  <div class="form-text">
+                    Đây là icon xuất hiện cạnh tiêu đề trên tab trình duyệt. Nên dùng ảnh vuông PNG, ICO, SVG hoặc WebP.
+                  </div>
+
+                  {% for error in brand_form.favicon_image.errors %}
+                  <div class="text-danger small mt-1">{{ error }}</div>
+                  {% endfor %}
+
+                  {% if brand_config.favicon_image %}
+                  <div class="mt-3 d-flex align-items-center gap-3">
+                    <div class="rounded border bg-white p-2 d-flex align-items-center justify-content-center" style="width: 72px; height: 72px;">
+                      <img
+                        src="{{ brand_config.favicon_image.url }}"
+                        alt="Icon trình duyệt {{ brand_config.brand_name }}"
+                        style="width: 52px; height: 52px; object-fit: contain;"
+                      >
+                    </div>
+                    <span class="small text-muted">Icon đang sử dụng trên tab trình duyệt</span>
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
 
               <div class="col-12 col-md-6">
                 <label class="form-label">Ảnh logo</label>
