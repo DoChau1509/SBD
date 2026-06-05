@@ -1,0 +1,19 @@
+<a href="{% url 'home' %}" class="d-inline-block mb-3" aria-label="{{ brand_settings.brand_name }}">
+  {% if brand_settings.has_preloader_image %}
+    <img
+      src="{{ brand_settings.preloader_image.url }}"
+      alt="{{ brand_settings.brand_name }}"
+      style="display:block; max-width:240px; width:auto; height:auto; max-height:88px; margin:0 auto; object-fit:contain;"
+    >
+  {% elif brand_settings.has_logo_image %}
+    <img
+      src="{{ brand_settings.logo_image.url }}"
+      alt="{{ brand_settings.brand_name }}"
+      style="display:block; max-width:220px; width:auto; height:auto; max-height:80px; margin:0 auto; object-fit:contain;"
+    >
+  {% else %}
+    <span style="width:64px;height:64px;border-radius:16px;margin:0 auto;display:flex;align-items:center;justify-content:center;background:rgba(201,150,62,0.12);border:1px solid rgba(201,150,62,0.35);color:var(--accent);font-size:25px;">
+      <i class="{{ brand_settings.icon_css_class }}" aria-hidden="true"></i>
+    </span>
+  {% endif %}
+</a>

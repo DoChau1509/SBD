@@ -428,3 +428,16 @@ class FaviconSettingsTests(TestCase):
             response,
             f'{reverse("system_settings")}#favicon-settings',
         )
+
+
+class AuthenticationLogoTests(TestCase):
+    def test_login_and_register_use_preloader_image(self):
+        config = SiteBrandSettings.get_solo()
+        config.preloader_image = "branding/preloader/auth-logo.png"
+        config.save()
+
+        expected_url = "/media/branding/preloader/auth-logo.png"
+        for url_name in ("login", "register"):
+            response = self.client.get(reverse(url_name))
+            self.assertEqual(response.status_code, 200)
+            self.assertContains(response, expected_url)
