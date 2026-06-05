@@ -446,7 +446,7 @@ class SiteBrandSettingsForm(forms.ModelForm):
             "favicon_image": forms.ClearableFileInput(
                 attrs={
                     "class": "form-control",
-                    "accept": "image/png,image/x-icon,image/vnd.microsoft.icon,image/svg+xml,image/webp",
+                    "accept": "image/png,image/jpeg,image/x-icon,image/vnd.microsoft.icon,image/svg+xml,image/webp",
                 }
             ),
             "logo_icon": forms.TextInput(
