@@ -9,11 +9,7 @@
     <input type="text" name="title" value="{{ item.title|default:'' }}" placeholder="Tiêu đề" class="form-control mb-2" required>
     <textarea name="summary" class="form-control mb-2" rows="3" placeholder="Mô tả ngắn">{{ item.summary|default:'' }}</textarea>
     <textarea name="content" class="form-control mb-2" rows="10" placeholder="Nội dung chi tiết" required>{{ item.content|default:'' }}</textarea>
-    <input type="file" name="image" class="form-control mb-2" accept="image/*">
-
-    {% if item.image %}
-      <img src="{{ item.image.url }}" width="140" alt="{{ item.title }}">
-    {% endif %}
+    {% include "includes/gallery_form_field.html" with instance=item %}
 
     <div class="d-flex justify-content-between align-items-center mt-3">
       <a href="{% url service_config.list_url_name %}" class="btn btn-secondary">Quay lại</a>

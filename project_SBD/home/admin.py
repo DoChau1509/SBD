@@ -19,6 +19,7 @@ from .models import (
     OfficeRental,
     EducationSpaceDesign,
     SpecializedServiceContent,
+    GalleryImage,
 )
 
 admin.site.register(ProjectCategory)
@@ -42,6 +43,7 @@ admin.site.register(PasswordOTP)
 admin.site.register(OfficeRental)
 admin.site.register(EducationSpaceDesign)
 admin.site.register(SpecializedServiceContent)
+admin.site.register(GalleryImage)
 
 
 @admin.register(Project)

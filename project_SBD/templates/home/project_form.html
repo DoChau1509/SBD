@@ -26,11 +26,7 @@
             {% endfor %}
         </select>
 
-        <input type="file" name="image" class="form-control mb-2">
-
-        {% if project.image %}
-            <img src="{{ project.image.url }}" width="120">
-        {% endif %}
+        {% include "includes/gallery_form_field.html" with instance=project %}
 
         <button class="btn btn-primary mt-2">Lưu</button>
 

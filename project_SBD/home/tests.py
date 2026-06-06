@@ -1,13 +1,16 @@
 from django.core import mail
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.contrib.auth import get_user_model
 from django.contrib.messages import get_messages
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from .models import (
     Consultation,
     EmailOTPSettings,
     PasswordOTP,
+    Product,
+    ProductCategory,
     SiteBrandSettings,
     SpecializedServiceContent,
 )
@@ -441,3 +444,172 @@ class AuthenticationLogoTests(TestCase):
             response = self.client.get(reverse(url_name))
             self.assertEqual(response.status_code, 200)
             self.assertContains(response, expected_url)
+
+
+@override_settings(
+    STORAGES={
+        "default": {
+            "BACKEND": "django.core.files.storage.memory.InMemoryStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+        },
+    }
+)
+class ContentGalleryTests(TestCase):
+    def setUp(self):
+        self.staff_user = User.objects.create_user(
+            username="gallery_staff",
+            password="StrongPass123!",
+            is_staff=True,
+        )
+        self.category = ProductCategory.objects.create(name="Thiết bị")
+        self.client.force_login(self.staff_user)
+
+    @staticmethod
+    def image_file(name):
+        return SimpleUploadedFile(name, b"test-image-content", content_type="image/jpeg")
+
+    def test_product_supports_multiple_images_and_gallery_deletion(self):
+        response = self.client.post(
+            reverse("product_add"),
+            {
+                "name": "Sản phẩm nhiều ảnh",
+                "description": "Mô tả",
+                "category": self.category.id,
+                "image_mode": "multiple",
+                "multiple_images": [
+                    self.image_file("cover.jpg"),
+                    self.image_file("detail-1.jpg"),
+                    self.image_file("detail-2.jpg"),
+                ],
+            },
+        )
+
+        self.assertRedirects(response, reverse("product_list"))
+        product = Product.objects.get(name="Sản phẩm nhiều ảnh")
+        self.assertTrue(product.image.name.endswith("cover.jpg"))
+        self.assertEqual(product.image_mode, "multiple")
+        self.assertEqual(product.gallery_images.count(), 2)
+
+        detail_response = self.client.get(reverse("product_detail", args=[product.id]))
+        self.assertContains(detail_response, "data-content-gallery")
+        self.assertContains(detail_response, "data-gallery-slide", count=3)
+        self.assertContains(detail_response, "data-lightbox-zoom-in")
+        self.assertContains(detail_response, "data-lightbox-fullscreen")
+
+        gallery_image = product.gallery_images.first()
+        response = self.client.post(
+            reverse("product_edit", args=[product.id]),
+            {
+                "name": product.name,
+                "description": product.description,
+                "category": self.category.id,
+                "image_mode": "multiple",
+                "delete_gallery_images": [gallery_image.id],
+            },
+        )
+
+        self.assertRedirects(response, reverse("product_list"))
+        self.assertEqual(product.gallery_images.count(), 1)
+
+    def test_single_image_mode_replaces_cover_but_preserves_gallery(self):
+        product = Product.objects.create(
+            name="Sản phẩm chuyển chế độ",
+            category=self.category,
+            image="products/cover.jpg",
+            image_mode="multiple",
+        )
+        product.gallery_images.create(image="galleries/product/detail.jpg")
+
+        response = self.client.post(
+            reverse("product_edit", args=[product.id]),
+            {
+                "name": product.name,
+                "description": "",
+                "category": self.category.id,
+                "image_mode": "single",
+                "single_image": self.image_file("new-cover.jpg"),
+            },
+        )
+
+        self.assertRedirects(response, reverse("product_list"))
+        product.refresh_from_db()
+        self.assertEqual(product.image_mode, "single")
+        self.assertTrue(product.image.name.endswith("new-cover.jpg"))
+        self.assertEqual(product.gallery_images.count(), 1)
+
+    def test_editing_multiple_images_appends_files_and_can_select_cover(self):
+        product = Product.objects.create(
+            name="Sản phẩm bổ sung ảnh",
+            category=self.category,
+            image="products/original-cover.jpg",
+            image_mode="multiple",
+        )
+        existing_gallery = product.gallery_images.create(
+            image="galleries/product/existing.jpg"
+        )
+
+        response = self.client.post(
+            reverse("product_edit", args=[product.id]),
+            {
+                "name": product.name,
+                "description": "",
+                "category": self.category.id,
+                "image_mode": "multiple",
+                "cover_image": "primary",
+                "multiple_images": [
+                    self.image_file("added-1.jpg"),
+                    self.image_file("added-2.jpg"),
+                ],
+            },
+        )
+
+        self.assertRedirects(response, reverse("product_list"))
+        product.refresh_from_db()
+        self.assertTrue(product.image.name.endswith("original-cover.jpg"))
+        self.assertEqual(product.gallery_images.count(), 3)
+
+        response = self.client.post(
+            reverse("product_edit", args=[product.id]),
+            {
+                "name": product.name,
+                "description": "",
+                "category": self.category.id,
+                "image_mode": "multiple",
+                "cover_image": f"gallery:{existing_gallery.id}",
+            },
+        )
+
+        self.assertRedirects(response, reverse("product_list"))
+        product.refresh_from_db()
+        existing_gallery.refresh_from_db()
+        self.assertTrue(product.image.name.endswith("existing.jpg"))
+        self.assertTrue(existing_gallery.image.name.endswith("original-cover.jpg"))
+        self.assertEqual(product.gallery_images.count(), 3)
+
+    def test_product_form_displays_and_selects_category(self):
+        add_response = self.client.get(reverse("product_add"))
+        self.assertContains(add_response, 'name="multiple_images"')
+        self.assertContains(add_response, "multiple")
+        self.assertContains(
+            add_response,
+            f'<option value="{self.category.id}">{self.category.name}</option>',
+            html=True,
+        )
+
+        product = Product.objects.create(
+            name="Sản phẩm có danh mục",
+            category=self.category,
+            image="products/form-cover.jpg",
+        )
+        edit_response = self.client.get(reverse("product_edit", args=[product.id]))
+        self.assertContains(edit_response, 'name="cover_image"')
+        self.assertContains(
+            edit_response,
+            (
+                f'<option value="{self.category.id}" selected>'
+                f"{self.category.name}</option>"
+            ),
+            html=True,
+        )

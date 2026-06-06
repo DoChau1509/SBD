@@ -1,8 +1,17 @@
 from django.db import models
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.contrib.contenttypes.models import ContentType
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
 from urllib.parse import quote_plus, urlparse, parse_qs
 from django.contrib.auth.models import User
 from django.utils.text import slugify
 from django.utils import timezone
+
+IMAGE_MODE_CHOICES = [
+    ("single", "Dùng 1 ảnh"),
+    ("multiple", "Dùng nhiều ảnh"),
+]
 
 
 class ProjectCategory(models.Model):
@@ -74,12 +83,48 @@ class ManagedMediaCleanupModel(models.Model):
         return result
 
 
+def gallery_upload_path(instance, filename):
+    model_name = instance.content_type.model if instance.content_type_id else "content"
+    return f"galleries/{model_name}/{filename}"
+
+
+class GalleryImage(ManagedMediaCleanupModel):
+    managed_file_fields = ("image",)
+
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveBigIntegerField()
+    content_object = GenericForeignKey("content_type", "object_id")
+    image = models.ImageField(upload_to=gallery_upload_path, verbose_name="Ảnh")
+    alt_text = models.CharField(max_length=255, blank=True, default="")
+    order = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["order", "id"]
+        indexes = [
+            models.Index(fields=["content_type", "object_id"]),
+        ]
+        verbose_name = "Ảnh thư viện"
+        verbose_name_plural = "Ảnh thư viện"
+
+    def __str__(self):
+        return self.alt_text or self.image.name
+
+
+@receiver(post_delete, sender=GalleryImage)
+def delete_gallery_file(sender, instance, **kwargs):
+    if instance.image and instance.image.name:
+        instance.image.storage.delete(instance.image.name)
+
+
 class Project(ManagedMediaCleanupModel):
     managed_file_fields = ("image",)
+    gallery_images = GenericRelation(GalleryImage)
 
     name = models.CharField(max_length=200)
     description = models.TextField()
     image = models.ImageField(upload_to="projects/")
+    image_mode = models.CharField(max_length=10, choices=IMAGE_MODE_CHOICES, default="single")
     created_at = models.DateTimeField(auto_now_add=True)
     category = models.ForeignKey(
         ProjectCategory,
@@ -93,10 +138,12 @@ class Project(ManagedMediaCleanupModel):
 
 class Product(ManagedMediaCleanupModel):
     managed_file_fields = ("image",)
+    gallery_images = GenericRelation(GalleryImage)
 
     name = models.CharField(max_length=200)
     description = models.TextField(blank=True)
     image = models.ImageField(upload_to="products/", blank=True, null=True)
+    image_mode = models.CharField(max_length=10, choices=IMAGE_MODE_CHOICES, default="single")
 
     supplier_name = models.CharField(
         max_length=200,
@@ -164,11 +211,13 @@ class PostCategory(models.Model):
 
 class Post(ManagedMediaCleanupModel):
     managed_file_fields = ("image",)
+    gallery_images = GenericRelation(GalleryImage)
 
     title = models.CharField(max_length=200)
     summary = models.TextField(blank=True)
     content = models.TextField()
     image = models.ImageField(upload_to="posts/", blank=True, null=True)
+    image_mode = models.CharField(max_length=10, choices=IMAGE_MODE_CHOICES, default="single")
     created_at = models.DateTimeField(auto_now_add=True)
     category = models.ForeignKey(
         PostCategory,
@@ -1140,6 +1189,7 @@ class SiteBrandSettings(ManagedMediaCleanupModel):
 
 class OfficeRental(ManagedMediaCleanupModel):
     managed_file_fields = ("image",)
+    gallery_images = GenericRelation(GalleryImage)
 
     title = models.CharField(max_length=200, verbose_name="Tên văn phòng")
     summary = models.TextField(blank=True, verbose_name="Mô tả ngắn")
@@ -1150,6 +1200,7 @@ class OfficeRental(ManagedMediaCleanupModel):
         null=True,
         verbose_name="Ảnh văn phòng",
     )
+    image_mode = models.CharField(max_length=10, choices=IMAGE_MODE_CHOICES, default="single")
     area = models.DecimalField(
         max_digits=10,
         decimal_places=2,
@@ -1173,6 +1224,7 @@ class OfficeRental(ManagedMediaCleanupModel):
 
 class EducationSpaceDesign(ManagedMediaCleanupModel):
     managed_file_fields = ("image",)
+    gallery_images = GenericRelation(GalleryImage)
 
     title = models.CharField(max_length=200, verbose_name="Tiêu đề")
     summary = models.TextField(blank=True, verbose_name="Mô tả ngắn")
@@ -1183,6 +1235,7 @@ class EducationSpaceDesign(ManagedMediaCleanupModel):
         null=True,
         verbose_name="Ảnh minh họa",
     )
+    image_mode = models.CharField(max_length=10, choices=IMAGE_MODE_CHOICES, default="single")
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -1208,6 +1261,7 @@ class SpecializedServiceContent(ManagedMediaCleanupModel):
     ]
 
     managed_file_fields = ("image",)
+    gallery_images = GenericRelation(GalleryImage)
 
     sector = models.CharField(
         max_length=30,
@@ -1224,6 +1278,7 @@ class SpecializedServiceContent(ManagedMediaCleanupModel):
         null=True,
         verbose_name="Ảnh minh họa",
     )
+    image_mode = models.CharField(max_length=10, choices=IMAGE_MODE_CHOICES, default="single")
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

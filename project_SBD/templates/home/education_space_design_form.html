@@ -13,11 +13,7 @@
 
     <textarea name="content" class="form-control mb-2" rows="10" placeholder="Nội dung chi tiết" required>{{ education_space_design.content|default:'' }}</textarea>
 
-    <input type="file" name="image" class="form-control mb-2">
-
-    {% if education_space_design.image %}
-      <img src="{{ education_space_design.image.url }}" width="140" alt="{{ education_space_design.title }}">
-    {% endif %}
+    {% include "includes/gallery_form_field.html" with instance=education_space_design %}
 
     <div class="d-flex justify-content-between align-items-center mt-3">
       <a href="{% url 'education_space_design_list' %}" class="btn btn-secondary">Quay lại</a>

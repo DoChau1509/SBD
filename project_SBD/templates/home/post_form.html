@@ -34,11 +34,7 @@
             {% endfor %}
         </select>
 
-        <input type="file" name="image" class="form-control mb-2">
-
-        {% if post.image %}
-            <img src="{{ post.image.url }}" width="140" alt="{{ post.title }}">
-        {% endif %}
+        {% include "includes/gallery_form_field.html" with instance=post %}
 
         <div class="d-flex justify-content-between align-items-center mt-2">
             <a href="{% url 'post_list' %}" class="btn btn-secondary">Quay lại</a>

@@ -39,7 +39,7 @@
         <div class="management-nav-title"><i class="fa-solid fa-screwdriver-wrench"></i> Dịch vụ</div>
         <a href="{% url 'service_list' %}"{% if management_url_name == 'service_list' %} class="active"{% endif %}>Dịch vụ trang chủ</a>
         <a href="{% url 'service_type_list' %}"{% if management_url_name == 'service_type_list' %} class="active"{% endif %}>Loại dịch vụ</a>
-        <a href="{% url 'office_rental_list' %}"{% if management_url_name == 'office_rental_list' %} class="active"{% endif %}>Cho thuê văn phòng</a>
+        {% comment %} <a href="{% url 'office_rental_list' %}"{% if management_url_name == 'office_rental_list' %} class="active"{% endif %}>Cho thuê văn phòng</a> {% endcomment %}
         <a href="{% url 'education_space_design_list' %}"{% if management_url_name == 'education_space_design_list' %} class="active"{% endif %}>Không gian giáo dục</a>
         <a href="{% url 'industrial_list' %}"{% if management_url_name == 'industrial_list' %} class="active"{% endif %}>Công nghiệp</a>
         <a href="{% url 'civil_list' %}"{% if management_url_name == 'civil_list' %} class="active"{% endif %}>Dân dụng</a>

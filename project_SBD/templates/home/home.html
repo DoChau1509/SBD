@@ -106,20 +106,21 @@
       {% for project in projects %}
       <div class="col-lg-4 col-md-6 mb-4">
         <div class="project-card wow fadeInUp">
-          <div class="project-thumb">
-            {% if project.image %}
-            <img src="{{ project.image.url }}" alt="{{ project.name }}" />
-            {% else %}
-            <i class="fa fa-building-o" aria-hidden="true"></i>
-            {% endif %}
-          </div>
-
-          <div class="project-overlay">
-            <span class="tag">{{ project.category.name }}</span>
-            <h4>{{ project.name }}</h4>
-            <p>{{ project.created_at|date:"Y" }}</p>
-          </div>
-        </div>
+          <a href="{% url 'project_detail' project.id %}" aria-label="Xem chi tiết {{ project.name }}">
+            <div class="project-thumb">
+              {% if project.image %}
+              <img src="{{ project.image.url }}" alt="{{ project.name }}" />
+              {% else %}
+              <i class="fa fa-building-o" aria-hidden="true"></i>
+              {% endif %}
+            </div>
+            <div class="project-overlay">
+                <span class="tag">{{ project.category.name }}</span>
+                <h4>{{ project.name }}</h4>
+                <p>{{ project.created_at|date:"Y" }}</p>
+            </div>
+            </div>
+          </a>
       </div>
       {% empty %}
       <div class="col-12 text-center text-muted">

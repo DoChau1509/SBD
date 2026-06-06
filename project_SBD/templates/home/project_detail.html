@@ -68,13 +68,7 @@
 		<div class="row justify-content-center">
 			<div class="col-lg-10">
 				<div class="detail-card">
-					<div class="detail-hero">
-						{% if project.image %}
-							<img src="{{ project.image.url }}" alt="{{ project.name }}">
-						{% else %}
-							<div class="fallback" aria-hidden="true"><i class="fa fa-building-o"></i></div>
-						{% endif %}
-					</div>
+					{% include "includes/content_gallery.html" with instance=project title=project.name fallback_icon="fa-regular fa-building" %}
 					<div class="detail-body">
 						<div class="badge-cat">{{ project.category.name }}</div>
 						<h2 class="detail-title">{{ project.name }}</h2>

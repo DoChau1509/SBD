@@ -1,0 +1,103 @@
+<div class="mb-3">
+  <div class="form-label fw-semibold">Cách hiển thị ảnh</div>
+  <div class="gallery-mode-options" data-gallery-mode-options>
+    <label class="gallery-mode-option">
+      <input
+        type="radio"
+        name="image_mode"
+        value="single"
+        {% if not instance or instance.image_mode == "single" %}checked{% endif %}
+      >
+      <span>
+        <strong>Dùng 1 ảnh</strong>
+        <small>Chỉ hiển thị một ảnh đại diện.</small>
+      </span>
+    </label>
+    <label class="gallery-mode-option">
+      <input
+        type="radio"
+        name="image_mode"
+        value="multiple"
+        {% if instance and instance.image_mode == "multiple" %}checked{% endif %}
+      >
+      <span>
+        <strong>Dùng nhiều ảnh</strong>
+        <small>Hiển thị ảnh đại diện và carousel tương tác.</small>
+      </span>
+    </label>
+  </div>
+</div>
+
+<div class="mb-3" data-gallery-single-upload>
+  <label class="form-label fw-semibold" for="content-image-single">Ảnh đại diện</label>
+  <input
+    id="content-image-single"
+    type="file"
+    name="single_image"
+    class="form-control"
+    accept="image/*"
+    data-gallery-single-input
+  >
+  <small class="text-muted">
+    Chọn đúng một ảnh để hiển thị.
+  </small>
+</div>
+
+<div class="mb-3" data-gallery-multiple-upload>
+  <label class="form-label fw-semibold" for="content-images-multiple">
+    Ảnh đại diện và ảnh carousel
+  </label>
+  <input
+    id="content-images-multiple"
+    type="file"
+    name="multiple_images"
+    class="form-control"
+    accept="image/*"
+    multiple
+    data-gallery-multiple-input
+  >
+  <small class="text-muted d-block">
+    Chọn nhiều ảnh trong cùng một lần. Khi chỉnh sửa, ảnh mới sẽ được nối thêm vào bộ ảnh hiện có.
+  </small>
+  <div class="gallery-selected-files mt-2" data-gallery-selected-files hidden></div>
+</div>
+
+{% if instance and instance.image %}
+  <div class="mb-3">
+    <div class="small fw-semibold mb-2">Chọn ảnh đại diện</div>
+    <div class="gallery-form-grid">
+      <div class="gallery-form-item gallery-form-item-cover">
+        <img src="{{ instance.image.url }}" alt="">
+        <label class="gallery-form-action">
+          <input type="radio" name="cover_image" value="primary" checked>
+          Ảnh đại diện hiện tại
+        </label>
+      </div>
+      {% for gallery_image in instance.gallery_images.all %}
+        <div class="gallery-form-item">
+          <img src="{{ gallery_image.image.url }}" alt="{{ gallery_image.alt_text }}">
+          <label class="gallery-form-action">
+            <input type="radio" name="cover_image" value="gallery:{{ gallery_image.id }}">
+            Đặt làm ảnh đại diện
+          </label>
+          <label class="gallery-form-action gallery-form-delete">
+            <input type="checkbox" name="delete_gallery_images" value="{{ gallery_image.id }}">
+            Xóa ảnh này
+          </label>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+{% endif %}
+
+{% if instance %}
+  {% with gallery_images=instance.gallery_images.all %}
+    {% if gallery_images %}
+      <div class="mb-3" data-existing-gallery>
+        <small class="text-muted">
+          Chỉ những ảnh được đánh dấu “Xóa ảnh này” mới bị xóa khi lưu.
+        </small>
+      </div>
+    {% endif %}
+  {% endwith %}
+{% endif %}

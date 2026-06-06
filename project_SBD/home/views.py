@@ -66,6 +66,95 @@ User = get_user_model()
 
 CONSULTATION_PROJECT_TYPES = Consultation.PROJECT_TYPE_CHOICES
 
+
+def _content_image_files(request):
+    if _image_mode(request) == "multiple":
+        return (
+            request.FILES.getlist("multiple_images")
+            or request.FILES.getlist("images")
+            or request.FILES.getlist("image")
+        )
+
+    single_image = request.FILES.get("single_image")
+    if single_image:
+        return [single_image]
+    return request.FILES.getlist("images") or request.FILES.getlist("image")
+
+
+def _image_mode(request):
+    return "multiple" if request.POST.get("image_mode") == "multiple" else "single"
+
+
+def _selected_content_images(request):
+    files = _content_image_files(request)
+    return files if _image_mode(request) == "multiple" else files[:1]
+
+
+def _add_gallery_images(instance, files):
+    last_image = instance.gallery_images.order_by("-order", "-id").first()
+    next_order = (last_image.order + 1) if last_image else 0
+    alt_text = getattr(instance, "title", None) or getattr(instance, "name", "")
+
+    for offset, image_file in enumerate(files):
+        instance.gallery_images.create(
+            image=image_file,
+            alt_text=alt_text,
+            order=next_order + offset,
+        )
+
+
+def _select_cover_image(instance, request):
+    cover_value = request.POST.get("cover_image", "primary")
+    if not cover_value.startswith("gallery:"):
+        return
+
+    gallery_id = cover_value.partition(":")[2]
+    if not gallery_id.isdigit() or not instance.image:
+        return
+
+    selected_image = instance.gallery_images.filter(id=gallery_id).first()
+    if not selected_image:
+        return
+
+    primary_name = instance.image.name
+    selected_name = selected_image.image.name
+    type(instance).objects.filter(pk=instance.pk).update(image=selected_name)
+    type(selected_image).objects.filter(pk=selected_image.pk).update(image=primary_name)
+    instance.image.name = selected_name
+
+
+def _update_content_images(instance, request):
+    image_mode = _image_mode(request)
+    instance.image_mode = image_mode
+    instance.save(update_fields=["image_mode"])
+
+    _select_cover_image(instance, request)
+
+    selected_ids = [
+        image_id
+        for image_id in request.POST.getlist("delete_gallery_images")
+        if image_id.isdigit()
+    ]
+    if selected_ids:
+        for gallery_image in instance.gallery_images.filter(id__in=selected_ids):
+            gallery_image.delete()
+
+    files = _selected_content_images(request)
+    if not files:
+        return
+
+    if image_mode == "multiple":
+        if instance.image:
+            _add_gallery_images(instance, files)
+        else:
+            instance.image = files[0]
+            instance.save()
+            _add_gallery_images(instance, files[1:])
+        return
+
+    instance.image = files[0]
+    instance.save()
+
 CONSULTATION_BUDGET_CHOICES = [
     "Dưới 1 tỷ VNĐ",
     "1 – 5 tỷ VNĐ",
@@ -983,12 +1072,15 @@ def project_create(request):
         if category is None:
             category = _get_default_project_category()
 
-        Project.objects.create(
+        files = _selected_content_images(request)
+        project_item = Project.objects.create(
             name=request.POST.get("name"),
             description=request.POST.get("description"),
-            image=request.FILES.get("image"),
+            image=files[0] if files else None,
+            image_mode=_image_mode(request),
             category=category,
         )
+        _add_gallery_images(project_item, files[1:])
         return redirect("dashboard")
 
     return render(request, "home/project_form.html", {"categories": categories})
@@ -1009,9 +1101,8 @@ def project_update(request, id):
             if category is not None:
                 project.category = category
 
-        if "image" in request.FILES:
-            project.image = request.FILES["image"]
         project.save()
+        _update_content_images(project, request)
         return redirect("dashboard")
 
     return render(
@@ -1510,10 +1601,12 @@ def product_create(request):
         if category is None:
             category = _get_default_product_category()
 
-        Product.objects.create(
+        files = _selected_content_images(request)
+        product_item = Product.objects.create(
             name=request.POST.get("name"),
             description=request.POST.get("description", ""),
-            image=request.FILES.get("image"),
+            image=files[0] if files else None,
+            image_mode=_image_mode(request),
             supplier_name=request.POST.get("supplier_name", "").strip(),
             supplier_address=request.POST.get("supplier_address", "").strip(),
             supplier_map_embed_url=request.POST.get(
@@ -1521,6 +1614,7 @@ def product_create(request):
             ).strip(),
             category=category,
         )
+        _add_gallery_images(product_item, files[1:])
         return redirect("product_list")
 
     return render(request, "home/product_form.html", {"categories": categories})
@@ -1529,7 +1623,9 @@ def product_create(request):
 @staff_required
 def product_update(request, id):
     product = get_object_or_404(Product, id=id)
-    categories = ProductCategory.objects.filter(is_hidden=False).order_by("name")
+    categories = ProductCategory.objects.filter(
+        Q(is_hidden=False) | Q(id=product.category_id)
+    ).order_by("name")
 
     if request.method == "POST":
         # product.name = request.POST.get("name")
@@ -1548,10 +1644,8 @@ def product_update(request, id):
             if category is not None:
                 product.category = category
 
-        if "image" in request.FILES:
-            product.image = request.FILES["image"]
-
         product.save()
+        _update_content_images(product, request)
         return redirect("product_list")
 
     return render(
@@ -1687,13 +1781,16 @@ def post_create(request):
         if category is None:
             category = _get_default_post_category()
 
-        Post.objects.create(
+        files = _selected_content_images(request)
+        post_item = Post.objects.create(
             title=request.POST.get("title"),
             summary=request.POST.get("summary", ""),
             content=request.POST.get("content"),
-            image=request.FILES.get("image"),
+            image=files[0] if files else None,
+            image_mode=_image_mode(request),
             category=category,
         )
+        _add_gallery_images(post_item, files[1:])
         return redirect("post_list")
 
     return render(request, "home/post_form.html", {"categories": categories})
@@ -1715,10 +1812,8 @@ def post_update(request, id):
             if category is not None:
                 post.category = category
 
-        if "image" in request.FILES:
-            post.image = request.FILES["image"]
-
         post.save()
+        _update_content_images(post, request)
         return redirect("post_list")
 
     return render(
@@ -1748,14 +1843,17 @@ def office_rental_list(request):
 @staff_required
 def office_rental_create(request):
     if request.method == "POST":
-        OfficeRental.objects.create(
+        files = _selected_content_images(request)
+        office_rental = OfficeRental.objects.create(
             title=request.POST.get("title"),
             summary=request.POST.get("summary", ""),
             content=request.POST.get("content"),
-            image=request.FILES.get("image"),
+            image=files[0] if files else None,
+            image_mode=_image_mode(request),
             area=request.POST.get("area") or 0,
             rent_price=request.POST.get("rent_price") or 0,
         )
+        _add_gallery_images(office_rental, files[1:])
         return redirect("office_rental_list")
 
     return render(request, "home/office_rental_form.html")
@@ -1772,10 +1870,8 @@ def office_rental_update(request, id):
         office_rental.area = request.POST.get("area") or 0
         office_rental.rent_price = request.POST.get("rent_price") or 0
 
-        if "image" in request.FILES:
-            office_rental.image = request.FILES["image"]
-
         office_rental.save()
+        _update_content_images(office_rental, request)
         return redirect("office_rental_list")
 
     return render(
@@ -1805,12 +1901,15 @@ def education_space_design_list(request):
 @staff_required
 def education_space_design_create(request):
     if request.method == "POST":
-        EducationSpaceDesign.objects.create(
+        files = _selected_content_images(request)
+        education_space_design = EducationSpaceDesign.objects.create(
             title=request.POST.get("title"),
             summary=request.POST.get("summary", ""),
             content=request.POST.get("content"),
-            image=request.FILES.get("image"),
+            image=files[0] if files else None,
+            image_mode=_image_mode(request),
         )
+        _add_gallery_images(education_space_design, files[1:])
         return redirect("education_space_design_list")
 
     return render(request, "home/education_space_design_form.html")
@@ -1825,10 +1924,8 @@ def education_space_design_update(request, id):
         education_space_design.summary = request.POST.get("summary", "")
         education_space_design.content = request.POST.get("content")
 
-        if "image" in request.FILES:
-            education_space_design.image = request.FILES["image"]
-
         education_space_design.save()
+        _update_content_images(education_space_design, request)
         return redirect("education_space_design_list")
 
     return render(
@@ -1865,13 +1962,16 @@ def specialized_service_create(request, sector):
     config = _get_specialized_service_config(sector)
 
     if request.method == "POST":
-        SpecializedServiceContent.objects.create(
+        files = _selected_content_images(request)
+        item = SpecializedServiceContent.objects.create(
             sector=sector,
             title=request.POST.get("title"),
             summary=request.POST.get("summary", ""),
             content=request.POST.get("content"),
-            image=request.FILES.get("image"),
+            image=files[0] if files else None,
+            image_mode=_image_mode(request),
         )
+        _add_gallery_images(item, files[1:])
         return redirect(config["list_url_name"])
 
     return render(
@@ -1891,10 +1991,8 @@ def specialized_service_update(request, id, sector):
         item.summary = request.POST.get("summary", "")
         item.content = request.POST.get("content")
 
-        if "image" in request.FILES:
-            item.image = request.FILES["image"]
-
         item.save()
+        _update_content_images(item, request)
         return redirect(config["list_url_name"])
 
     return render(

@@ -33,7 +33,7 @@
       href="{% static 'vendor/animate/animate.min.css' %}"
     />
     <!-- Main Style -->
-    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=20260606-gallery4" />
     <link rel="stylesheet" href="{% static 'css/home.css' %}" />
     <link rel="stylesheet" href="{% static 'css/about.css' %}" />
     <link rel="stylesheet" href="{% static 'css/contact.css' %}" />
@@ -191,11 +191,11 @@
                   aria-expanded="false"
                 >Dịch vụ</a>
                 <ul class="dropdown-menu shadow-sm">
-                  <li>
+                  {% comment %} <li>
                     <a class="dropdown-item" href="{% url 'office_rental' %}">
                       Cho thuê văn phòng
                     </a>
-                  </li>
+                  </li> {% endcomment %}
                   <li>
                     <a class="dropdown-item" href="{% url 'education_space_design' %}">
                       Thiết kế không gian giáo dục
@@ -396,11 +396,11 @@
             <li><a href="{% url 'project' %}" class="nav-link">Dự Án</a></li>
             <li><a href="{% url 'product' %}" class="nav-link">Sản phẩm</a></li>
             <li class="mt-2 mb-1 fw-semibold text-uppercase text-muted small">Dịch vụ</li>
-            <li>
+            {% comment %} <li>
               <a href="{% url 'office_rental' %}" class="nav-link">
                 Cho thuê văn phòng
               </a>
-            </li>
+            </li> {% endcomment %}
             <li>
               <a href="{% url 'education_space_design' %}" class="nav-link">
                 Thiết kế không gian giáo dục
@@ -609,7 +609,7 @@
               <li><a href="{% url 'about' %}">Giới Thiệu</a></li>
               <li><a href="{% url 'project' %}">Dự Án</a></li>
               <li><a href="{% url 'product' %}">Sản phẩm</a></li>
-              <li><a href="{% url 'office_rental' %}">Cho thuê văn phòng</a></li>
+              {% comment %} <li><a href="{% url 'office_rental' %}">Cho thuê văn phòng</a></li> {% endcomment %}
               <li><a href="{% url 'education_space_design' %}">Thiết kế không gian giáo dục</a></li>
               <li><a href="{% url 'industrial' %}">Công nghiệp</a></li>
               <li><a href="{% url 'civil' %}">Dân dụng</a></li>
@@ -624,11 +624,11 @@
           <div class="col-lg-3 col-md-6">
             <div class="footer-heading">Dịch Vụ</div>
             <ul class="footer-links">
-              <li>
+              {% comment %} <li>
                 <a class="dropdown-item" href="{% url 'office_rental' %}">
                   Cho thuê văn phòng
                 </a>
-              </li>
+              </li> {% endcomment %}
               <li>
                 <a class="dropdown-item" href="{% url 'education_space_design' %}">
                   Thiết kế không gian giáo dục
@@ -684,7 +684,7 @@
     <!-- JavaScript -->
     <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
     <script src="{% static 'vendor/wow/wow.min.js' %}"></script>
-    <script src="{% static 'js/scripts.js' %}"></script>
+    <script src="{% static 'js/scripts.js' %}?v=20260606-gallery4"></script>
     <script>
       (function () {
         function hidePreloader() {

@@ -57,42 +57,15 @@
         -- Chọn danh mục --
       </option>
       {% for c in categories %}
-      <!-- <option
-        value="{{ c.id }}"
-        {%
-        if
-        product
-        and
-        product.category_id=""
-        ="c.id"
-        %}selected{%
-        endif
-        %}
-      >
-        {{ c.name }}
-      </option> -->
-      <option
-        value="{{ c.id }}"
-        {%
-        if
-        product
-        and
-        product.category_id=""
-        ="c.id"
-        %}selected{%
-        endif
-        %}
-      >
+      <option value="{{ c.id }}" {% if product and product.category_id == c.id %}selected{% endif %}>
         {{ c.name }}
       </option>
+      {% empty %}
+      <option value="" disabled>Chưa có danh mục sản phẩm</option>
       {% endfor %}
     </select>
 
-    <input type="file" name="image" class="form-control mb-2" />
-
-    {% if product.image %}
-    <img src="{{ product.image.url }}" width="120" alt="{{ product.name }}" />
-    {% endif %}
+    {% include "includes/gallery_form_field.html" with instance=product %}
 
     <div class="d-flex justify-content-between align-items-center mt-3">
       <a href="{% url 'product_list' %}" class="btn btn-secondary">Quay lại</a>
