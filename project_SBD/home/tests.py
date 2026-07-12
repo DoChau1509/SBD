@@ -12,6 +12,8 @@ from .models import (
     Product,
     ProductCategory,
     SiteBrandSettings,
+    StaffLoginActivity,
+    StaffLoginActivityAccess,
     SpecializedServiceContent,
 )
 
@@ -137,6 +139,7 @@ class StaffAccountManagementTests(TestCase):
                 "last_name": "Nhan Su",
                 "email": "newstaff@example.com",
                 "is_active": "on",
+                "can_view_login_activity": "on",
                 "password1": "StrongPass123!",
                 "password2": "StrongPass123!",
             },
@@ -147,6 +150,9 @@ class StaffAccountManagementTests(TestCase):
         self.assertTrue(created_user.is_staff)
         self.assertFalse(created_user.is_superuser)
         self.assertTrue(created_user.is_active)
+        self.assertTrue(
+            StaffLoginActivityAccess.objects.filter(user=created_user).exists()
+        )
         self.assertContains(response, "Đã tạo tài khoản staff mới.")
 
     def test_staff_user_cannot_access_staff_account_management(self):
@@ -157,6 +163,72 @@ class StaffAccountManagementTests(TestCase):
         self.assertRedirects(response, reverse("dashboard"))
         messages = [message.message for message in get_messages(response.wsgi_request)]
         self.assertIn("Chỉ quản trị viên mới có quyền quản lý tài khoản.", messages)
+
+
+class StaffLoginActivityTests(TestCase):
+    def setUp(self):
+        self.admin_user = User.objects.create_superuser(
+            username="activity_admin",
+            password="StrongPass123!",
+            email="activity_admin@example.com",
+        )
+        self.staff_user = User.objects.create_user(
+            username="activity_staff",
+            password="StrongPass123!",
+            email="activity_staff@example.com",
+            is_staff=True,
+        )
+
+    def test_staff_login_and_logout_are_recorded(self):
+        response = self.client.post(
+            reverse("login"),
+            {
+                "username": "activity_staff",
+                "password": "StrongPass123!",
+            },
+            follow=True,
+            HTTP_USER_AGENT=(
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                "AppleWebKit/537.36 Chrome/125.0 Safari/537.36"
+            ),
+        )
+
+        self.assertTrue(response.wsgi_request.user.is_authenticated)
+        activity = StaffLoginActivity.objects.get(user=self.staff_user)
+        self.assertEqual(activity.status, StaffLoginActivity.STATUS_ACTIVE)
+        self.assertIn("Chrome", activity.device_label)
+        self.assertIn("Windows", activity.device_label)
+
+        self.client.post(reverse("logout"))
+
+        activity.refresh_from_db()
+        self.assertEqual(activity.status, StaffLoginActivity.STATUS_LOGGED_OUT)
+        self.assertIsNotNone(activity.logout_at)
+
+    def test_admin_and_designated_staff_can_view_login_activity(self):
+        response = self.client.get(reverse("staff_login_activity"))
+        self.assertRedirects(
+            response,
+            f"/login/?next={reverse('staff_login_activity')}",
+        )
+
+        self.client.force_login(self.staff_user)
+        response = self.client.get(reverse("staff_login_activity"), follow=True)
+        self.assertRedirects(response, reverse("dashboard"))
+        messages = [message.message for message in get_messages(response.wsgi_request)]
+        self.assertIn(
+            "Bạn không có quyền xem lịch sử đăng nhập staff/admin.",
+            messages,
+        )
+
+        StaffLoginActivityAccess.objects.create(user=self.staff_user)
+        response = self.client.get(reverse("staff_login_activity"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Lịch sử đăng nhập staff/admin")
+
+        self.client.force_login(self.admin_user)
+        response = self.client.get(reverse("staff_login_activity"))
+        self.assertEqual(response.status_code, 200)
 
 
 class PasswordOTPFlowTests(TestCase):

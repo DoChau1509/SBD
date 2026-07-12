@@ -16,6 +16,9 @@ from .models import (
     SiteBrandSettings,
     EmailOTPSettings,
     PasswordOTP,
+    StaffDevice,
+    StaffLoginActivity,
+    StaffLoginActivityAccess,
     OfficeRental,
     EducationSpaceDesign,
     SpecializedServiceContent,
@@ -40,6 +43,9 @@ admin.site.register(Partner)
 admin.site.register(SiteBrandSettings)
 admin.site.register(EmailOTPSettings)
 admin.site.register(PasswordOTP)
+admin.site.register(StaffDevice)
+admin.site.register(StaffLoginActivity)
+admin.site.register(StaffLoginActivityAccess)
 admin.site.register(OfficeRental)
 admin.site.register(EducationSpaceDesign)
 admin.site.register(SpecializedServiceContent)

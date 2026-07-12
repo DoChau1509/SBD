@@ -307,6 +307,14 @@
                   </li>
                   {% endif %}
 
+                  {% if can_view_staff_login_activity %}
+                  <li>
+                    <a class="dropdown-item" href="{% url 'staff_login_activity' %}">
+                      <i class="fa fa-clock-rotate-left me-2"></i> Lịch sử đăng nhập
+                    </a>
+                  </li>
+                  {% endif %}
+
                   <li>
                     <a class="dropdown-item" href="{% url 'change_password_request' %}">
                       <i class="fa fa-key me-2"></i> Đổi mật khẩu
@@ -414,6 +422,9 @@
             <li><a href="{% url 'contact' %}" class="nav-link">Liên Hệ</a></li>
             {% if user.is_authenticated and user.is_superuser %}
             <li><a href="{% url 'system_settings' %}" class="nav-link">Cài Đặt Hệ Thống</a></li>
+            {% endif %}
+            {% if user.is_authenticated and can_view_staff_login_activity %}
+            <li><a href="{% url 'staff_login_activity' %}" class="nav-link">Lịch Sử Đăng Nhập</a></li>
             {% endif %}
           </ul>
         </nav>

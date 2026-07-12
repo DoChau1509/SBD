@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.password_validation import validate_password
 
-from .models import EmailOTPSettings, SiteBrandSettings
+from .models import EmailOTPSettings, StaffLoginActivityAccess, SiteBrandSettings
 
 User = get_user_model()
 
@@ -148,6 +148,11 @@ class StaffAccountCreationForm(UserCreationForm):
         widget=forms.CheckboxInput(attrs={"class": "form-check-input"}),
         label="Kích hoạt tài khoản",
     )
+    can_view_login_activity = forms.BooleanField(
+        required=False,
+        widget=forms.CheckboxInput(attrs={"class": "form-check-input"}),
+        label="Cho xem lịch sử đăng nhập staff/admin",
+    )
 
     class Meta(UserCreationForm.Meta):
         model = User
@@ -157,6 +162,7 @@ class StaffAccountCreationForm(UserCreationForm):
             "last_name",
             "email",
             "is_active",
+            "can_view_login_activity",
             "password1",
             "password2",
         )
@@ -203,6 +209,8 @@ class StaffAccountCreationForm(UserCreationForm):
         user.is_active = self.cleaned_data.get("is_active", True)
         if commit:
             user.save()
+            if self.cleaned_data.get("can_view_login_activity"):
+                StaffLoginActivityAccess.objects.get_or_create(user=user)
         return user
 
 
@@ -244,10 +252,22 @@ class StaffAccountUpdateForm(forms.ModelForm):
         widget=forms.CheckboxInput(attrs={"class": "form-check-input"}),
         label="Kích hoạt tài khoản",
     )
+    can_view_login_activity = forms.BooleanField(
+        required=False,
+        widget=forms.CheckboxInput(attrs={"class": "form-check-input"}),
+        label="Cho xem lịch sử đăng nhập staff/admin",
+    )
 
     class Meta:
         model = User
-        fields = ("username", "first_name", "last_name", "email", "is_active")
+        fields = (
+            "username",
+            "first_name",
+            "last_name",
+            "email",
+            "is_active",
+            "can_view_login_activity",
+        )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -258,6 +278,11 @@ class StaffAccountUpdateForm(forms.ModelForm):
                 "autocomplete": "username",
             }
         )
+        if self.instance.pk:
+            self.fields["can_view_login_activity"].initial = hasattr(
+                self.instance,
+                "login_activity_access",
+            )
 
     def clean_email(self):
         email = (self.cleaned_data.get("email") or "").strip().lower()
@@ -280,7 +305,29 @@ class StaffAccountUpdateForm(forms.ModelForm):
         user.is_superuser = False
         if commit:
             user.save()
+            if self.cleaned_data.get("can_view_login_activity"):
+                StaffLoginActivityAccess.objects.get_or_create(user=user)
+            else:
+                StaffLoginActivityAccess.objects.filter(user=user).delete()
         return user
+
+
+class StaffDeviceNameForm(forms.Form):
+    device_name = forms.CharField(
+        max_length=150,
+        required=False,
+        label="Tên thiết bị",
+        widget=forms.TextInput(
+            attrs={
+                "class": "form-control",
+                "placeholder": "Ví dụ: Laptop văn phòng, Máy ở nhà",
+                "autocomplete": "off",
+            }
+        ),
+    )
+
+    def clean_device_name(self):
+        return (self.cleaned_data.get("device_name") or "").strip()
 
 
 class ForgotPasswordRequestForm(forms.Form):

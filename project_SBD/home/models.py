@@ -877,6 +877,123 @@ class PasswordOTP(models.Model):
         return f"{self.user.username} - {self.purpose} - {self.code}"
 
 
+class StaffLoginActivityAccess(models.Model):
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        related_name="login_activity_access",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Quyền xem lịch sử đăng nhập"
+        verbose_name_plural = "Quyền xem lịch sử đăng nhập"
+
+    def __str__(self):
+        return f"{self.user.username} có quyền xem lịch sử đăng nhập"
+
+
+class StaffDevice(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="staff_devices",
+    )
+    device_id = models.CharField(max_length=64)
+    custom_name = models.CharField(max_length=150, blank=True, default="")
+    browser_label = models.CharField(max_length=80, blank=True, default="")
+    platform_label = models.CharField(max_length=80, blank=True, default="")
+    device_type = models.CharField(max_length=40, blank=True, default="")
+    user_agent = models.TextField(blank=True, default="")
+    first_seen_at = models.DateTimeField(auto_now_add=True)
+    last_seen_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-last_seen_at", "-id"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user", "device_id"],
+                name="unique_staff_device_per_user",
+            ),
+        ]
+        verbose_name = "Thiết bị staff/admin"
+        verbose_name_plural = "Thiết bị staff/admin"
+
+    @property
+    def default_name(self):
+        details = " ".join(
+            value
+            for value in [
+                self.browser_label,
+                f"trên {self.platform_label}" if self.platform_label else "",
+            ]
+            if value
+        ).strip()
+        if details and self.device_type:
+            return f"{details} ({self.device_type})"
+        return details or "Thiết bị chưa đặt tên"
+
+    @property
+    def display_name(self):
+        return self.custom_name or self.default_name
+
+    def __str__(self):
+        return f"{self.user.username} - {self.display_name}"
+
+
+class StaffLoginActivity(models.Model):
+    STATUS_ACTIVE = "active"
+    STATUS_LOGGED_OUT = "logged_out"
+    STATUS_CHOICES = [
+        (STATUS_ACTIVE, "Đang đăng nhập"),
+        (STATUS_LOGGED_OUT, "Đã đăng xuất"),
+    ]
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="staff_login_activities",
+    )
+    device = models.ForeignKey(
+        StaffDevice,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="login_activities",
+    )
+    session_key = models.CharField(max_length=40, blank=True, db_index=True)
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default=STATUS_ACTIVE,
+    )
+    login_at = models.DateTimeField(default=timezone.now)
+    logout_at = models.DateTimeField(null=True, blank=True)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    user_agent = models.TextField(blank=True, default="")
+    device_identifier = models.CharField(max_length=64, blank=True, default="")
+    device_name = models.CharField(max_length=255, blank=True, default="")
+    device_label = models.CharField(max_length=255, blank=True, default="")
+
+    class Meta:
+        ordering = ["-login_at", "-id"]
+        indexes = [
+            models.Index(fields=["user", "status"]),
+            models.Index(fields=["session_key", "status"]),
+        ]
+        verbose_name = "Lịch sử đăng nhập staff/admin"
+        verbose_name_plural = "Lịch sử đăng nhập staff/admin"
+
+    @property
+    def display_device_name(self):
+        if self.device and self.device.custom_name:
+            return self.device.custom_name
+        return self.device_name or self.device_label or "Không rõ thiết bị"
+
+    def __str__(self):
+        return f"{self.user.username} - {self.get_status_display()} - {self.login_at:%Y-%m-%d %H:%M}"
+
+
 class Consultation(models.Model):
     PROJECT_TYPE_CHOICES = [
         ("dan-dung", "Xây dựng Dân dụng (Nhà ở, Biệt thự, Chung cư)"),

@@ -25,8 +25,8 @@
 
         <div class="row g-3">
           {% for field in form %}
-          <div class="{% if field.name == 'is_active' %}col-12{% else %}col-md-6{% endif %}">
-            {% if field.name == 'is_active' %}
+          <div class="{% if field.name == 'is_active' or field.name == 'can_view_login_activity' %}col-12{% else %}col-md-6{% endif %}">
+            {% if field.name == 'is_active' or field.name == 'can_view_login_activity' %}
             <div class="form-check mt-2">
               {{ field }}
               <label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label>

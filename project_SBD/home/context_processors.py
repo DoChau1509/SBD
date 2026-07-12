@@ -1,4 +1,11 @@
-from .models import ContactInfo, Notification, Consultation, SiteBrandSettings
+from .models import (
+    ContactInfo,
+    Notification,
+    Consultation,
+    StaffLoginActivityAccess,
+    SiteBrandSettings,
+)
+from django.db import DatabaseError
 
 
 MANAGEMENT_URL_GROUPS = {
@@ -116,6 +123,7 @@ MANAGEMENT_URL_GROUPS = {
         "staff_account_add",
         "staff_account_edit",
         "staff_account_toggle_status",
+        "staff_login_activity",
     },
 }
 
@@ -151,6 +159,17 @@ def site_contact(request):
         ),
         "",
     )
+    can_view_staff_login_activity = False
+    if request.user.is_authenticated:
+        if request.user.is_superuser:
+            can_view_staff_login_activity = True
+        else:
+            try:
+                can_view_staff_login_activity = StaffLoginActivityAccess.objects.filter(
+                    user=request.user,
+                ).exists()
+            except DatabaseError:
+                can_view_staff_login_activity = False
 
     return {
         "site_contact": contact,
@@ -163,6 +182,7 @@ def site_contact(request):
             and (request.user.is_staff or request.user.is_superuser)
             and current_url_name in MANAGEMENT_URL_NAMES
         ),
+        "can_view_staff_login_activity": can_view_staff_login_activity,
         "management_url_name": current_url_name,
         "management_group": management_group,
     }

@@ -12,6 +12,7 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives, get_connection
+from django.db import DatabaseError
 from django.db.models import Q
 from django.db.models.deletion import ProtectedError
 from django.shortcuts import render, redirect, get_object_or_404
@@ -24,12 +25,14 @@ from .forms import (
     LoginForm,
     StaffAccountCreationForm,
     StaffAccountUpdateForm,
+    StaffDeviceNameForm,
     ForgotPasswordRequestForm,
     OTPPasswordResetForm,
     ChangePasswordRequestForm,
     EmailOTPSettingsForm,
     SiteBrandSettingsForm,
 )
+from .device_tracking import get_or_create_staff_device
 from .models import (
     Product,
     ProductCategory,
@@ -56,6 +59,8 @@ from .models import (
     Partner,
     EmailOTPSettings,
     PasswordOTP,
+    StaffLoginActivity,
+    StaffLoginActivityAccess,
     SiteBrandSettings,
     OfficeRental,
     EducationSpaceDesign,
@@ -452,6 +457,14 @@ MANAGEMENT_SEARCH_ACTIONS = [
         "keywords": "tao tai khoan staff nhan vien admin",
         "admin_only": True,
     },
+    {
+        "title": "Lịch sử đăng nhập",
+        "description": "Xem staff/admin đăng nhập, đăng xuất và thiết bị sử dụng.",
+        "url_name": "staff_login_activity",
+        "icon": "fa-solid fa-clock-rotate-left",
+        "keywords": "lich su dang nhap dang xuat thiet bi staff admin",
+        "login_activity_only": True,
+    },
 ]
 
 
@@ -475,6 +488,8 @@ def _search_management_actions(user, query):
 
     for action in MANAGEMENT_SEARCH_ACTIONS:
         if action.get("admin_only") and not user.is_superuser:
+            continue
+        if action.get("login_activity_only") and not _can_view_staff_login_activity(user):
             continue
 
         searchable_text = " ".join(
@@ -520,6 +535,35 @@ def admin_required(view_func):
             return view_func(request, *args, **kwargs)
 
         messages.warning(request, "Chỉ quản trị viên mới có quyền quản lý tài khoản.")
+        return redirect("dashboard")
+
+    return _wrapped
+
+
+def _can_view_staff_login_activity(user):
+    if not user.is_authenticated:
+        return False
+    if user.is_superuser:
+        return True
+    try:
+        return StaffLoginActivityAccess.objects.filter(user=user).exists()
+    except DatabaseError:
+        return False
+
+
+def login_activity_required(view_func):
+    @wraps(view_func)
+    def _wrapped(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect(f"/login/?next={request.path}")
+
+        if _can_view_staff_login_activity(request.user):
+            return view_func(request, *args, **kwargs)
+
+        messages.warning(
+            request,
+            "Bạn không có quyền xem lịch sử đăng nhập staff/admin.",
+        )
         return redirect("dashboard")
 
     return _wrapped
@@ -1419,9 +1463,21 @@ def dashboard(request):
 def system_settings(request):
     config = _get_email_otp_settings()
     brand_config = SiteBrandSettings.get_solo()
-    staff_accounts = User.objects.filter(is_staff=True, is_superuser=False).order_by(
-        "-is_active", "username"
+    staff_accounts = list(
+        User.objects.filter(is_staff=True, is_superuser=False)
+        .select_related("login_activity_access")
+        .order_by("-is_active", "username")
     )
+    active_staff_activities = StaffLoginActivity.objects.filter(
+        user__in=staff_accounts,
+        status=StaffLoginActivity.STATUS_ACTIVE,
+    ).order_by("-login_at", "-id")
+    active_activity_by_user_id = {}
+    for activity in active_staff_activities:
+        active_activity_by_user_id.setdefault(activity.user_id, activity)
+    for account in staff_accounts:
+        account.current_login_activity = active_activity_by_user_id.get(account.id)
+        account.can_view_login_activity = hasattr(account, "login_activity_access")
 
     if request.method == "POST":
         form_type = (request.POST.get("form_type") or "").strip()
@@ -1460,6 +1516,64 @@ def system_settings(request):
             "brand_config": brand_config,
             "config": config,
             "staff_accounts": staff_accounts,
+        },
+    )
+
+
+@login_activity_required
+def staff_login_activity(request):
+    current_device = None
+    current_device_form = StaffDeviceNameForm()
+    try:
+        current_device, _ = get_or_create_staff_device(request, request.user)
+    except DatabaseError:
+        current_device = None
+
+    if request.method == "POST":
+        current_device_form = StaffDeviceNameForm(request.POST)
+        if current_device_form.is_valid() and current_device is not None:
+            current_device.custom_name = current_device_form.cleaned_data["device_name"]
+            current_device.save(update_fields=["custom_name", "last_seen_at"])
+            messages.success(request, "Đã cập nhật tên thiết bị hiện tại.")
+            return redirect("staff_login_activity")
+        messages.error(
+            request,
+            "Chưa thể cập nhật tên thiết bị. Vui lòng chạy migration và thử lại.",
+        )
+    elif current_device is not None:
+        current_device_form = StaffDeviceNameForm(
+            initial={"device_name": current_device.custom_name}
+        )
+
+    accounts = list(
+        User.objects.filter(Q(is_staff=True) | Q(is_superuser=True))
+        .distinct()
+        .order_by("-is_superuser", "username")
+    )
+    active_activities = StaffLoginActivity.objects.filter(
+        user__in=accounts,
+        status=StaffLoginActivity.STATUS_ACTIVE,
+    ).order_by("-login_at", "-id")
+    active_activity_by_user_id = {}
+    for activity in active_activities:
+        active_activity_by_user_id.setdefault(activity.user_id, activity)
+    for account in accounts:
+        account.current_login_activity = active_activity_by_user_id.get(account.id)
+
+    activities = (
+        StaffLoginActivity.objects.select_related("user", "device")
+        .filter(Q(user__is_staff=True) | Q(user__is_superuser=True))
+        .order_by("-login_at", "-id")[:100]
+    )
+
+    return render(
+        request,
+        "home/staff_login_activity.html",
+        {
+            "accounts": accounts,
+            "activities": activities,
+            "current_device": current_device,
+            "current_device_form": current_device_form,
         },
     )
 

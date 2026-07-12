@@ -98,6 +98,11 @@ urlpatterns = [
     ),
     path("logout/", views.logout_view, name="logout"),
     path("system-settings/", views.system_settings, name="system_settings"),
+    path(
+        "staff-login-activity/",
+        views.staff_login_activity,
+        name="staff_login_activity",
+    ),
     # DASHBOARD
     path("dashboard/", views.dashboard, name="dashboard"),
     path("email-otp-settings/", views.email_otp_settings_edit, name="email_otp_settings"),

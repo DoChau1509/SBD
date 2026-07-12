@@ -67,11 +67,14 @@
         <a href="{% url 'consultation_list' %}"{% if management_url_name == 'consultation_list' %} class="active"{% endif %}>Yêu cầu tư vấn</a>
       </div>
 
-      {% if user.is_superuser %}
+      {% if user.is_superuser or can_view_staff_login_activity %}
       <div class="management-nav-group{% if management_group == 'system' %} is-active{% endif %}">
         <div class="management-nav-title"><i class="fa-solid fa-gear"></i> Hệ thống</div>
+        {% if user.is_superuser %}
         <a href="{% url 'system_settings' %}"{% if management_url_name == 'system_settings' %} class="active"{% endif %}>Cài đặt hệ thống</a>
         <a href="{% url 'staff_account_add' %}"{% if management_url_name == 'staff_account_add' %} class="active"{% endif %}>Tạo tài khoản staff</a>
+        {% endif %}
+        <a href="{% url 'staff_login_activity' %}"{% if management_url_name == 'staff_login_activity' %} class="active"{% endif %}>Lịch sử đăng nhập</a>
       </div>
       {% endif %}
     </div>

@@ -1,0 +1,198 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container" style="margin-top: 100px">
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+      <h2 class="fw-bold mb-1">Lịch sử đăng nhập staff/admin</h2>
+      <p class="text-muted mb-0">
+        Theo dõi tài khoản đang đăng nhập, thời điểm đăng xuất và thiết bị sử dụng.
+      </p>
+    </div>
+
+    <div class="d-flex gap-2 flex-wrap">
+      <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">
+        Về quản lý nội dung
+      </a>
+      {% if user.is_superuser %}
+      <a href="{% url 'system_settings' %}" class="btn btn-primary">
+        Cài đặt hệ thống
+      </a>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div class="card-body p-4">
+          <div class="row g-3 align-items-end">
+            <div class="col-12 col-lg-5">
+              <h4 class="fw-bold mb-1">Thiết bị hiện tại</h4>
+              <p class="text-muted mb-0">
+                Đặt tên dễ nhớ cho trình duyệt/máy đang dùng. Tên này chỉ áp dụng cho tài khoản staff/admin hiện tại.
+              </p>
+            </div>
+            <div class="col-12 col-lg-7">
+              <form method="post" class="row g-2 align-items-end">
+                {% csrf_token %}
+                <div class="col-12 col-md">
+                  <label class="form-label" for="{{ current_device_form.device_name.id_for_label }}">Tên thiết bị</label>
+                  {{ current_device_form.device_name }}
+                  {% if current_device %}
+                  <div class="form-text">
+                    Đang nhận diện: {{ current_device.default_name }}
+                  </div>
+                  {% endif %}
+                </div>
+                <div class="col-12 col-md-auto">
+                  <button type="submit" class="btn btn-primary w-100">Lưu tên</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div class="card-body p-0">
+          <div class="p-4 border-bottom">
+            <h4 class="fw-bold mb-1">Trạng thái hiện tại</h4>
+            <p class="text-muted mb-0">Danh sách tài khoản staff/admin và phiên đăng nhập đang mở.</p>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Tài khoản</th>
+                  <th>Vai trò</th>
+                  <th>Trạng thái</th>
+                  <th>Thiết bị</th>
+                  <th>Đăng nhập lúc</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for account in accounts %}
+                <tr>
+                  <td class="fw-semibold">{{ account.username }}</td>
+                  <td>
+                    {% if account.is_superuser %}
+                    <span class="badge bg-danger">Admin</span>
+                    {% else %}
+                    <span class="badge bg-secondary">Staff</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if account.current_login_activity %}
+                    <span class="badge bg-primary">Đang đăng nhập</span>
+                    {% else %}
+                    <span class="badge bg-secondary">Đã đăng xuất</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if account.current_login_activity %}
+                    {{ account.current_login_activity.display_device_name }}
+                    <div class="small text-muted">
+                      {{ account.current_login_activity.device_label|default:"Không rõ thiết bị" }}
+                      · {{ account.current_login_activity.ip_address|default:"Không rõ IP" }}
+                    </div>
+                    {% else %}
+                    <span class="text-muted">Không có phiên đang mở</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if account.current_login_activity %}
+                    {{ account.current_login_activity.login_at|date:"d/m/Y H:i" }}
+                    {% else %}
+                    <span class="text-muted">-</span>
+                    {% endif %}
+                  </td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="5" class="text-center text-muted py-4">
+                    Chưa có tài khoản staff/admin nào.
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div class="card-body p-0">
+          <div class="p-4 border-bottom">
+            <h4 class="fw-bold mb-1">Nhật ký gần đây</h4>
+            <p class="text-muted mb-0">Hiển thị tối đa 100 phiên đăng nhập mới nhất.</p>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Tài khoản</th>
+                  <th>Vai trò</th>
+                  <th>Trạng thái</th>
+                  <th>Đăng nhập</th>
+                  <th>Đăng xuất</th>
+                  <th>Thiết bị</th>
+                  <th>IP</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for activity in activities %}
+                <tr>
+                  <td class="fw-semibold">{{ activity.user.username }}</td>
+                  <td>
+                    {% if activity.user.is_superuser %}
+                    <span class="badge bg-danger">Admin</span>
+                    {% else %}
+                    <span class="badge bg-secondary">Staff</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if activity.status == 'active' %}
+                    <span class="badge bg-primary">Đang đăng nhập</span>
+                    {% else %}
+                    <span class="badge bg-secondary">Đã đăng xuất</span>
+                    {% endif %}
+                  </td>
+                  <td>{{ activity.login_at|date:"d/m/Y H:i" }}</td>
+                  <td>
+                    {% if activity.logout_at %}
+                    {{ activity.logout_at|date:"d/m/Y H:i" }}
+                    {% else %}
+                    <span class="text-muted">Chưa đăng xuất</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {{ activity.display_device_name }}
+                    <div class="small text-muted">
+                      {{ activity.device_label|default:"Không rõ thiết bị" }}
+                    </div>
+                  </td>
+                  <td>{{ activity.ip_address|default:"Không rõ IP" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="7" class="text-center text-muted py-4">
+                    Chưa có lịch sử đăng nhập nào.
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

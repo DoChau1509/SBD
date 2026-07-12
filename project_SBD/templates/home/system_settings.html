@@ -18,6 +18,10 @@
       <a href="{% url 'staff_account_add' %}" class="btn btn-primary">
         + Tạo staff
       </a>
+
+      <a href="{% url 'staff_login_activity' %}" class="btn btn-outline-primary">
+        Lịch sử đăng nhập
+      </a>
     </div>
   </div>
 
@@ -357,6 +361,8 @@
                   <th>Tài khoản</th>
                   <th>Họ tên</th>
                   <th>Trạng thái</th>
+                  <th>Phiên đăng nhập</th>
+                  <th>Quyền xem log</th>
                   <th>Đăng nhập gần nhất</th>
                   <th class="text-end">Hành động</th>
                 </tr>
@@ -383,6 +389,27 @@
                       Đã khóa
                       {% endif %}
                     </span>
+                  </td>
+
+                  <td>
+                    {% if account.current_login_activity %}
+                    <span class="badge bg-primary">Đang đăng nhập</span>
+                    <div class="small text-muted mt-1">
+                      {{ account.current_login_activity.display_device_name }}
+                      <br>
+                      {{ account.current_login_activity.device_label|default:"Không rõ thiết bị" }}
+                    </div>
+                    {% else %}
+                    <span class="badge bg-secondary">Đã đăng xuất</span>
+                    {% endif %}
+                  </td>
+
+                  <td>
+                    {% if account.can_view_login_activity %}
+                    <span class="badge bg-info text-dark">Được xem</span>
+                    {% else %}
+                    <span class="text-muted">Không</span>
+                    {% endif %}
                   </td>
 
                   <td>
@@ -428,7 +455,7 @@
 
                 {% empty %}
                 <tr>
-                  <td colspan="5" class="text-center text-muted py-4">
+                  <td colspan="7" class="text-center text-muted py-4">
                     Chưa có tài khoản staff nào.
                   </td>
                 </tr>
