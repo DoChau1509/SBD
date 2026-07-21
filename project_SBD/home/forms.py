@@ -2,8 +2,14 @@ from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.password_validation import validate_password
+from django.core.files.base import ContentFile
 
-from .models import EmailOTPSettings, StaffLoginActivityAccess, SiteBrandSettings
+from .models import (
+    EmailOTPSettings,
+    StaffLoginActivityAccess,
+    StaffMap,
+    SiteBrandSettings,
+)
 
 User = get_user_model()
 
@@ -328,6 +334,84 @@ class StaffDeviceNameForm(forms.Form):
 
     def clean_device_name(self):
         return (self.cleaned_data.get("device_name") or "").strip()
+
+
+class StaffMapUploadForm(forms.ModelForm):
+    class Meta:
+        model = StaffMap
+        fields = ["title", "source_file", "is_active"]
+        widgets = {
+            "title": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "Ví dụ: Sơ đồ tầng 1",
+                }
+            ),
+            "source_file": forms.ClearableFileInput(
+                attrs={
+                    "class": "form-control",
+                    "accept": "image/*,application/pdf",
+                }
+            ),
+            "is_active": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+        }
+
+    def clean_source_file(self):
+        uploaded_file = self.cleaned_data.get("source_file")
+        if not uploaded_file:
+            return uploaded_file
+
+        name = uploaded_file.name.lower()
+        allowed_extensions = (".jpg", ".jpeg", ".png", ".webp", ".gif", ".pdf")
+        if not name.endswith(allowed_extensions):
+            raise forms.ValidationError("Chỉ hỗ trợ ảnh JPG/PNG/WEBP/GIF hoặc PDF.")
+
+        return uploaded_file
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        uploaded_file = self.cleaned_data["source_file"]
+        filename = uploaded_file.name.lower()
+
+        if filename.endswith(".pdf"):
+            try:
+                import fitz
+            except ImportError as exc:
+                raise forms.ValidationError(
+                    "Máy chủ cần cài PyMuPDF để chuyển PDF thành ảnh."
+                ) from exc
+
+            uploaded_file.seek(0)
+            document = fitz.open(stream=uploaded_file.read(), filetype="pdf")
+            try:
+                if document.page_count < 1:
+                    raise forms.ValidationError("PDF không có trang để hiển thị.")
+                page = document.load_page(0)
+                pixmap = page.get_pixmap(matrix=fitz.Matrix(2, 2), alpha=False)
+                image_name = f"{uploaded_file.name.rsplit('.', 1)[0]}.png"
+                instance.image.save(
+                    image_name,
+                    ContentFile(pixmap.tobytes("png")),
+                    save=False,
+                )
+            finally:
+                document.close()
+            uploaded_file.seek(0)
+        else:
+            uploaded_file.seek(0)
+            image_bytes = uploaded_file.read()
+            instance.image.save(
+                uploaded_file.name,
+                ContentFile(image_bytes),
+                save=False,
+            )
+            uploaded_file.seek(0)
+
+        if commit:
+            instance.save()
+            self.save_m2m()
+
+        return instance
 
 
 class ForgotPasswordRequestForm(forms.Form):

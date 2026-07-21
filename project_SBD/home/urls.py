@@ -103,6 +103,23 @@ urlpatterns = [
         views.staff_login_activity,
         name="staff_login_activity",
     ),
+    path("staff-map/", views.staff_map, name="staff_map"),
+    path("staff-map/snapshot/", views.staff_map_snapshot, name="staff_map_snapshot"),
+    path(
+        "staff-map/positions/add/",
+        views.staff_map_position_create,
+        name="staff_map_position_add",
+    ),
+    path(
+        "staff-map/positions/<int:id>/update/",
+        views.staff_map_position_update,
+        name="staff_map_position_update",
+    ),
+    path(
+        "staff-map/positions/<int:id>/delete/",
+        views.staff_map_position_delete,
+        name="staff_map_position_delete",
+    ),
     # DASHBOARD
     path("dashboard/", views.dashboard, name="dashboard"),
     path("email-otp-settings/", views.email_otp_settings_edit, name="email_otp_settings"),

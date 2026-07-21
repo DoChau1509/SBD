@@ -994,6 +994,92 @@ class StaffLoginActivity(models.Model):
         return f"{self.user.username} - {self.get_status_display()} - {self.login_at:%Y-%m-%d %H:%M}"
 
 
+def staff_map_upload_path(instance, filename):
+    return f"staff_maps/source/{filename}"
+
+
+def staff_map_image_upload_path(instance, filename):
+    return f"staff_maps/images/{filename}"
+
+
+class StaffMap(ManagedMediaCleanupModel):
+    managed_file_fields = ("source_file", "image")
+
+    title = models.CharField(max_length=200, default="Sơ đồ nhân sự")
+    source_file = models.FileField(
+        upload_to=staff_map_upload_path,
+        verbose_name="File sơ đồ gốc",
+    )
+    image = models.ImageField(
+        upload_to=staff_map_image_upload_path,
+        verbose_name="Ảnh hiển thị",
+    )
+    is_active = models.BooleanField(default=True, verbose_name="Đang sử dụng")
+    created_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="created_staff_maps",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-is_active", "-updated_at", "-id"]
+        verbose_name = "Sơ đồ vị trí staff/admin"
+        verbose_name_plural = "Sơ đồ vị trí staff/admin"
+
+    def __str__(self):
+        return self.title
+
+
+class StaffMapPosition(models.Model):
+    staff_map = models.ForeignKey(
+        StaffMap,
+        on_delete=models.CASCADE,
+        related_name="positions",
+    )
+    name = models.CharField(max_length=120, verbose_name="Tên vị trí")
+    assigned_user = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="staff_map_positions",
+        verbose_name="User được gán",
+    )
+    x_percent = models.DecimalField(
+        max_digits=6,
+        decimal_places=3,
+        default=50,
+        verbose_name="Tọa độ ngang (%)",
+    )
+    y_percent = models.DecimalField(
+        max_digits=6,
+        decimal_places=3,
+        default=50,
+        verbose_name="Tọa độ dọc (%)",
+    )
+    created_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="created_staff_map_positions",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["name", "id"]
+        verbose_name = "Vị trí trên sơ đồ"
+        verbose_name_plural = "Vị trí trên sơ đồ"
+
+    def __str__(self):
+        return self.name
+
+
 class Consultation(models.Model):
     PROJECT_TYPE_CHOICES = [
         ("dan-dung", "Xây dựng Dân dụng (Nhà ở, Biệt thự, Chung cư)"),

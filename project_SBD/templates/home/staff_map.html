@@ -1,0 +1,471 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+  .staff-map-shell {
+    margin-top: 100px;
+  }
+
+  .staff-map-board {
+    position: relative;
+    overflow: hidden;
+    min-height: 360px;
+    background: #f4f6f8;
+    border: 1px solid #d9e0e8;
+    border-radius: 8px;
+  }
+
+  .staff-map-board img {
+    display: block;
+    width: 100%;
+    height: auto;
+    user-select: none;
+  }
+
+  .staff-map-empty {
+    min-height: 360px;
+    display: grid;
+    place-items: center;
+    text-align: center;
+    color: #6c757d;
+    padding: 32px;
+  }
+
+  .staff-map-marker {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    transform: translate(-50%, -100%);
+    border: 0;
+    background: transparent;
+    padding: 0;
+    cursor: grab;
+    z-index: 2;
+  }
+
+  .staff-map-marker:active {
+    cursor: grabbing;
+  }
+
+  .staff-map-pin {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    color: #fff;
+    background: #6c757d;
+    border: 3px solid #fff;
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.28);
+  }
+
+  .staff-map-marker.is-online .staff-map-pin {
+    background: #11a36a;
+  }
+
+  .staff-map-label {
+    position: absolute;
+    left: 50%;
+    top: 38px;
+    transform: translateX(-50%);
+    min-width: 118px;
+    max-width: 180px;
+    padding: 6px 8px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.96);
+    border: 1px solid rgba(15, 23, 42, 0.1);
+    color: #1f2937;
+    font-size: 12px;
+    line-height: 1.25;
+    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.16);
+    pointer-events: none;
+  }
+
+  .staff-map-status-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #adb5bd;
+    margin-right: 6px;
+  }
+
+  .staff-map-status-dot.is-online {
+    background: #11a36a;
+  }
+
+  .staff-map-position-row {
+    border-bottom: 1px solid #eef1f4;
+    padding: 14px 0;
+  }
+
+  .staff-map-position-row:last-child {
+    border-bottom: 0;
+  }
+</style>
+
+<div class="container staff-map-shell">
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+      <h2 class="fw-bold mb-1">Sơ đồ vị trí staff/admin</h2>
+      <p class="text-muted mb-0">Theo dõi vị trí và trạng thái online/offline theo thời gian thực.</p>
+    </div>
+    <a href="{% url 'staff_login_activity' %}" class="btn btn-outline-secondary">
+      <i class="fa-solid fa-clock-rotate-left me-1"></i> Lịch sử đăng nhập
+    </a>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-12 col-xl-8">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center gap-2 mb-3 flex-wrap">
+            <div>
+              <h4 class="fw-bold mb-1" id="staff-map-title">
+                {% if staff_map %}{{ staff_map.title }}{% else %}Chưa có sơ đồ{% endif %}
+              </h4>
+              <div class="small text-muted" id="staff-map-updated">
+                {% if staff_map %}Cập nhật: {{ staff_map.updated_at|date:"d/m/Y H:i" }}{% endif %}
+              </div>
+            </div>
+            <span class="badge bg-light text-dark border" id="staff-map-connection">Đang kết nối</span>
+          </div>
+
+          <div class="staff-map-board" id="staff-map-board">
+            {% if staff_map and staff_map.image %}
+            <img src="{{ staff_map.image.url }}" alt="{{ staff_map.title }}" id="staff-map-image">
+            {% else %}
+            <div class="staff-map-empty">
+              <div>
+                <i class="fa-solid fa-map-location-dot fa-2x mb-3"></i>
+                <div class="fw-semibold">Admin cần upload sơ đồ trước.</div>
+                <div class="small">Hỗ trợ ảnh hoặc PDF, PDF sẽ được chuyển trang đầu thành ảnh.</div>
+              </div>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-xl-4">
+      {% if user.is_superuser %}
+      <div class="card shadow-sm mb-4">
+        <div class="card-body">
+          <h5 class="fw-bold mb-3">Upload sơ đồ</h5>
+          <form method="post" enctype="multipart/form-data" class="row g-3">
+            {% csrf_token %}
+            {% if upload_form.non_field_errors %}
+            <div class="col-12 text-danger small">{{ upload_form.non_field_errors }}</div>
+            {% endif %}
+            <div class="col-12">
+              <label class="form-label" for="{{ upload_form.title.id_for_label }}">Tên sơ đồ</label>
+              {{ upload_form.title }}
+            </div>
+            <div class="col-12">
+              <label class="form-label" for="{{ upload_form.source_file.id_for_label }}">Ảnh hoặc PDF</label>
+              {{ upload_form.source_file }}
+              {% if upload_form.source_file.errors %}
+              <div class="text-danger small mt-1">{{ upload_form.source_file.errors }}</div>
+              {% endif %}
+            </div>
+            <div class="col-12">
+              <div class="form-check">
+                {{ upload_form.is_active }}
+                <label class="form-check-label" for="{{ upload_form.is_active.id_for_label }}">Dùng sơ đồ này</label>
+              </div>
+            </div>
+            <div class="col-12">
+              <button type="submit" class="btn btn-primary w-100">
+                <i class="fa-solid fa-upload me-1"></i> Lưu sơ đồ
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="card shadow-sm mb-4">
+        <div class="card-body">
+          <h5 class="fw-bold mb-3">Tạo vị trí</h5>
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label" for="position-name">Tên vị trí</label>
+              <input type="text" class="form-control" id="position-name" placeholder="Ví dụ: Quầy lễ tân">
+            </div>
+            <div class="col-12">
+              <label class="form-label" for="position-user">Gán user</label>
+              <select class="form-select" id="position-user">
+                <option value="">Chưa gán</option>
+                {% for account in staff_users %}
+                <option value="{{ account.id }}">
+                  {% if account.is_superuser %}[Admin]{% else %}[Staff]{% endif %}
+                  {{ account.get_full_name|default:account.username }}
+                </option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-12">
+              <button type="button" class="btn btn-outline-primary w-100" id="position-add-mode">
+                <i class="fa-solid fa-location-crosshairs me-1"></i> Bấm lên sơ đồ để đặt
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="fw-bold mb-3">Danh sách vị trí</h5>
+          <div id="staff-map-position-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{{ staff_map_snapshot|json_script:"staff-map-data" }}
+{{ staff_users_payload|json_script:"staff-users-data" }}
+
+<script>
+  (function () {
+    const isAdmin = {{ user.is_superuser|yesno:"true,false" }};
+    const endpoints = {
+      snapshot: "{% url 'staff_map_snapshot' %}",
+      add: "{% url 'staff_map_position_add' %}",
+      updateTemplate: "{% url 'staff_map_position_update' 0 %}",
+      deleteTemplate: "{% url 'staff_map_position_delete' 0 %}",
+    };
+    const csrfToken = "{{ csrf_token }}";
+    const board = document.getElementById("staff-map-board");
+    const title = document.getElementById("staff-map-title");
+    const updated = document.getElementById("staff-map-updated");
+    const connection = document.getElementById("staff-map-connection");
+    const list = document.getElementById("staff-map-position-list");
+    const addModeButton = document.getElementById("position-add-mode");
+    const nameInput = document.getElementById("position-name");
+    const userInput = document.getElementById("position-user");
+    let snapshot = JSON.parse(document.getElementById("staff-map-data").textContent);
+    const staffUsers = JSON.parse(document.getElementById("staff-users-data").textContent);
+    let addMode = false;
+    let dragging = null;
+
+    function endpoint(template, id) {
+      return template.replace("/0/", "/" + id + "/");
+    }
+
+    function getCookie(name) {
+      return document.cookie.split(";").map((item) => item.trim()).reduce((value, item) => {
+        if (value || !item.startsWith(name + "=")) return value;
+        return decodeURIComponent(item.slice(name.length + 1));
+      }, "");
+    }
+
+    function showError(message) {
+      window.alert(message || "Không thể thực hiện thao tác. Vui lòng thử lại.");
+    }
+
+    function postForm(url, data) {
+      const form = new FormData();
+      Object.keys(data).forEach((key) => form.append(key, data[key]));
+      return fetch(url, {
+        method: "POST",
+        credentials: "same-origin",
+        headers: {
+          "X-CSRFToken": csrfToken || getCookie("csrftoken"),
+          "X-Requested-With": "XMLHttpRequest",
+        },
+        body: form,
+      }).then(function (response) {
+        const contentType = response.headers.get("content-type") || "";
+        if (!contentType.includes("application/json")) {
+          throw new Error("Máy chủ không trả về JSON. Có thể phiên đăng nhập đã hết hoặc CSRF không hợp lệ.");
+        }
+        return response.json().then(function (payload) {
+          if (!response.ok || payload.error) {
+            throw new Error(payload.error || "Không thể thực hiện thao tác.");
+          }
+          return payload;
+        });
+      });
+    }
+
+    function render() {
+      board.querySelectorAll(".staff-map-marker").forEach((marker) => marker.remove());
+      if (snapshot.map) {
+        title.textContent = snapshot.map.title;
+        updated.textContent = "Cập nhật: " + snapshot.map.updated_at;
+      }
+
+      snapshot.positions.forEach((position) => {
+        const marker = document.createElement("button");
+        marker.type = "button";
+        marker.className = "staff-map-marker" + (position.is_online ? " is-online" : "");
+        marker.style.setProperty("--x", position.x + "%");
+        marker.style.setProperty("--y", position.y + "%");
+        marker.dataset.id = position.id;
+        marker.innerHTML = [
+          '<span class="staff-map-pin"><i class="fa-solid fa-user"></i></span>',
+          '<span class="staff-map-label">',
+          '<strong>' + escapeHtml(position.name) + '</strong><br>',
+          escapeHtml(position.assigned_user_name || "Chưa gán"),
+          '<br><span class="staff-map-status-dot ' + (position.is_online ? "is-online" : "") + '"></span>',
+          escapeHtml(position.status_label),
+          '</span>',
+        ].join("");
+
+        if (isAdmin) {
+          marker.addEventListener("pointerdown", startDrag);
+        }
+        board.appendChild(marker);
+      });
+
+      renderList();
+    }
+
+    function renderList() {
+      if (!snapshot.positions.length) {
+        list.innerHTML = '<div class="text-muted small">Chưa có vị trí nào trên sơ đồ.</div>';
+        return;
+      }
+
+      list.innerHTML = snapshot.positions.map((position) => {
+        const options = ['<option value="">Chưa gán</option>'].concat(staffUsers.map((account) => {
+          const selected = String(account.id) === String(position.assigned_user_id) ? " selected" : "";
+          return '<option value="' + account.id + '"' + selected + '>[' + account.role + '] ' + escapeHtml(account.name) + '</option>';
+        })).join("");
+        return [
+          '<div class="staff-map-position-row" data-row-id="' + position.id + '" data-update-url="' + endpoint(endpoints.updateTemplate, position.id) + '" data-delete-url="' + endpoint(endpoints.deleteTemplate, position.id) + '">',
+          '<div class="d-flex justify-content-between gap-2 align-items-start mb-2">',
+          '<div><span class="staff-map-status-dot ' + (position.is_online ? "is-online" : "") + '"></span>',
+          '<strong>' + escapeHtml(position.name) + '</strong>',
+          '<div class="small text-muted">' + escapeHtml(position.assigned_user_name || "Chưa gán user") + ' · ' + escapeHtml(position.status_label) + '</div></div>',
+          isAdmin ? '<div class="d-flex gap-1"><button type="submit" form="staff-map-save-' + position.id + '" class="btn btn-sm btn-primary" data-save="' + position.id + '"><i class="fa-solid fa-floppy-disk me-1"></i>Lưu</button><button type="submit" form="staff-map-delete-' + position.id + '" class="btn btn-sm btn-outline-danger" data-delete="' + position.id + '"><i class="fa-solid fa-trash"></i></button></div>' : '',
+          '</div>',
+          isAdmin ? '<form method="post" action="' + endpoint(endpoints.updateTemplate, position.id) + '" id="staff-map-save-' + position.id + '" data-save-form="' + position.id + '"><input type="hidden" name="csrfmiddlewaretoken" value="' + escapeAttribute(csrfToken || getCookie("csrftoken")) + '"><input name="name" class="form-control form-control-sm mb-2" data-name="' + position.id + '" value="' + escapeAttribute(position.name) + '"><select name="assigned_user" class="form-select form-select-sm" data-assign="' + position.id + '">' + options + '</select></form>' : '',
+          isAdmin ? '<form method="post" action="' + endpoint(endpoints.deleteTemplate, position.id) + '" id="staff-map-delete-' + position.id + '" data-delete-form="' + position.id + '"><input type="hidden" name="csrfmiddlewaretoken" value="' + escapeAttribute(csrfToken || getCookie("csrftoken")) + '"></form>' : '',
+          '</div>',
+        ].join("");
+      }).join("");
+    }
+
+    function boardPercent(event) {
+      const rect = board.getBoundingClientRect();
+      return {
+        x: Math.max(0, Math.min(100, ((event.clientX - rect.left) / rect.width) * 100)),
+        y: Math.max(0, Math.min(100, ((event.clientY - rect.top) / rect.height) * 100)),
+      };
+    }
+
+    function startDrag(event) {
+      event.preventDefault();
+      dragging = event.currentTarget;
+      dragging.setPointerCapture(event.pointerId);
+      dragging.addEventListener("pointermove", dragMove);
+      dragging.addEventListener("pointerup", dragEnd, { once: true });
+    }
+
+    function dragMove(event) {
+      if (!dragging) return;
+      const point = boardPercent(event);
+      dragging.style.setProperty("--x", point.x + "%");
+      dragging.style.setProperty("--y", point.y + "%");
+    }
+
+    function dragEnd(event) {
+      if (!dragging) return;
+      const marker = dragging;
+      const point = boardPercent(event);
+      dragging.removeEventListener("pointermove", dragMove);
+      dragging = null;
+      postForm(endpoint(endpoints.updateTemplate, marker.dataset.id), {
+        x: point.x.toFixed(3),
+        y: point.y.toFixed(3),
+      }).then(refresh);
+    }
+
+    function refresh(data) {
+      if (data && data.map !== undefined) {
+        snapshot = data;
+      } else {
+        fetch(endpoints.snapshot).then((response) => response.json()).then((data) => {
+          snapshot = data;
+          render();
+        });
+        return;
+      }
+      render();
+    }
+
+    function escapeHtml(value) {
+      return String(value || "").replace(/[&<>"']/g, function (character) {
+        return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character];
+      });
+    }
+
+    function escapeAttribute(value) {
+      return escapeHtml(value).replace(/`/g, "&#96;");
+    }
+
+    if (addModeButton) {
+      addModeButton.addEventListener("click", function () {
+        addMode = !addMode;
+        addModeButton.classList.toggle("btn-primary", addMode);
+        addModeButton.classList.toggle("btn-outline-primary", !addMode);
+      });
+    }
+
+    if (isAdmin) {
+      board.addEventListener("click", function (event) {
+        if (!addMode || event.target.closest(".staff-map-marker")) return;
+        const point = boardPercent(event);
+        postForm(endpoints.add, {
+          name: (nameInput.value || "Vị trí mới").trim(),
+          assigned_user: userInput.value,
+          x: point.x.toFixed(3),
+          y: point.y.toFixed(3),
+        }).then(function () {
+          addMode = false;
+          addModeButton.classList.remove("btn-primary");
+          addModeButton.classList.add("btn-outline-primary");
+          nameInput.value = "";
+          userInput.value = "";
+          refresh();
+        });
+      });
+
+    }
+
+    function connectSocket() {
+      if (!window.WebSocket) {
+        connection.textContent = "Polling";
+        return;
+      }
+      const protocol = window.location.protocol === "https:" ? "wss" : "ws";
+      const socket = new WebSocket(protocol + "://" + window.location.host + "/ws/staff-map/");
+      socket.addEventListener("open", function () {
+        connection.textContent = "Realtime";
+        connection.className = "badge bg-success";
+      });
+      socket.addEventListener("message", function (event) {
+        const payload = JSON.parse(event.data);
+        if (payload.type === "staff_map_snapshot") {
+          snapshot = payload.snapshot;
+          render();
+        }
+      });
+      socket.addEventListener("close", function () {
+        connection.textContent = "Polling";
+        connection.className = "badge bg-light text-dark border";
+        setTimeout(connectSocket, 5000);
+      });
+    }
+
+    render();
+    connectSocket();
+    setInterval(function () {
+      fetch(endpoints.snapshot).then((response) => response.json()).then(refresh);
+    }, 15000);
+  })();
+</script>
+{% endblock %}

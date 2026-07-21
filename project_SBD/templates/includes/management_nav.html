@@ -75,6 +75,7 @@
         <a href="{% url 'staff_account_add' %}"{% if management_url_name == 'staff_account_add' %} class="active"{% endif %}>Tạo tài khoản staff</a>
         {% endif %}
         <a href="{% url 'staff_login_activity' %}"{% if management_url_name == 'staff_login_activity' %} class="active"{% endif %}>Lịch sử đăng nhập</a>
+        <a href="{% url 'staff_map' %}"{% if management_url_name == 'staff_map' %} class="active"{% endif %}>Sơ đồ vị trí</a>
       </div>
       {% endif %}
     </div>

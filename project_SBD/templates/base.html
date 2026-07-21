@@ -306,6 +306,13 @@
                     </a>
                   </li>
                   {% endif %}
+                  {% if user.is_superuser %}
+                    <li>
+                      <a class="dropdown-item" href="{% url 'staff_map' %}">
+                        <i class="fa fa-map me-2"></i> Sơ đồ vị trí
+                      </a>
+                    </li>
+                  {% endif %}
 
                   {% if can_view_staff_login_activity %}
                   <li>

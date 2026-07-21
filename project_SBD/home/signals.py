@@ -1,10 +1,12 @@
 from django.contrib.auth.signals import user_logged_in, user_logged_out
 from django.db import DatabaseError
+from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 from django.utils import timezone
 
 from .device_tracking import get_client_ip, get_or_create_staff_device, is_staff_or_admin
-from .models import StaffLoginActivity
+from .models import StaffLoginActivity, StaffMap, StaffMapPosition
+from .realtime import broadcast_staff_map_update
 
 
 @receiver(user_logged_in)
@@ -29,6 +31,7 @@ def record_staff_login(sender, request, user, **kwargs):
             device_name=device.display_name if device else "",
             device_label=device_label,
         )
+        broadcast_staff_map_update()
     except DatabaseError:
         pass
 
@@ -52,6 +55,7 @@ def record_staff_logout(sender, request, user, **kwargs):
             logout_at=timezone.now(),
         )
         if updated:
+            broadcast_staff_map_update()
             return
 
         latest_activity = (
@@ -66,5 +70,14 @@ def record_staff_logout(sender, request, user, **kwargs):
             latest_activity.status = StaffLoginActivity.STATUS_LOGGED_OUT
             latest_activity.logout_at = timezone.now()
             latest_activity.save(update_fields=["status", "logout_at"])
+            broadcast_staff_map_update()
     except DatabaseError:
         pass
+
+
+@receiver(post_save, sender=StaffMap)
+@receiver(post_delete, sender=StaffMap)
+@receiver(post_save, sender=StaffMapPosition)
+@receiver(post_delete, sender=StaffMapPosition)
+def broadcast_staff_map_model_change(sender, instance, **kwargs):
+    broadcast_staff_map_update()

@@ -46,14 +46,16 @@ SECURE_PROXY_SSL_HEADER = (
     "https",
 )
 
-CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = not DEBUG
+SESSION_COOKIE_SECURE = not DEBUG
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Application definition
 
 INSTALLED_APPS = [
+    "daphne",
+    "channels",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -95,6 +97,13 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "project_SBD.wsgi.application"
+ASGI_APPLICATION = "project_SBD.asgi.application"
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer",
+    },
+}
 
 
 # Database
@@ -214,5 +223,5 @@ STORAGES = {
 #     },
 # }
 
-CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = not DEBUG
+SESSION_COOKIE_SECURE = not DEBUG

@@ -2,6 +2,7 @@
 import json
 import random
 import unicodedata
+from decimal import Decimal, InvalidOperation
 from datetime import timedelta
 from functools import wraps
 from urllib.parse import urlparse
@@ -11,15 +12,18 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
+from django import forms
 from django.core.mail import EmailMultiAlternatives, get_connection
 from django.db import DatabaseError
 from django.db.models import Q
 from django.db.models.deletion import ProtectedError
+from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.utils.text import slugify
 from django.utils.http import url_has_allowed_host_and_scheme
+from django.views.decorators.http import require_POST
 from .forms import (
     UserRegistrationForm,
     LoginForm,
@@ -30,6 +34,7 @@ from .forms import (
     OTPPasswordResetForm,
     ChangePasswordRequestForm,
     EmailOTPSettingsForm,
+    StaffMapUploadForm,
     SiteBrandSettingsForm,
 )
 from .device_tracking import get_or_create_staff_device
@@ -61,6 +66,8 @@ from .models import (
     PasswordOTP,
     StaffLoginActivity,
     StaffLoginActivityAccess,
+    StaffMap,
+    StaffMapPosition,
     SiteBrandSettings,
     OfficeRental,
     EducationSpaceDesign,
@@ -465,6 +472,13 @@ MANAGEMENT_SEARCH_ACTIONS = [
         "keywords": "lich su dang nhap dang xuat thiet bi staff admin",
         "login_activity_only": True,
     },
+    {
+        "title": "Sơ đồ vị trí",
+        "description": "Upload sơ đồ, gán staff/admin vào vị trí và theo dõi online realtime.",
+        "url_name": "staff_map",
+        "icon": "fa-solid fa-map-location-dot",
+        "keywords": "so do vi tri user staff admin online offline realtime websocket",
+    },
 ]
 
 
@@ -567,6 +581,97 @@ def login_activity_required(view_func):
         return redirect("dashboard")
 
     return _wrapped
+
+
+def _active_staff_map():
+    return StaffMap.objects.filter(is_active=True).order_by("-updated_at", "-id").first()
+
+
+def _active_user_ids():
+    return set(
+        StaffLoginActivity.objects.filter(status=StaffLoginActivity.STATUS_ACTIVE)
+        .values_list("user_id", flat=True)
+        .distinct()
+    )
+
+
+def _serialize_staff_map_position(position, active_user_ids=None):
+    active_user_ids = active_user_ids if active_user_ids is not None else _active_user_ids()
+    assigned_user = position.assigned_user
+    is_online = bool(assigned_user and assigned_user.id in active_user_ids)
+    display_name = ""
+    if assigned_user:
+        display_name = assigned_user.get_full_name() or assigned_user.username
+
+    return {
+        "id": position.id,
+        "name": position.name,
+        "x": float(position.x_percent),
+        "y": float(position.y_percent),
+        "assigned_user_id": assigned_user.id if assigned_user else None,
+        "assigned_user_name": display_name,
+        "assigned_user_username": assigned_user.username if assigned_user else "",
+        "is_online": is_online,
+        "status_label": "Online" if is_online else "Offline",
+    }
+
+
+def _serialize_staff_map(staff_map=None):
+    staff_map = staff_map or _active_staff_map()
+    if not staff_map:
+        return {"map": None, "positions": []}
+
+    active_user_ids = _active_user_ids()
+    positions = (
+        staff_map.positions.select_related("assigned_user")
+        .all()
+        .order_by("name", "id")
+    )
+    return {
+        "map": {
+            "id": staff_map.id,
+            "title": staff_map.title,
+            "image_url": staff_map.image.url if staff_map.image else "",
+            "updated_at": timezone.localtime(staff_map.updated_at).strftime(
+                "%d/%m/%Y %H:%M"
+            ),
+        },
+        "positions": [
+            _serialize_staff_map_position(position, active_user_ids)
+            for position in positions
+        ],
+    }
+
+
+def _coerce_percent(value, default):
+    try:
+        number = Decimal(str(value))
+    except (InvalidOperation, TypeError, ValueError):
+        number = Decimal(str(default))
+    return max(Decimal("0"), min(Decimal("100"), number.quantize(Decimal("0.001"))))
+
+
+def _staff_map_json_permission_error(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({"error": "Phiên đăng nhập đã hết. Vui lòng đăng nhập lại."}, status=401)
+    if not request.user.is_superuser:
+        return JsonResponse({"error": "Chỉ quản trị viên mới được lưu hoặc xóa vị trí."}, status=403)
+    return None
+
+
+def _staff_map_wants_json(request):
+    return request.headers.get("x-requested-with") == "XMLHttpRequest"
+
+
+def _staff_map_permission_error_response(request):
+    if _staff_map_wants_json(request):
+        return _staff_map_json_permission_error(request)
+    if not request.user.is_authenticated:
+        return redirect(f"/login/?next={reverse('staff_map')}")
+    if not request.user.is_superuser:
+        messages.warning(request, "Chỉ quản trị viên mới được lưu hoặc xóa vị trí.")
+        return redirect("staff_map")
+    return None
 
 
 def _is_management_path(path: str) -> bool:
@@ -1576,6 +1681,145 @@ def staff_login_activity(request):
             "current_device_form": current_device_form,
         },
     )
+
+
+@staff_required
+def staff_map(request):
+    upload_form = StaffMapUploadForm()
+
+    if request.method == "POST":
+        if not request.user.is_superuser:
+            messages.warning(request, "Chỉ quản trị viên mới được upload sơ đồ.")
+            return redirect("staff_map")
+
+        upload_form = StaffMapUploadForm(request.POST, request.FILES)
+        if upload_form.is_valid():
+            try:
+                staff_map_obj = upload_form.save(commit=False)
+                staff_map_obj.created_by = request.user
+                staff_map_obj.save()
+                upload_form.save_m2m()
+            except forms.ValidationError as exc:
+                upload_form.add_error(None, exc)
+            else:
+                if staff_map_obj.is_active:
+                    StaffMap.objects.exclude(pk=staff_map_obj.pk).update(is_active=False)
+                messages.success(request, "Đã upload sơ đồ và tạo ảnh hiển thị.")
+                return redirect("staff_map")
+
+    staff_map_obj = _active_staff_map() or StaffMap.objects.order_by("-updated_at", "-id").first()
+    staff_users = (
+        User.objects.filter(Q(is_staff=True) | Q(is_superuser=True), is_active=True)
+        .order_by("-is_superuser", "first_name", "last_name", "username")
+    )
+    staff_users_payload = [
+        {
+            "id": account.id,
+            "name": account.get_full_name() or account.username,
+            "role": "Admin" if account.is_superuser else "Staff",
+        }
+        for account in staff_users
+    ]
+
+    return render(
+        request,
+        "home/staff_map.html",
+        {
+            "upload_form": upload_form,
+            "staff_map": staff_map_obj,
+            "staff_users": staff_users,
+            "staff_users_payload": staff_users_payload,
+            "staff_map_snapshot": _serialize_staff_map(staff_map_obj),
+        },
+    )
+
+
+@staff_required
+def staff_map_snapshot(request):
+    return JsonResponse(_serialize_staff_map())
+
+
+@require_POST
+def staff_map_position_create(request):
+    wants_json = _staff_map_wants_json(request)
+    permission_error = _staff_map_permission_error_response(request)
+    if permission_error:
+        return permission_error
+
+    staff_map_obj = _active_staff_map()
+    if not staff_map_obj:
+        if wants_json:
+            return JsonResponse({"error": "Chưa có sơ đồ đang sử dụng."}, status=400)
+        messages.warning(request, "Chưa có sơ đồ đang sử dụng.")
+        return redirect("staff_map")
+
+    assigned_user = None
+    assigned_user_id = (request.POST.get("assigned_user") or "").strip()
+    if assigned_user_id:
+        assigned_user = get_object_or_404(
+            User.objects.filter(Q(is_staff=True) | Q(is_superuser=True)),
+            pk=assigned_user_id,
+        )
+
+    position = StaffMapPosition.objects.create(
+        staff_map=staff_map_obj,
+        name=(request.POST.get("name") or "Vị trí mới").strip(),
+        assigned_user=assigned_user,
+        x_percent=_coerce_percent(request.POST.get("x"), 50),
+        y_percent=_coerce_percent(request.POST.get("y"), 50),
+        created_by=request.user,
+    )
+    if not wants_json:
+        messages.success(request, "Đã tạo vị trí trên sơ đồ.")
+        return redirect("staff_map")
+    return JsonResponse({"position": _serialize_staff_map_position(position)})
+
+
+@require_POST
+def staff_map_position_update(request, id):
+    wants_json = _staff_map_wants_json(request)
+    permission_error = _staff_map_permission_error_response(request)
+    if permission_error:
+        return permission_error
+
+    position = get_object_or_404(StaffMapPosition, pk=id)
+
+    if "name" in request.POST:
+        position.name = (request.POST.get("name") or position.name).strip()
+    if "x" in request.POST:
+        position.x_percent = _coerce_percent(request.POST.get("x"), position.x_percent)
+    if "y" in request.POST:
+        position.y_percent = _coerce_percent(request.POST.get("y"), position.y_percent)
+    if "assigned_user" in request.POST:
+        assigned_user_id = (request.POST.get("assigned_user") or "").strip()
+        if assigned_user_id:
+            position.assigned_user = get_object_or_404(
+                User.objects.filter(Q(is_staff=True) | Q(is_superuser=True)),
+                pk=assigned_user_id,
+            )
+        else:
+            position.assigned_user = None
+
+    position.save()
+    if not wants_json:
+        messages.success(request, "Đã lưu vị trí.")
+        return redirect("staff_map")
+    return JsonResponse({"position": _serialize_staff_map_position(position)})
+
+
+@require_POST
+def staff_map_position_delete(request, id):
+    wants_json = _staff_map_wants_json(request)
+    permission_error = _staff_map_permission_error_response(request)
+    if permission_error:
+        return permission_error
+
+    position = get_object_or_404(StaffMapPosition, pk=id)
+    position.delete()
+    if not wants_json:
+        messages.success(request, "Đã xóa vị trí.")
+        return redirect("staff_map")
+    return JsonResponse({"deleted": True, "id": id})
 
 
 @admin_required

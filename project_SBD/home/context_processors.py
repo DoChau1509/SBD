@@ -124,6 +124,11 @@ MANAGEMENT_URL_GROUPS = {
         "staff_account_edit",
         "staff_account_toggle_status",
         "staff_login_activity",
+        "staff_map",
+        "staff_map_snapshot",
+        "staff_map_position_add",
+        "staff_map_position_update",
+        "staff_map_position_delete",
     },
 }
 

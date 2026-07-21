@@ -19,6 +19,8 @@ from .models import (
     StaffDevice,
     StaffLoginActivity,
     StaffLoginActivityAccess,
+    StaffMap,
+    StaffMapPosition,
     OfficeRental,
     EducationSpaceDesign,
     SpecializedServiceContent,
@@ -46,6 +48,8 @@ admin.site.register(PasswordOTP)
 admin.site.register(StaffDevice)
 admin.site.register(StaffLoginActivity)
 admin.site.register(StaffLoginActivityAccess)
+admin.site.register(StaffMap)
+admin.site.register(StaffMapPosition)
 admin.site.register(OfficeRental)
 admin.site.register(EducationSpaceDesign)
 admin.site.register(SpecializedServiceContent)
