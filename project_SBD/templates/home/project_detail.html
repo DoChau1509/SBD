@@ -9,23 +9,83 @@
 		box-shadow: 0 12px 44px rgba(26,46,74,0.10);
 		overflow: hidden;
 	}
-	.detail-hero {
-		height: 380px;
+	.project-detail-gallery {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) 210px;
+		gap: 18px;
+		padding: 18px;
+		background: var(--white);
+	}
+	.project-detail-main {
+		min-height: 500px;
 		position: relative;
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		padding: 24px;
+		border-radius: 8px;
+		overflow: hidden;
 		background: radial-gradient(900px 320px at 20% 15%, rgba(201, 150, 62, 0.35) 0%, transparent 60%),
 		            linear-gradient(135deg, rgba(8, 28, 50, 0.96) 0%, rgba(26, 60, 94, 0.96) 60%, rgba(201, 150, 62, 0.22) 100%);
 	}
-	.detail-hero img { width: 100%; height: 100%; object-fit: contain; object-position: center; display:block; }
-	.detail-hero .fallback {
-		position:absolute; inset:0;
-		display:flex; align-items:center; justify-content:center;
+	.project-detail-main img {
+		width: 100%;
+		height: 100%;
+		object-fit: contain;
+		object-position: center;
+		display: block;
+	}
+	.project-detail-main i {
+		font-size: 76px;
 		color: rgba(255,255,255,0.92);
 	}
-	.detail-hero .fallback i { font-size: 74px; }
+	.project-detail-thumbs-panel {
+		display: grid;
+		grid-template-rows: 40px minmax(0, 1fr) 40px;
+		gap: 10px;
+		min-height: 500px;
+	}
+	.project-detail-thumb-nav {
+		border: 1px solid rgba(26,46,74,0.15);
+		background: var(--white);
+		color: var(--primary);
+		border-radius: 6px;
+		font-size: 16px;
+		transition: all 0.25s ease;
+	}
+	.project-detail-thumb-nav:hover:not(:disabled) {
+		background: var(--primary);
+		color: var(--white);
+		border-color: var(--primary);
+	}
+	.project-detail-thumb-nav:disabled { opacity: 0.38; cursor: not-allowed; }
+	.project-detail-thumbs {
+		display: grid;
+		grid-template-rows: repeat(4, 1fr);
+		gap: 12px;
+		min-height: 0;
+	}
+	.project-detail-thumb {
+		position: relative;
+		border: 0;
+		border-radius: 8px;
+		overflow: hidden;
+		padding: 10px;
+		min-height: 0;
+		background: linear-gradient(135deg, rgba(8, 28, 50, 0.96), rgba(26, 60, 94, 0.96));
+		color: rgba(255,255,255,0.88);
+		box-shadow: 0 4px 18px rgba(26,46,74,0.10);
+		cursor: pointer;
+	}
+	.project-detail-thumb.is-hidden { display: none; }
+	.project-detail-thumb.is-active { outline: 3px solid var(--accent); outline-offset: 0; }
+	.project-detail-thumb img {
+		width: 100%;
+		height: 100%;
+		object-fit: contain;
+		display: block;
+	}
+	.project-detail-thumb i { font-size: 28px; }
 	.detail-body { padding: 34px; }
 	.badge-cat {
 		display:inline-block;
@@ -43,6 +103,28 @@
 	.detail-title { font-size: 34px; color: var(--primary); margin: 0 0 10px; }
 	.detail-meta { color: var(--text-muted); font-size: 13.5px; margin-bottom: 18px; }
 	.detail-desc { color: var(--text-muted); line-height: 1.9; font-size: 15px; }
+	@media (max-width: 991px) {
+		.project-detail-gallery { grid-template-columns: 1fr; }
+		.project-detail-main { min-height: 420px; }
+		.project-detail-thumbs-panel {
+			grid-template-columns: 40px minmax(0, 1fr) 40px;
+			grid-template-rows: auto;
+			min-height: auto;
+		}
+		.project-detail-thumbs {
+			grid-template-columns: repeat(4, minmax(120px, 1fr));
+			grid-template-rows: 120px;
+		}
+		.project-detail-thumb-nav[data-detail-thumbs-prev] i { transform: rotate(-90deg); }
+		.project-detail-thumb-nav[data-detail-thumbs-next] i { transform: rotate(-90deg); }
+	}
+	@media (max-width: 575px) {
+		.project-detail-gallery { padding: 12px; }
+		.project-detail-main { min-height: 340px; }
+		.project-detail-thumbs { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(2, 104px); }
+		.detail-body { padding: 24px; }
+		.detail-title { font-size: 28px; }
+	}
 </style>
 
 <section class="section-top">
@@ -68,7 +150,68 @@
 		<div class="row justify-content-center">
 			<div class="col-lg-10">
 				<div class="detail-card">
-					{% include "includes/content_gallery.html" with instance=project title=project.name fallback_icon="fa-regular fa-building" %}
+					{% with gallery_images=project.gallery_images.all %}
+						<div class="project-detail-gallery" data-project-detail-gallery>
+							<div class="project-detail-main" aria-live="polite">
+								{% if project.image %}
+									<img src="{{ project.image.url }}" alt="{{ project.name }}" data-detail-main-image>
+									<i class="fa-regular fa-building" data-detail-main-icon hidden></i>
+								{% elif gallery_images %}
+									{% for gallery_image in gallery_images %}
+										{% if forloop.first %}
+											<img src="{{ gallery_image.image.url }}" alt="{{ gallery_image.alt_text|default:project.name }}" data-detail-main-image>
+										{% endif %}
+									{% endfor %}
+									<i class="fa-regular fa-building" data-detail-main-icon hidden></i>
+								{% else %}
+									<img src="" alt="{{ project.name }}" data-detail-main-image hidden>
+									<i class="fa-regular fa-building" data-detail-main-icon></i>
+								{% endif %}
+							</div>
+
+							<div class="project-detail-thumbs-panel" aria-label="Danh sách ảnh dự án">
+								<button type="button" class="project-detail-thumb-nav" data-detail-thumbs-prev aria-label="Ảnh trước">
+									<i class="fa fa-chevron-up"></i>
+								</button>
+								<div class="project-detail-thumbs">
+									{% if project.image %}
+										<button
+											type="button"
+											class="project-detail-thumb is-active"
+											data-detail-thumb
+											data-index="0"
+											data-image="{{ project.image.url }}"
+											data-alt="{{ project.name }}"
+											aria-label="Chọn ảnh {{ project.name }}"
+										>
+											<img src="{{ project.image.url }}" alt="{{ project.name }}">
+										</button>
+									{% endif %}
+									{% for gallery_image in gallery_images %}
+										<button
+											type="button"
+											class="project-detail-thumb{% if not project.image and forloop.first %} is-active{% endif %}"
+											data-detail-thumb
+											data-index="{% if project.image %}{{ forloop.counter }}{% else %}{{ forloop.counter0 }}{% endif %}"
+											data-image="{{ gallery_image.image.url }}"
+											data-alt="{{ gallery_image.alt_text|default:project.name }}"
+											aria-label="Chọn ảnh {{ gallery_image.alt_text|default:project.name }}"
+										>
+											<img src="{{ gallery_image.image.url }}" alt="{{ gallery_image.alt_text|default:project.name }}">
+										</button>
+									{% endfor %}
+									{% if not project.image and not gallery_images %}
+										<button type="button" class="project-detail-thumb is-active" data-detail-thumb data-index="0" data-image="" data-alt="{{ project.name }}">
+											<i class="fa-regular fa-building"></i>
+										</button>
+									{% endif %}
+								</div>
+								<button type="button" class="project-detail-thumb-nav" data-detail-thumbs-next aria-label="Ảnh tiếp theo">
+									<i class="fa fa-chevron-down"></i>
+								</button>
+							</div>
+						</div>
+					{% endwith %}
 					<div class="detail-body">
 						<div class="badge-cat">{{ project.category.name }}</div>
 						<h2 class="detail-title">{{ project.name }}</h2>
@@ -89,5 +232,68 @@
 		</div>
 	</div>
 </section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+	var gallery = document.querySelector('[data-project-detail-gallery]');
+	if (!gallery) return;
+
+	var thumbs = Array.prototype.slice.call(gallery.querySelectorAll('[data-detail-thumb]'));
+	var mainImage = gallery.querySelector('[data-detail-main-image]');
+	var mainIcon = gallery.querySelector('[data-detail-main-icon]');
+	var prevButton = gallery.querySelector('[data-detail-thumbs-prev]');
+	var nextButton = gallery.querySelector('[data-detail-thumbs-next]');
+	var visibleCount = 4;
+	var windowStart = 0;
+
+	function showImage(thumb) {
+		if (!thumb) return;
+		thumbs.forEach(function (item) {
+			item.classList.toggle('is-active', item === thumb);
+		});
+		if (thumb.dataset.image) {
+			mainImage.src = thumb.dataset.image;
+			mainImage.alt = thumb.dataset.alt || '';
+			mainImage.hidden = false;
+			mainIcon.hidden = true;
+		} else {
+			mainImage.removeAttribute('src');
+			mainImage.hidden = true;
+			mainIcon.hidden = false;
+		}
+	}
+
+	function renderThumbWindow() {
+		if (thumbs.length <= visibleCount) {
+			windowStart = 0;
+		} else {
+			windowStart = Math.max(0, Math.min(windowStart, thumbs.length - visibleCount));
+		}
+		thumbs.forEach(function (thumb, index) {
+			thumb.classList.toggle('is-hidden', index < windowStart || index >= windowStart + visibleCount);
+		});
+		prevButton.disabled = windowStart === 0;
+		nextButton.disabled = windowStart + visibleCount >= thumbs.length;
+	}
+
+	thumbs.forEach(function (thumb, index) {
+		thumb.addEventListener('click', function () {
+			if (index < windowStart) windowStart = index;
+			if (index >= windowStart + visibleCount) windowStart = index - visibleCount + 1;
+			showImage(thumb);
+			renderThumbWindow();
+		});
+	});
+	prevButton.addEventListener('click', function () {
+		windowStart = Math.max(0, windowStart - 1);
+		renderThumbWindow();
+	});
+	nextButton.addEventListener('click', function () {
+		windowStart = Math.min(Math.max(0, thumbs.length - visibleCount), windowStart + 1);
+		renderThumbWindow();
+	});
+	renderThumbWindow();
+});
+</script>
 
 {% endblock %}

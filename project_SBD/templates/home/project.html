@@ -47,18 +47,24 @@
 		border-color: var(--primary);
 	}
 
-	/* Project Cards */
+	/* Project Showcase */
 	.projects-section { padding: 90px 0; background: var(--light-bg); }
-	.project-item {
-		position: relative; overflow: hidden;
+	.project-showcase {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) 230px;
+		gap: 22px;
+		align-items: stretch;
+	}
+	.project-main {
+		position: relative;
+		min-height: 560px;
 		border-radius: 8px;
-		height: 280px;
-		box-shadow: 0 4px 20px rgba(26,46,74,0.1);
+		overflow: hidden;
+		box-shadow: 0 14px 42px rgba(26,46,74,0.14);
 		background: var(--white);
 	}
-	.project-item a { position:absolute; inset:0; text-decoration:none; }
-
-	.project-item .thumb {
+	.project-main a { position: absolute; inset: 0; text-decoration: none; color: inherit; }
+	.project-main-media {
 		position: absolute;
 		inset: 0;
 		display: flex;
@@ -67,38 +73,149 @@
 		background: radial-gradient(900px 300px at 20% 15%, rgba(201, 150, 62, 0.35) 0%, transparent 60%),
 					linear-gradient(135deg, rgba(8, 28, 50, 0.96) 0%, rgba(26, 60, 94, 0.96) 60%, rgba(201, 150, 62, 0.22) 100%);
 		color: rgba(255,255,255,0.92);
-		transition: transform 0.55s ease;
-		padding: 18px;
+		padding: 24px;
 	}
-	.project-item .thumb img { width: 100%; height: 100%; object-fit: contain; object-position: center; display:block; }
-	.project-item .thumb i { font-size: 54px; opacity: 0.92; }
-	.project-item:hover .thumb { transform: translateY(-2px); }
-
-	.project-item-overlay {
+	.project-main-media img {
+		width: 100%;
+		height: 100%;
+		object-fit: contain;
+		object-position: center;
+		display: block;
+	}
+	.project-main-media i { font-size: 84px; opacity: 0.92; }
+	.project-main-overlay {
 		position: absolute; inset: 0;
 		background: linear-gradient(to top, rgba(26,46,74,0.94) 0%, rgba(26,46,74,0.25) 62%, transparent 100%);
 		display: flex; flex-direction: column;
-		justify-content: flex-end; padding: 22px;
+		justify-content: flex-end; padding: 34px;
 	}
-	.project-item-overlay .category {
+	.project-main-overlay .category {
 		font-size: 11px; font-weight: 800;
 		letter-spacing: 2px; text-transform: uppercase;
 		color: var(--accent-light); margin-bottom: 8px;
 	}
-	.project-item-overlay h4 { color: var(--white); font-size: 18px; margin: 0 0 8px; }
-	.project-item-overlay p {
+	.project-main-overlay h3 {
+		color: var(--white);
+		font-size: 34px;
+		margin: 0 0 10px;
+		line-height: 1.2;
+	}
+	.project-main-overlay p {
 		color: rgba(255,255,255,0.70);
-		font-size: 13px;
+		font-size: 15px;
 		margin: 0;
 		line-height: 1.6;
+		max-width: 720px;
 	}
-	.project-item-overlay .meta {
-		margin-top: 10px;
+	.project-main-overlay .meta {
+		margin-top: 14px;
 		color: rgba(255,255,255,0.60);
-		font-size: 12.5px;
+		font-size: 13px;
 		display: flex;
 		align-items: center;
 		gap: 10px;
+	}
+	.project-thumbs-panel {
+		display: grid;
+		grid-template-rows: 40px minmax(0, 1fr) 40px;
+		gap: 10px;
+		min-height: 560px;
+	}
+	.project-thumb-nav {
+		border: 1px solid rgba(26,46,74,0.15);
+		background: var(--white);
+		color: var(--primary);
+		border-radius: 6px;
+		font-size: 16px;
+		transition: all 0.25s ease;
+	}
+	.project-thumb-nav:hover:not(:disabled) {
+		background: var(--primary);
+		color: var(--white);
+		border-color: var(--primary);
+	}
+	.project-thumb-nav:disabled { opacity: 0.38; cursor: not-allowed; }
+	.project-thumbs {
+		display: grid;
+		grid-template-rows: repeat(4, 1fr);
+		gap: 12px;
+		min-height: 0;
+	}
+	.project-thumb-button {
+		position: relative;
+		border: 0;
+		border-radius: 8px;
+		overflow: hidden;
+		padding: 0;
+		min-height: 0;
+		background: var(--white);
+		box-shadow: 0 4px 18px rgba(26,46,74,0.10);
+		cursor: pointer;
+	}
+	.project-thumb-button.is-hidden { display: none; }
+	.project-thumb-button.is-active { outline: 3px solid var(--accent); outline-offset: 0; }
+	.project-thumb-media {
+		position: absolute;
+		inset: 0;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 10px;
+		background: linear-gradient(135deg, rgba(8, 28, 50, 0.96), rgba(26, 60, 94, 0.96));
+		color: rgba(255,255,255,0.88);
+	}
+	.project-thumb-media img {
+		width: 100%;
+		height: 100%;
+		object-fit: contain;
+		display: block;
+	}
+	.project-thumb-media i { font-size: 28px; }
+	.project-thumb-label {
+		position: absolute;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		padding: 24px 10px 9px;
+		background: linear-gradient(to top, rgba(26,46,74,0.92), transparent);
+		color: var(--white);
+		font-size: 12px;
+		font-weight: 700;
+		line-height: 1.35;
+		text-align: left;
+	}
+	.project-empty {
+		padding: 40px 0;
+		text-align: center;
+		color: var(--text-muted);
+	}
+	@media (max-width: 991px) {
+		.project-showcase {
+			grid-template-columns: 1fr;
+		}
+		.project-main,
+		.project-thumbs-panel {
+			min-height: auto;
+		}
+		.project-main {
+			height: 460px;
+		}
+		.project-thumbs-panel {
+			grid-template-columns: 40px minmax(0, 1fr) 40px;
+			grid-template-rows: auto;
+		}
+		.project-thumbs {
+			grid-template-columns: repeat(4, minmax(120px, 1fr));
+			grid-template-rows: 120px;
+		}
+		.project-thumb-nav[data-project-thumbs-prev] i { transform: rotate(-90deg); }
+		.project-thumb-nav[data-project-thumbs-next] i { transform: rotate(-90deg); }
+	}
+	@media (max-width: 575px) {
+		.project-main { height: 390px; }
+		.project-main-overlay { padding: 24px; }
+		.project-main-overlay h3 { font-size: 26px; }
+		.project-thumbs { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(2, 112px); }
 	}
 </style>
 
@@ -151,38 +268,72 @@
 			</ul>
 		</div>
 
-		<div class="row g-5 portfolio-items-list" id="projects-grid">
-			{% for p in projects %}
-				<div class="col-lg-4 col-md-6 mix cat-{{ p.category_id }} wow fadeInUp" data-wow-delay="0.1s">
-					<div class="project-item">
-						<a href="{% url 'project_detail' p.id %}" aria-label="Xem chi tiết {{ p.name }}">
-							<div class="thumb" aria-hidden="true">
-								{% if p.image %}
-									<img src="{{ p.image.url }}" alt="{{ p.name }}">
+		{% if projects %}
+			<div class="project-showcase wow fadeInUp" id="projects-showcase">
+				{% with first_project=projects.0 %}
+					<div class="project-main">
+						<a href="{% url 'project_detail' first_project.id %}" id="project-main-link" aria-label="Xem chi tiết {{ first_project.name }}">
+							<div class="project-main-media" aria-hidden="true" id="project-main-media">
+								{% if first_project.image %}
+									<img src="{{ first_project.image.url }}" alt="{{ first_project.name }}" id="project-main-image">
+									<i class="fa fa-building-o" id="project-main-icon" hidden></i>
 								{% else %}
-									<i class="fa fa-building-o"></i>
+									<img src="" alt="{{ first_project.name }}" id="project-main-image" hidden>
+									<i class="fa fa-building-o" id="project-main-icon"></i>
 								{% endif %}
 							</div>
-							<div class="project-item-overlay">
-								<div class="category">{{ p.category.name }}</div>
-								<h4>{{ p.name }}</h4>
-								<p>{{ p.description|default:""|truncatechars:110 }}</p>
+							<div class="project-main-overlay">
+								<div class="category" id="project-main-category">{{ first_project.category.name }}</div>
+								<h3 id="project-main-title">{{ first_project.name }}</h3>
+								<p id="project-main-desc">{{ first_project.description|default:""|truncatechars:180 }}</p>
 								<div class="meta">
-									<span><i class="fa fa-calendar-o"></i> {{ p.created_at|date:"d/m/Y" }}</span>
+									<span id="project-main-date"><i class="fa fa-calendar-o"></i> {{ first_project.created_at|date:"d/m/Y" }}</span>
 									<span><i class="fa fa-arrow-right"></i> Xem chi tiết</span>
 								</div>
 							</div>
 						</a>
 					</div>
-				</div>
-			{% empty %}
-				<div class="col-12">
-					<div class="text-center text-muted" style="padding: 40px 0;">
-						Chưa có dự án nào.
+
+					<div class="project-thumbs-panel" aria-label="Danh sách dự án">
+						<button type="button" class="project-thumb-nav" data-project-thumbs-prev aria-label="Dự án trước">
+							<i class="fa fa-chevron-up"></i>
+						</button>
+						<div class="project-thumbs" id="project-thumbs">
+							{% for p in projects %}
+								<button
+									type="button"
+									class="project-thumb-button{% if forloop.first %} is-active{% endif %}"
+									data-project-thumb
+									data-index="{{ forloop.counter0 }}"
+									data-title="{{ p.name }}"
+									data-category="{{ p.category.name }}"
+									data-desc="{{ p.description|default:''|truncatechars:180 }}"
+									data-date="{{ p.created_at|date:'d/m/Y' }}"
+									data-url="{% url 'project_detail' p.id %}"
+									data-image="{% if p.image %}{{ p.image.url }}{% endif %}"
+									data-filter-class="cat-{{ p.category_id }}"
+									aria-label="Chọn dự án {{ p.name }}"
+								>
+									<span class="project-thumb-media" aria-hidden="true">
+										{% if p.image %}
+											<img src="{{ p.image.url }}" alt="{{ p.name }}">
+										{% else %}
+											<i class="fa fa-building-o"></i>
+										{% endif %}
+									</span>
+									<span class="project-thumb-label">{{ p.name }}</span>
+								</button>
+							{% endfor %}
+						</div>
+						<button type="button" class="project-thumb-nav" data-project-thumbs-next aria-label="Dự án tiếp theo">
+							<i class="fa fa-chevron-down"></i>
+						</button>
 					</div>
-				</div>
-			{% endfor %}
-		</div>
+				{% endwith %}
+			</div>
+		{% else %}
+			<div class="project-empty">Chưa có dự án nào.</div>
+		{% endif %}
 	</div>
 </section>
 
@@ -198,10 +349,100 @@
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 	var filterList = document.getElementById('filter-list');
-	var grid = document.getElementById('projects-grid');
-	if (!filterList || !grid) return;
+	var showcase = document.getElementById('projects-showcase');
+	if (!filterList || !showcase) return;
 
-	var items = Array.prototype.slice.call(grid.querySelectorAll('.mix'));
+	var thumbs = Array.prototype.slice.call(showcase.querySelectorAll('[data-project-thumb]'));
+	var mainLink = document.getElementById('project-main-link');
+	var mainImage = document.getElementById('project-main-image');
+	var mainIcon = document.getElementById('project-main-icon');
+	var mainTitle = document.getElementById('project-main-title');
+	var mainCategory = document.getElementById('project-main-category');
+	var mainDesc = document.getElementById('project-main-desc');
+	var mainDate = document.getElementById('project-main-date');
+	var prevButton = showcase.querySelector('[data-project-thumbs-prev]');
+	var nextButton = showcase.querySelector('[data-project-thumbs-next]');
+	var activeThumbs = thumbs.slice();
+	var activeIndex = 0;
+	var windowStart = 0;
+	var visibleCount = 4;
+
+	function syncVisibleCount() {
+		visibleCount = window.matchMedia('(max-width: 575px)').matches ? 4 : 4;
+	}
+
+	function showProject(thumb) {
+		if (!thumb) return;
+		activeIndex = activeThumbs.indexOf(thumb);
+		thumbs.forEach(function (item) {
+			item.classList.toggle('is-active', item === thumb);
+		});
+		mainLink.href = thumb.dataset.url || '#';
+		mainTitle.textContent = thumb.dataset.title || '';
+		mainCategory.textContent = thumb.dataset.category || '';
+		mainDesc.textContent = thumb.dataset.desc || '';
+		mainDate.innerHTML = '<i class="fa fa-calendar-o"></i> ' + (thumb.dataset.date || '');
+		if (thumb.dataset.image) {
+			mainImage.src = thumb.dataset.image;
+			mainImage.alt = thumb.dataset.title || '';
+			mainImage.hidden = false;
+			mainIcon.hidden = true;
+		} else {
+			mainImage.removeAttribute('src');
+			mainImage.hidden = true;
+			mainIcon.hidden = false;
+		}
+	}
+
+	function renderThumbWindow() {
+		syncVisibleCount();
+		if (activeThumbs.length <= visibleCount) {
+			windowStart = 0;
+		} else {
+			windowStart = Math.max(0, Math.min(windowStart, activeThumbs.length - visibleCount));
+		}
+		thumbs.forEach(function (thumb) {
+			var index = activeThumbs.indexOf(thumb);
+			var visible = index >= windowStart && index < windowStart + visibleCount;
+			thumb.classList.toggle('is-hidden', !visible);
+		});
+		prevButton.disabled = windowStart === 0;
+		nextButton.disabled = windowStart + visibleCount >= activeThumbs.length;
+	}
+
+	function applyFilter(filter) {
+		activeThumbs = thumbs.filter(function (thumb) {
+			return filter === 'all' || thumb.dataset.filterClass === filter;
+		});
+		windowStart = 0;
+		if (activeThumbs.length) {
+			showProject(activeThumbs[0]);
+		}
+		showcase.hidden = activeThumbs.length === 0;
+		renderThumbWindow();
+	}
+
+	thumbs.forEach(function (thumb) {
+		thumb.addEventListener('click', function () {
+			var index = activeThumbs.indexOf(thumb);
+			if (index >= 0) {
+				if (index < windowStart) windowStart = index;
+				if (index >= windowStart + visibleCount) windowStart = index - visibleCount + 1;
+			}
+			showProject(thumb);
+			renderThumbWindow();
+		});
+	});
+
+	prevButton.addEventListener('click', function () {
+		windowStart = Math.max(0, windowStart - 1);
+		renderThumbWindow();
+	});
+	nextButton.addEventListener('click', function () {
+		windowStart = Math.min(Math.max(0, activeThumbs.length - visibleCount), windowStart + 1);
+		renderThumbWindow();
+	});
+
 	filterList.addEventListener('click', function (e) {
 		var li = e.target.closest('li[data-filter]');
 		if (!li) return;
@@ -212,11 +453,10 @@ document.addEventListener('DOMContentLoaded', function () {
 		li.classList.add('active');
 
 		var filter = li.getAttribute('data-filter');
-		items.forEach(function (item) {
-			var show = (filter === 'all') || item.classList.contains(filter);
-			item.style.display = show ? '' : 'none';
-		});
+		applyFilter(filter);
 	});
+	window.addEventListener('resize', renderThumbWindow);
+	renderThumbWindow();
 });
 </script>
 
