@@ -1,59 +1,93 @@
 {% extends 'base.html' %} {% load static %} {% block content %}
 <!-- HERO -->
-{% if hero and hero.bg_type == 'video' and hero.bg_video %}
 <section class="home_bg">
-    <video autoplay muted loop playsinline
-           style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:0;">
-        <source src="{{ hero.bg_video.url }}" type="video/mp4">
-    </video>
-    <div style="position:relative; z-index:1;">
+    <div class="home-project-stage">
+        {% if hero_project %}
+        <a class="hero-project-focus" href="{% url 'project_detail' hero_project.id %}" data-hero-focus aria-label="Xem chi tiết {{ hero_project.name }}">
+        {% else %}
+        <div class="hero-project-focus" data-hero-focus>
+        {% endif %}
+            <img
+                src="{% if hero_project and hero_project.image %}{{ hero_project.image.url }}{% endif %}"
+                alt="{% if hero_project %}{{ hero_project.name }}{% endif %}"
+                data-hero-image
+                {% if not hero_project or not hero_project.image %}hidden{% endif %}
+            >
+            <div class="hero-project-placeholder" data-hero-placeholder {% if hero_project and hero_project.image %}hidden{% endif %}>
+                <i class="fa fa-building-o" aria-hidden="true"></i>
+            </div>
+            {% if hero_project %}
+            <div class="hero-project-current">
+                <span data-hero-current-category>{{ hero_project.category.name }}</span>
+                <h3 data-hero-current-name>{{ hero_project.name }}</h3>
+                <p data-hero-current-description>{{ hero_project.description|truncatewords:24 }}</p>
+            </div>
+            {% endif %}
+        {% if hero_project %}
+        </a>
+        {% else %}
+        </div>
+        {% endif %}
 
-{% elif hero and hero.bg_type == 'image' and hero.bg_image %}
-<section class="home_bg">
-    <div style="position:absolute; top:0; left:0; width:100%; height:100%;
-                background-image: url('{{ hero.bg_image.url }}');
-                background-size:cover; background-position:center; z-index:0;">
-    </div>
-    <div style="position:relative; z-index:1;">
-
-{% elif hero and hero.bg_type == 'carousel' and hero.carousel_images.all %}
-<section class="home_bg">
-    <div id="heroBgCarousel" style="position:absolute; top:0; left:0; width:100%; height:100%; z-index:0;">
-        {% for img in hero.carousel_images.all %}
-        <div class="carousel-bg-slide" style="position:absolute; top:0; left:0; width:100%; height:100%;
-             background-image:url('{{ img.image.url }}'); background-size:cover; background-position:center;
-             opacity:0; transition: opacity 1s ease-in-out;"></div>
-        {% endfor %}
-    </div>
-    <div style="position:relative; z-index:1;">
-
-{% else %}
-<section class="home_bg">
-    <div>
-{% endif %}
         <div class="container-fluid">
             <div class="row">
                 <div class="col-12 text-center">
                     <div class="hero-text {% if hero and hero.text_theme %}hero-text--{{ hero.text_theme }}{% else %}hero-text--light{% endif %}">
                         {% if hero %}
-                            <div class="hero-badge">{{ hero.badge_text }}</div>
-                            <h2>{{ hero.heading_line1 }}{% if hero.heading_line2 %}<br><span>{{ hero.heading_line2 }}</span>{% endif %}</h2>
-                            <p>{{ hero.description }}</p>
-                            <div class="hero-actions">
-                                <a href="{{ hero.btn_primary_url }}" class="btn-primary-custom mr-3">{{ hero.btn_primary_text }}</a>
-                                <a href="{{ hero.btn_outline_url }}" class="btn-outline-custom">{{ hero.btn_outline_text }}</a>
-                            </div>
-                            <div class="hero-stats">
-                                <div class="hero-stat-item"><div class="num">{{ hero.stat_1_num }}</div><div class="label">{{ hero.stat_1_label }}</div></div>
-                                <div class="hero-stat-item"><div class="num">{{ hero.stat_2_num }}</div><div class="label">{{ hero.stat_2_label }}</div></div>
-                                <div class="hero-stat-item"><div class="num">{{ hero.stat_3_num }}</div><div class="label">{{ hero.stat_3_label }}</div></div>
-                                <div class="hero-stat-item"><div class="num">{{ hero.stat_4_num }}</div><div class="label">{{ hero.stat_4_label }}</div></div>
-                            </div>
+                        <div class="hero-badge">{{ hero.badge_text }}</div>
+                        <h2>{{ hero.heading_line1 }}{% if hero.heading_line2 %}<br><span>{{ hero.heading_line2 }}</span>{% endif %}</h2>
+                        <p>{{ hero.description }}</p>
+                        <div class="hero-actions">
+                            <a href="{{ hero.btn_primary_url }}" class="btn-primary-custom mr-3">{{ hero.btn_primary_text }}</a>
+                            <a href="{{ hero.btn_outline_url }}" class="btn-outline-custom">{{ hero.btn_outline_text }}</a>
+                        </div>
+                        <div class="hero-stats">
+                            <div class="hero-stat-item"><div class="num">{{ hero.stat_1_num }}</div><div class="label">{{ hero.stat_1_label }}</div></div>
+                            <div class="hero-stat-item"><div class="num">{{ hero.stat_2_num }}</div><div class="label">{{ hero.stat_2_label }}</div></div>
+                            <div class="hero-stat-item"><div class="num">{{ hero.stat_3_num }}</div><div class="label">{{ hero.stat_3_label }}</div></div>
+                            <div class="hero-stat-item"><div class="num">{{ hero.stat_4_num }}</div><div class="label">{{ hero.stat_4_label }}</div></div>
+                        </div>
                         {% endif %}
                     </div>
                 </div>
             </div>
         </div>
+
+        {% if hero_rail_projects %}
+        <div class="hero-project-rail" aria-label="Các dự án nổi bật khác">
+            <div class="hero-project-rail-info">
+                <span>Dự án đang chiếu</span>
+                <strong data-hero-rail-name>{{ hero_project.name }}</strong>
+                <small data-hero-rail-year>{{ hero_project.created_at|date:"Y" }}</small>
+            </div>
+            {% for project in hero_rail_projects %}
+            <button
+                type="button"
+                class="hero-project-mini{% if project.id == hero_project.id %} is-active{% endif %}"
+                aria-label="Hiển thị {{ project.name }}"
+                aria-pressed="{% if project.id == hero_project.id %}true{% else %}false{% endif %}"
+                data-hero-project
+                data-project-id="{{ project.id }}"
+                data-name="{{ project.name }}"
+                data-category="{{ project.category.name }}"
+                data-year="{{ project.created_at|date:'Y' }}"
+                data-description="{{ project.description|truncatewords:24 }}"
+                data-image="{% if project.image %}{{ project.image.url }}{% endif %}"
+                data-detail-url="{% url 'project_detail' project.id %}"
+            >
+                {% if project.image %}
+                <img src="{{ project.image.url }}" alt="{{ project.name }}">
+                {% else %}
+                <i class="fa fa-building-o" aria-hidden="true"></i>
+                {% endif %}
+                <span>
+                    <strong>{{ project.name }}</strong>
+                    <small>{{ project.category.name }}</small>
+                </span>
+            </button>
+            {% endfor %}
+        </div>
+        {% endif %}
     </div>
 </section>
 
@@ -331,19 +365,52 @@
     <a href="{% url 'contact' %}" class="btn-cta">Liên Hệ Ngay</a>
   </div>
 </section>
-{% if hero and hero.bg_type == 'carousel' %}
 <script>
 (function() {
-    var slides = document.querySelectorAll('.carousel-bg-slide');
-    if (!slides.length) return;
-    var current = 0;
-    slides[0].style.opacity = '1';
-    setInterval(function() {
-        slides[current].style.opacity = '0';
-        current = (current + 1) % slides.length;
-        slides[current].style.opacity = '1';
-    }, 5000);
+    var focus = document.querySelector('[data-hero-focus]');
+    var image = document.querySelector('[data-hero-image]');
+    var placeholder = document.querySelector('[data-hero-placeholder]');
+    var currentCategory = document.querySelector('[data-hero-current-category]');
+    var currentName = document.querySelector('[data-hero-current-name]');
+    var currentDescription = document.querySelector('[data-hero-current-description]');
+    var railName = document.querySelector('[data-hero-rail-name]');
+    var railYear = document.querySelector('[data-hero-rail-year]');
+    var buttons = document.querySelectorAll('[data-hero-project]');
+
+    if (!focus || !buttons.length) return;
+
+    buttons.forEach(function(button) {
+        button.addEventListener('click', function() {
+            var imageUrl = button.dataset.image || '';
+
+            if (imageUrl && image) {
+                image.src = imageUrl;
+                image.alt = button.dataset.name || '';
+                image.hidden = false;
+                if (placeholder) placeholder.hidden = true;
+            } else {
+                if (image) image.hidden = true;
+                if (placeholder) placeholder.hidden = false;
+            }
+
+            if (focus.tagName === 'A') {
+                focus.href = button.dataset.detailUrl || focus.href;
+                focus.setAttribute('aria-label', 'Xem chi tiết ' + (button.dataset.name || 'dự án'));
+            }
+            if (currentCategory) currentCategory.textContent = button.dataset.category || '';
+            if (currentName) currentName.textContent = button.dataset.name || '';
+            if (currentDescription) currentDescription.textContent = button.dataset.description || '';
+            if (railName) railName.textContent = button.dataset.name || '';
+            if (railYear) railYear.textContent = button.dataset.year || '';
+
+            buttons.forEach(function(item) {
+                item.classList.remove('is-active');
+                item.setAttribute('aria-pressed', 'false');
+            });
+            button.classList.add('is-active');
+            button.setAttribute('aria-pressed', 'true');
+        });
+    });
 })();
 </script>
-{% endif %}
 {% endblock %}

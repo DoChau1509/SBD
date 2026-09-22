@@ -919,7 +919,13 @@ def _get_active_otp(user, purpose, code):
 #     )
 def home(request):
     hero = HeroSection.objects.filter(is_active=True).first()
-    projects = Project.objects.filter(is_featured=True)
+    projects = (
+        Project.objects.filter(is_featured=True)
+        .select_related("category")
+        .order_by("-created_at", "-id")
+    )
+    hero_project = projects.first()
+    hero_rail_projects = projects[:5]
     partners = Partner.objects.filter(is_active=True).order_by("order", "created_at")
     services = (
         Service.objects.filter(is_active=True, service_type__is_active=True)
@@ -942,6 +948,8 @@ def home(request):
         "home/home.html",
         {
             "projects": projects,
+            "hero_project": hero_project,
+            "hero_rail_projects": hero_rail_projects,
             "services": services,
             "why_section": why_section,
             "why_items": why_items,
@@ -3711,29 +3719,13 @@ def hero_edit(request):
         hero.stat_4_num = request.POST.get("stat_4_num", "").strip()
         hero.stat_4_label = request.POST.get("stat_4_label", "").strip()
 
-        # Background
-        hero.bg_type = request.POST.get("bg_type", "color")
-        if "bg_image" in request.FILES:
-            hero.bg_image = request.FILES["bg_image"]
-        if "bg_video" in request.FILES:
-            hero.bg_video = request.FILES["bg_video"]
-
         hero.save()
-
-        # Carousel images — xử lý nhiều file
-        carousel_files = request.FILES.getlist("carousel_images")
-        for f in carousel_files:
-            last_order = HeroCarouselImage.objects.filter(hero=hero).count()
-            HeroCarouselImage.objects.create(hero=hero, image=f, order=last_order)
 
         messages.success(request, "Đã cập nhật Hero section!")
         return redirect("hero_edit")
 
-    carousel_images = HeroCarouselImage.objects.filter(hero=hero) if hero else []
     return render(request, "home/hero_form.html", {
         "hero": hero,
-        "carousel_images": carousel_images,
-        "bg_type_choices": HeroSection.BG_TYPE_CHOICES,
         "text_theme_choices": HeroSection.TEXT_THEME_CHOICES,
     })
 

@@ -2,7 +2,7 @@
 {% block content %}
 <div class="container" style="padding: 40px 15px; max-width: 900px;">
     <h2>Chỉnh sửa Hero Section</h2>
-    <form method="POST" enctype="multipart/form-data">
+    <form method="POST">
         {% csrf_token %}
 
         <h5 style="margin: 24px 0 12px; color: #1a3a5c; border-bottom: 2px solid #c9a84c; padding-bottom: 6px;">Nội dung văn bản</h5>
@@ -66,76 +66,9 @@
             <div class="form-group col-md-3"><label>Nhãn 4</label><input type="text" name="stat_4_label" class="form-control" value="{{ hero.stat_4_label|default:'Khách hàng hài lòng' }}"></div>
         </div>
 
-        <h5 style="margin: 24px 0 12px; color: #1a3a5c; border-bottom: 2px solid #c9a84c; padding-bottom: 6px;">Nền & Hình ảnh</h5>
-        <div class="form-group">
-            <label>Loại nền</label>
-            <select name="bg_type" class="form-control" id="bgTypeSelect">
-                {% for value, label in bg_type_choices %}
-                <option value="{{ value }}" {% if hero.bg_type == value %}selected{% endif %}>{{ label }}</option>
-                {% endfor %}
-            </select>
-        </div>
-
-        <div id="bg_image_wrap" style="display:none;">
-            <div class="form-group">
-                <label>Ảnh nền</label>
-                {% if hero.bg_image %}
-                    <div><img src="{{ hero.bg_image.url }}" style="max-height:120px; border-radius:6px; margin-bottom:8px;"></div>
-                {% endif %}
-                <input type="file" name="bg_image" class="form-control-file" accept="image/*">
-            </div>
-        </div>
-
-        <div id="bg_video_wrap" style="display:none;">
-            <div class="form-group">
-                <label>Video nền (MP4)</label>
-                {% if hero.bg_video %}
-                    <div style="margin-bottom:8px;">
-                        <video src="{{ hero.bg_video.url }}" style="max-height:120px; border-radius:6px;" muted></video>
-                        <p class="text-muted" style="font-size:12px;">Video hiện tại — upload mới để thay thế</p>
-                    </div>
-                {% endif %}
-                <input type="file" name="bg_video" class="form-control-file" accept="video/mp4">
-            </div>
-        </div>
-
-        <div id="bg_carousel_wrap" style="display:none;">
-            <div class="form-group">
-                <label>Thêm ảnh carousel <small class="text-muted">(chọn nhiều file cùng lúc)</small></label>
-                <input type="file" name="carousel_images" class="form-control-file" accept="image/*" multiple>
-            </div>
-            {% if carousel_images %}
-            <label>Ảnh hiện có:</label>
-            <div style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:16px;">
-                {% for img in carousel_images %}
-                <div style="position:relative;">
-                    <img src="{{ img.image.url }}"
-                         style="width:120px; height:80px; object-fit:cover; border-radius:6px; border:1px solid #ddd;">
-                    <a href="{% url 'hero_carousel_delete' img.id %}"
-                       onclick="return confirm('Xóa ảnh này?')"
-                       style="position:absolute; top:-6px; right:-6px; background:red; color:white;
-                              border-radius:50%; width:20px; height:20px; display:flex;
-                              align-items:center; justify-content:center; font-size:11px; text-decoration:none;">✕</a>
-                </div>
-                {% endfor %}
-            </div>
-            {% endif %}
-        </div>
-
         <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
         <a href="{% url 'home' %}" class="btn btn-secondary">Xem Trang Chủ</a>
         <a href="{% url 'dashboard' %}" class="btn btn-secondary">Quay lại Dashboard</a>
     </form>
 </div>
-
-<script>
-    function toggleBgFields() {
-        var val = document.getElementById('bgTypeSelect').value;
-        document.getElementById('bg_image_wrap').style.display = val === 'image' ? 'block' : 'none';
-        document.getElementById('bg_video_wrap').style.display = val === 'video' ? 'block' : 'none';
-        document.getElementById('bg_carousel_wrap').style.display = val === 'carousel' ? 'block' : 'none';
-    }
-    document.getElementById('bgTypeSelect').addEventListener('change', toggleBgFields);
-    toggleBgFields(); // chạy ngay khi load
-</script>
 {% endblock %}
