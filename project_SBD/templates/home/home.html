@@ -60,6 +60,10 @@
                 <strong data-hero-rail-name>{{ hero_project.name }}</strong>
                 <small data-hero-rail-year>{{ hero_project.created_at|date:"Y" }}</small>
             </div>
+            <button type="button" class="hero-project-rail-nav" data-hero-rail-prev aria-label="Dự án phía trên">
+                <i class="fa fa-chevron-up" aria-hidden="true"></i>
+            </button>
+            <div class="hero-project-rail-list" data-hero-rail-list>
             {% for project in hero_rail_projects %}
             <button
                 type="button"
@@ -86,6 +90,10 @@
                 </span>
             </button>
             {% endfor %}
+            </div>
+            <button type="button" class="hero-project-rail-nav" data-hero-rail-next aria-label="Dự án phía dưới">
+                <i class="fa fa-chevron-down" aria-hidden="true"></i>
+            </button>
         </div>
         {% endif %}
     </div>
@@ -375,6 +383,9 @@
     var currentDescription = document.querySelector('[data-hero-current-description]');
     var railName = document.querySelector('[data-hero-rail-name]');
     var railYear = document.querySelector('[data-hero-rail-year]');
+    var railList = document.querySelector('[data-hero-rail-list]');
+    var railPrev = document.querySelector('[data-hero-rail-prev]');
+    var railNext = document.querySelector('[data-hero-rail-next]');
     var buttons = document.querySelectorAll('[data-hero-project]');
 
     if (!focus || !buttons.length) return;
@@ -409,8 +420,29 @@
             });
             button.classList.add('is-active');
             button.setAttribute('aria-pressed', 'true');
+            if (railList && typeof button.scrollIntoView === 'function') {
+                button.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+            }
         });
     });
+
+    function scrollRail(direction) {
+        if (!railList) return;
+        var firstButton = railList.querySelector('[data-hero-project]');
+        var step = firstButton ? firstButton.offsetHeight + 14 : 110;
+        railList.scrollBy({ top: direction * step * 2, behavior: 'smooth' });
+    }
+
+    if (railPrev) {
+        railPrev.addEventListener('click', function() {
+            scrollRail(-1);
+        });
+    }
+    if (railNext) {
+        railNext.addEventListener('click', function() {
+            scrollRail(1);
+        });
+    }
 })();
 </script>
 {% endblock %}

@@ -919,13 +919,14 @@ def _get_active_otp(user, purpose, code):
 #     )
 def home(request):
     hero = HeroSection.objects.filter(is_active=True).first()
-    projects = (
-        Project.objects.filter(is_featured=True)
-        .select_related("category")
-        .order_by("-created_at", "-id")
+    all_projects = Project.objects.select_related("category").all().order_by(
+        "-created_at", "-id"
     )
-    hero_project = projects.first()
-    hero_rail_projects = projects[:5]
+    projects = (
+        all_projects.filter(is_featured=True)
+    )
+    hero_project = projects.first() or all_projects.first()
+    hero_rail_projects = all_projects
     partners = Partner.objects.filter(is_active=True).order_by("order", "created_at")
     services = (
         Service.objects.filter(is_active=True, service_type__is_active=True)
