@@ -126,6 +126,128 @@
         color: var(--primary);
         background: rgba(201,150,62,.14);
       }
+
+      .site-menu .dropdown-menu {
+        min-width: 225px;
+        padding: 10px 0;
+        border: 0;
+        border-radius: 12px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, .15);
+      }
+
+      .service-menu-heading {
+        padding: 8px 18px 3px;
+        width: 100%;
+        border: 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        color: #222;
+        background: transparent;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 700;
+        line-height: 1.4;
+        list-style: none;
+        white-space: nowrap;
+      }
+
+      .service-menu-heading::-webkit-details-marker { display: none; }
+      .service-menu-heading i { font-size: 11px; transition: transform .18s ease; }
+      .service-menu-group:not([open]) .service-menu-heading i { transform: rotate(-90deg); }
+
+      .site-menu .dropdown-menu .dropdown-item.service-menu-child {
+        padding: 3px 18px 3px 34px;
+        color: #222;
+        font-size: 13px;
+        font-weight: 400;
+        font-style: italic;
+        line-height: 1.5;
+        white-space: nowrap;
+      }
+
+      .site-menu .dropdown-menu .dropdown-item.service-menu-standalone {
+        padding: 6px 18px;
+        color: #222;
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 1.4;
+        white-space: nowrap;
+      }
+
+      .site-menu .dropdown-menu .dropdown-item:hover {
+        color: var(--primary);
+        background: rgba(201, 150, 62, .10);
+      }
+
+      /* Không tạo khoảng trắng quá lớn giữa các nhóm */
+      .service-menu-group {
+        margin-bottom: 5px;
+      }
+
+      .service-menu-group:last-child {
+        margin-bottom: 0;
+      }
+      .mobile-service-heading {
+        margin: 10px 0 2px;
+        padding: 0 12px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        color: var(--primary);
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: .4px;
+        list-style: none;
+        text-transform: uppercase;
+      }
+      .mobile-service-heading::-webkit-details-marker { display: none; }
+      .mobile-service-heading i { transition: transform .18s ease; }
+      .mobile-service-group:not([open]) .mobile-service-heading i { transform: rotate(-90deg); }
+      .mobile-service-child {
+        padding-left: 34px !important;
+        font-size: 14px;
+      }
+      .mobile-service-standalone {
+        padding-left: 12px !important;
+      }
+      .floating-contact-buttons {
+        position: fixed;
+        right: 18px;
+        bottom: 22px;
+        z-index: 9000;
+        display: flex;
+        flex-direction: column-reverse;
+        gap: 12px;
+      }
+      .floating-contact-buttons.management-visible {
+        bottom: 88px;
+      }
+      .floating-contact-button {
+        width: 58px;
+        height: 58px;
+        padding: 0;
+        border: 2px solid #fff;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: #fff;
+        box-shadow: 0 10px 26px rgba(8, 28, 50, .22);
+        overflow: hidden;
+        transition: transform .18s ease, box-shadow .18s ease;
+      }
+      .floating-contact-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 14px 30px rgba(8, 28, 50, .28);
+      }
+      .floating-contact-button img {
+        width: 100%;
+        height: 100%;
+        display: block;
+        border-radius: 50%;
+        object-fit: cover;
+      }
       @media (max-width: 767.98px) {
         .management-nav { right: 10px; bottom: 12px; }
         .management-nav-menu,
@@ -138,6 +260,18 @@
         .management-nav-toggle span { display: none; }
         .management-nav-toggle { width: 42px; height: 42px; padding: 0; justify-content: center; }
         .management-nav-grid { grid-template-columns: 1fr 1fr; }
+        .floating-contact-buttons {
+          right: 12px;
+          bottom: 14px;
+          gap: 10px;
+        }
+        .floating-contact-buttons.management-visible {
+          bottom: 68px;
+        }
+        .floating-contact-button {
+          width: 50px;
+          height: 50px;
+        }
       }
       @media (max-width: 480px) {
         .management-nav-grid { grid-template-columns: 1fr; }
@@ -183,28 +317,63 @@
               <li>
                 <a href="{% url 'product' %}" class="nav-link">Sản phẩm</a>
               </li>
-              <li class="dropdown">
+              <li class="dropdown" data-bs-auto-close="outside">
                 <a
                   href="#"
                   class="nav-link dropdown-toggle"
                   data-bs-toggle="dropdown"
                   aria-expanded="false"
                 >Dịch vụ</a>
-                <ul class="dropdown-menu shadow-sm">
-                  {% comment %} <li>
-                    <a class="dropdown-item" href="{% url 'office_rental' %}">
-                      Cho thuê văn phòng
-                    </a>
-                  </li> {% endcomment %}
-                  <li>
-                    <a class="dropdown-item" href="{% url 'education_space_design' %}">
-                      Thiết kế không gian giáo dục
-                    </a>
-                  </li>
-                  <li><a class="dropdown-item" href="{% url 'industrial' %}">Công nghiệp</a></li>
-                  <li><a class="dropdown-item" href="{% url 'civil' %}">Dân dụng</a></li>
-                  <li><a class="dropdown-item" href="{% url 'energy_green' %}">Năng lượng và công trình xanh</a></li>
-                  <li><a class="dropdown-item" href="{% url 'interior_commercial' %}">Nội thất và thương mại</a></li>
+                <ul class="dropdown-menu shadow-sm" aria-label="Danh sách dịch vụ">
+
+                  {% if nav_service_items %}
+
+                    {% for item in nav_service_items %}
+
+                      {% if item.kind == "category" %}
+
+                        <li>
+                          <details class="service-menu-group" open>
+
+                          <summary class="service-menu-heading">
+                            {{ item.label }}
+                            <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+                          </summary>
+
+                          <ul class="service-menu-children list-unstyled mb-0">
+                            {% for service_type in item.children %}
+                              <li>
+                                <a
+                                  class="dropdown-item service-menu-child"
+                                  href="{{ service_type.url }}"
+                                >
+                                  {{ service_type.label }}
+                                </a>
+                              </li>
+                            {% endfor %}
+                          </ul>
+
+                          </details>
+                        </li>
+
+                      {% else %}
+
+                        <!-- Dịch vụ không thuộc danh mục -->
+                        <li>
+                          <a
+                            class="dropdown-item service-menu-standalone"
+                            href="{{ item.url }}"
+                          >
+                            {{ item.label }}
+                          </a>
+                        </li>
+
+                      {% endif %}
+
+                    {% endfor %}
+
+                  {% endif %}
+
                 </ul>
               </li>
               <li><a href="{% url 'post' %}" class="nav-link">Bài Viết</a></li>
@@ -410,21 +579,67 @@
             <li><a href="{% url 'about' %}" class="nav-link">Giới Thiệu</a></li>
             <li><a href="{% url 'project' %}" class="nav-link">Dự Án</a></li>
             <li><a href="{% url 'product' %}" class="nav-link">Sản phẩm</a></li>
-            <li class="mt-2 mb-1 fw-semibold text-uppercase text-muted small">Dịch vụ</li>
+            <li class="mt-2 mb-1 fw-semibold text-uppercase text-muted small">
+              Dịch vụ
+            </li>
+
+            {% if nav_service_items %}
+
+              {% for item in nav_service_items %}
+
+                {% if item.kind == "category" %}
+
+                  <li>
+                    <details class="mobile-service-group" open>
+                      <summary class="mobile-service-heading">
+                        {{ item.label }}
+                        <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+                      </summary>
+                      <ul class="list-unstyled mb-0">
+                        {% for service_type in item.children %}
+                          <li>
+                            <a
+                              href="{{ service_type.url }}"
+                              class="nav-link mobile-service-child"
+                            >
+                              {{ service_type.label }}
+                            </a>
+                          </li>
+                        {% endfor %}
+                      </ul>
+                    </details>
+                  </li>
+
+                {% else %}
+
+                  <li>
+                    <a
+                      href="{{ item.url }}"
+                      class="nav-link mobile-service-standalone"
+                    >
+                      {{ item.label }}
+                    </a>
+                  </li>
+
+                {% endif %}
+
+              {% endfor %}
+
+            {% endif %}
             {% comment %} <li>
               <a href="{% url 'office_rental' %}" class="nav-link">
                 Cho thuê văn phòng
               </a>
             </li> {% endcomment %}
-            <li>
-              <a href="{% url 'education_space_design' %}" class="nav-link">
+            {% comment %} <li>
+              <a href="{% url 'education_space_design' %}" class="nav-link mobile-service-standalone">
                 Thiết kế không gian giáo dục
               </a>
             </li>
-            <li><a href="{% url 'industrial' %}" class="nav-link">Công nghiệp</a></li>
-            <li><a href="{% url 'civil' %}" class="nav-link">Dân dụng</a></li>
-            <li><a href="{% url 'energy_green' %}" class="nav-link">Năng lượng và công trình xanh</a></li>
-            <li><a href="{% url 'interior_commercial' %}" class="nav-link">Nội thất và thương mại</a></li>
+            <li><a href="{% url 'industrial' %}" class="nav-link mobile-service-standalone">Công nghiệp</a></li>
+            <li><a href="{% url 'civil' %}" class="nav-link mobile-service-standalone">Dân dụng</a></li>
+            <li><a href="{% url 'energy_green' %}" class="nav-link mobile-service-standalone">Năng lượng và công trình xanh</a></li>
+            <li><a href="{% url 'interior_commercial' %}" class="nav-link mobile-service-standalone">Nội thất và thương mại</a></li> {% endcomment %}
             <li><a href="{% url 'post' %}" class="nav-link">Bài Viết</a></li>
             <li><a href="{% url 'contact' %}" class="nav-link">Liên Hệ</a></li>
             {% if user.is_authenticated and user.is_superuser %}
@@ -564,6 +779,60 @@
       {% include 'includes/management_nav.html' %}
     {% endif %}
 
+    {% if floating_contact_buttons %}
+    <div class="floating-contact-buttons{% if show_management_nav %} management-visible{% endif %}" aria-label="Liên hệ nhanh">
+      {% for button in floating_contact_buttons %}
+        {% if button.action_type == 'link' %}
+        <a
+          href="{{ button.link_url }}"
+          class="floating-contact-button"
+          target="_blank"
+          rel="noopener noreferrer"
+          title="{{ button.title }}"
+          aria-label="{{ button.title }}"
+        >
+          <img src="{{ button.image.url }}" alt="{{ button.title }}">
+        </a>
+        {% else %}
+        <button
+          type="button"
+          class="floating-contact-button"
+          data-bs-toggle="modal"
+          data-bs-target="#floatingContactModal{{ button.id }}"
+          title="{{ button.title }}"
+          aria-label="{{ button.title }}"
+        >
+          <img src="{{ button.image.url }}" alt="{{ button.title }}">
+        </button>
+        {% endif %}
+      {% endfor %}
+    </div>
+
+    {% for button in floating_contact_buttons %}
+      {% if button.action_type == 'info' %}
+      <div
+        class="modal fade"
+        id="floatingContactModal{{ button.id }}"
+        tabindex="-1"
+        aria-labelledby="floatingContactModalLabel{{ button.id }}"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="floatingContactModalLabel{{ button.id }}">{{ button.title }}</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <div class="modal-body" style="line-height: 1.8;">
+              {{ button.info_text|linebreaksbr }}
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+    {% endfor %}
+    {% endif %}
+
     <!-- MAIN CONTENT -->
     {% block content %} {% endblock %}
 
@@ -628,11 +897,11 @@
               <li><a href="{% url 'project' %}">Dự Án</a></li>
               <li><a href="{% url 'product' %}">Sản phẩm</a></li>
               {% comment %} <li><a href="{% url 'office_rental' %}">Cho thuê văn phòng</a></li> {% endcomment %}
-              <li><a href="{% url 'education_space_design' %}">Thiết kế không gian giáo dục</a></li>
+              {% comment %} <li><a href="{% url 'education_space_design' %}">Thiết kế không gian giáo dục</a></li>
               <li><a href="{% url 'industrial' %}">Công nghiệp</a></li>
               <li><a href="{% url 'civil' %}">Dân dụng</a></li>
               <li><a href="{% url 'energy_green' %}">Năng lượng và công trình xanh</a></li>
-              <li><a href="{% url 'interior_commercial' %}">Nội thất và thương mại</a></li>
+              <li><a href="{% url 'interior_commercial' %}">Nội thất và thương mại</a></li> {% endcomment %}
               <li><a href="{% url 'post' %}">Bài Viết</a></li>
               <li><a href="{% url 'contact' %}">Liên Hệ</a></li>
             </ul>
@@ -647,7 +916,7 @@
                   Cho thuê văn phòng
                 </a>
               </li> {% endcomment %}
-              <li>
+              {% comment %} <li>
                 <a class="dropdown-item" href="{% url 'education_space_design' %}">
                   Thiết kế không gian giáo dục
                 </a>
@@ -655,7 +924,7 @@
               <li><a href="{% url 'industrial' %}">Công nghiệp</a></li>
               <li><a href="{% url 'civil' %}">Dân dụng</a></li>
               <li><a href="{% url 'energy_green' %}">Năng lượng và công trình xanh</a></li>
-              <li><a href="{% url 'interior_commercial' %}">Nội thất và thương mại</a></li>
+              <li><a href="{% url 'interior_commercial' %}">Nội thất và thương mại</a></li> {% endcomment %}
             </ul>
           </div>
 

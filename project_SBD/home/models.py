@@ -581,8 +581,44 @@ class AboutStatement(models.Model):
         return f"{self.statement_type.name} - {self.display_title}"
 
 
+############## ServiceCategory
+class ServiceCategory(models.Model):
+    name = models.CharField(max_length=100, unique=True, verbose_name="Tên đề mục")
+    slug = models.SlugField(max_length=120, unique=True, blank=True)
+    order = models.PositiveIntegerField(default=0, verbose_name="Thứ tự")
+    is_active = models.BooleanField(default=True, verbose_name="Hiển thị")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["order", "created_at", "name"]
+        verbose_name = "Đề mục lớn dịch vụ"
+        verbose_name_plural = "Đề mục lớn dịch vụ"
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            base_slug = slugify(self.name) or "de-muc-dich-vu"
+            slug = base_slug
+            counter = 1
+            while ServiceCategory.objects.exclude(pk=self.pk).filter(slug=slug).exists():
+                counter += 1
+                slug = f"{base_slug}-{counter}"
+            self.slug = slug
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
+
+
 ############## ServiceType
 class ServiceType(models.Model):
+    category = models.ForeignKey(
+        ServiceCategory,
+        on_delete=models.PROTECT,
+        related_name="service_types",
+        verbose_name="Đề mục lớn",
+        blank=True,
+        null=True,
+    )
     name = models.CharField(max_length=100, unique=True, verbose_name="Tên loại")
     slug = models.SlugField(max_length=120, unique=True, blank=True)
     order = models.PositiveIntegerField(default=0, verbose_name="Thứ tự")
@@ -697,6 +733,54 @@ class Service(models.Model):
         return self.title
 
 
+class ServiceContentBlock(ManagedMediaCleanupModel):
+    BLOCK_TEXT = "text"
+    BLOCK_BOLD = "bold"
+    BLOCK_IMAGE = "image"
+    BLOCK_TYPE_CHOICES = [
+        (BLOCK_TEXT, "Chữ thường"),
+        (BLOCK_BOLD, "Chữ in đậm"),
+        (BLOCK_IMAGE, "Ảnh"),
+    ]
+    managed_file_fields = ("image",)
+
+    service = models.ForeignKey(
+        Service,
+        on_delete=models.CASCADE,
+        related_name="content_blocks",
+        verbose_name="Dịch vụ",
+    )
+    block_type = models.CharField(
+        max_length=20,
+        choices=BLOCK_TYPE_CHOICES,
+        default=BLOCK_TEXT,
+        verbose_name="Loại nội dung",
+    )
+    text = models.TextField(blank=True, default="", verbose_name="Nội dung chữ")
+    image = models.ImageField(
+        upload_to="services/content_blocks/",
+        blank=True,
+        null=True,
+        verbose_name="Ảnh",
+    )
+    order = models.PositiveIntegerField(default=0, verbose_name="Thứ tự")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["order", "created_at", "id"]
+        verbose_name = "Khối nội dung dịch vụ"
+        verbose_name_plural = "Khối nội dung dịch vụ"
+
+    def __str__(self):
+        return f"{self.service.title} - {self.get_block_type_display()} #{self.order}"
+
+
+@receiver(post_delete, sender=ServiceContentBlock)
+def delete_service_content_block_file(sender, instance, **kwargs):
+    if instance.image and instance.image.name:
+        instance.image.storage.delete(instance.image.name)
+
+
 # chứng chỉ và năng lực
 class Certificate(ManagedMediaCleanupModel):
     managed_file_fields = ("image",)
@@ -782,6 +866,41 @@ class ContactInfo(models.Model):
 
     def __str__(self):
         return self.branch_name
+
+
+class FloatingContactButton(ManagedMediaCleanupModel):
+    ACTION_LINK = "link"
+    ACTION_INFO = "info"
+    ACTION_CHOICES = [
+        (ACTION_LINK, "Mở đường link"),
+        (ACTION_INFO, "Hiện thông tin"),
+    ]
+    managed_file_fields = ("image",)
+
+    title = models.CharField(max_length=120, verbose_name="Tên nút")
+    action_type = models.CharField(
+        max_length=20,
+        choices=ACTION_CHOICES,
+        default=ACTION_LINK,
+        verbose_name="Kiểu hành động",
+    )
+    link_url = models.URLField(blank=True, verbose_name="Đường link")
+    info_text = models.TextField(blank=True, verbose_name="Thông tin hiển thị")
+    image = models.ImageField(
+        upload_to="floating_contact_buttons/",
+        verbose_name="Hình ảnh nút",
+    )
+    order = models.PositiveIntegerField(default=0, verbose_name="Thứ tự")
+    is_active = models.BooleanField(default=True, verbose_name="Hiển thị")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["order", "created_at", "id"]
+        verbose_name = "Nút liên hệ nổi"
+        verbose_name_plural = "Nút liên hệ nổi"
+
+    def __str__(self):
+        return self.title
 
 
 class EmailOTPSettings(models.Model):

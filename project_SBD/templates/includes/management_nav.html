@@ -38,6 +38,7 @@
       <div class="management-nav-group{% if management_group == 'services' %} is-active{% endif %}">
         <div class="management-nav-title"><i class="fa-solid fa-screwdriver-wrench"></i> Dịch vụ</div>
         <a href="{% url 'service_list' %}"{% if management_url_name == 'service_list' %} class="active"{% endif %}>Dịch vụ trang chủ</a>
+        <a href="{% url 'service_category_list' %}"{% if management_url_name == 'service_category_list' %} class="active"{% endif %}>Đề mục lớn dịch vụ</a>
         <a href="{% url 'service_type_list' %}"{% if management_url_name == 'service_type_list' %} class="active"{% endif %}>Loại dịch vụ</a>
         {% comment %} <a href="{% url 'office_rental_list' %}"{% if management_url_name == 'office_rental_list' %} class="active"{% endif %}>Cho thuê văn phòng</a> {% endcomment %}
         <a href="{% url 'education_space_design_list' %}"{% if management_url_name == 'education_space_design_list' %} class="active"{% endif %}>Không gian giáo dục</a>
@@ -63,6 +64,7 @@
       <div class="management-nav-group{% if management_group == 'contact' %} is-active{% endif %}">
         <div class="management-nav-title"><i class="fa-solid fa-address-book"></i> Liên hệ</div>
         <a href="{% url 'contact_info_list' %}"{% if management_url_name == 'contact_info_list' %} class="active"{% endif %}>Thông tin liên hệ</a>
+        <a href="{% url 'floating_contact_button_list' %}"{% if management_url_name == 'floating_contact_button_list' %} class="active"{% endif %}>Nút liên hệ nổi</a>
         <a href="{% url 'faq_list' %}"{% if management_url_name == 'faq_list' %} class="active"{% endif %}>Câu hỏi thường gặp</a>
         <a href="{% url 'consultation_list' %}"{% if management_url_name == 'consultation_list' %} class="active"{% endif %}>Yêu cầu tư vấn</a>
       </div>

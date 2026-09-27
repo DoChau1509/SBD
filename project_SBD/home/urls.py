@@ -13,6 +13,7 @@ urlpatterns = [
     path("product/<int:id>/", views.product_detail, name="product_detail"),
     path("post/", views.post_public, name="post"),
     path("post/<int:id>/", views.post_detail, name="post_detail"),
+    path("dich-vu/<slug:slug>/", views.service_type_public, name="service_type_public"),
     path("office-rental/", views.office_rental_public, name="office_rental"),
     path(
         "office-rental/<int:id>/",
@@ -416,6 +417,26 @@ urlpatterns = [
         views.contact_info_toggle_status,
         name="contact_info_toggle_status",
     ),
+    path(
+        "floating-contact-buttons/",
+        views.floating_contact_button_list,
+        name="floating_contact_button_list",
+    ),
+    path(
+        "floating-contact-buttons/add/",
+        views.floating_contact_button_create,
+        name="floating_contact_button_add",
+    ),
+    path(
+        "floating-contact-buttons/edit/<int:id>/",
+        views.floating_contact_button_update,
+        name="floating_contact_button_edit",
+    ),
+    path(
+        "floating-contact-buttons/delete/<int:id>/",
+        views.floating_contact_button_delete,
+        name="floating_contact_button_delete",
+    ),
     path("consultations/", views.consultation_list, name="consultation_list"),
     path(
         "consultations/<int:id>/",
@@ -435,6 +456,27 @@ urlpatterns = [
     ),
     path("about-intro/", views.about_intro_edit, name="about_intro_edit"),
     path("about-video-tour/", views.about_video_tour_edit, name="about_video_tour_edit"),
+    # service categories
+    path(
+        "service-categories/",
+        views.service_category_list,
+        name="service_category_list",
+    ),
+    path(
+        "service-categories/add/",
+        views.service_category_create,
+        name="service_category_add",
+    ),
+    path(
+        "service-categories/edit/<int:id>/",
+        views.service_category_update,
+        name="service_category_edit",
+    ),
+    path(
+        "service-categories/delete/<int:id>/",
+        views.service_category_delete,
+        name="service_category_delete",
+    ),
     # service types
     path("service-types/", views.service_type_list, name="service_type_list"),
     path("service-types/add/", views.service_type_create, name="service_type_add"),
@@ -450,6 +492,7 @@ urlpatterns = [
     ),
     # services
     path("services/", views.service_list, name="service_list"),
+    path("services/<int:id>/", views.service_detail, name="service_detail"),
     path("services/add/", views.service_create, name="service_add"),
     path("services/edit/<int:id>/", views.service_update, name="service_edit"),
     path("services/delete/<int:id>/", views.service_delete, name="service_delete"),

@@ -49,10 +49,13 @@ from .models import (
     LeadershipMember,
     AboutStatementType,
     AboutStatement,
+    ServiceCategory,
     ServiceType,
     Service,
+    ServiceContentBlock,
     Certificate,
     ContactInfo,
+    FloatingContactButton,
     Consultation,
     Notification,
     AboutIntro,
@@ -77,6 +80,112 @@ from .models import (
 User = get_user_model()
 
 CONSULTATION_PROJECT_TYPES = Consultation.PROJECT_TYPE_CHOICES
+
+SERVICE_BLOCK_TYPES = {
+    ServiceContentBlock.BLOCK_TEXT,
+    ServiceContentBlock.BLOCK_BOLD,
+    ServiceContentBlock.BLOCK_IMAGE,
+}
+
+
+def _service_block_form_rows(service=None):
+    if not service or not getattr(service, "pk", None):
+        return []
+
+    return [
+        {
+            "id": block.id,
+            "block_type": block.block_type,
+            "text": block.text,
+            "image": block.image,
+            "order": block.order,
+        }
+        for block in service.content_blocks.all()
+    ]
+
+
+def _posted_service_block_rows(request, service=None):
+    rows = []
+    block_ids = request.POST.getlist("block_id")
+    block_types = request.POST.getlist("block_type")
+    block_texts = request.POST.getlist("block_text")
+    block_orders = request.POST.getlist("block_order")
+    delete_ids = set(request.POST.getlist("block_delete"))
+
+    total_rows = max(len(block_types), len(block_ids), len(block_texts), len(block_orders))
+    existing_blocks = {}
+    if service and getattr(service, "pk", None):
+        existing_blocks = {
+            str(block.id): block for block in service.content_blocks.all()
+        }
+
+    for index in range(total_rows):
+        block_id = block_ids[index] if index < len(block_ids) else ""
+        block = existing_blocks.get(block_id)
+        rows.append(
+            {
+                "id": block_id,
+                "block_type": block_types[index] if index < len(block_types) else ServiceContentBlock.BLOCK_TEXT,
+                "text": block_texts[index] if index < len(block_texts) else "",
+                "order": block_orders[index] if index < len(block_orders) else index,
+                "delete": block_id in delete_ids,
+                "image": block.image if block else None,
+            }
+        )
+
+    return rows
+
+
+def _save_service_content_blocks(request, service):
+    block_ids = request.POST.getlist("block_id")
+    block_types = request.POST.getlist("block_type")
+    block_texts = request.POST.getlist("block_text")
+    block_orders = request.POST.getlist("block_order")
+    delete_ids = set(request.POST.getlist("block_delete"))
+
+    total_rows = max(len(block_types), len(block_ids), len(block_texts), len(block_orders))
+
+    for index in range(total_rows):
+        block_id = block_ids[index] if index < len(block_ids) else ""
+        block_type = block_types[index] if index < len(block_types) else ServiceContentBlock.BLOCK_TEXT
+        text = (block_texts[index] if index < len(block_texts) else "").strip()
+        order_value = block_orders[index] if index < len(block_orders) else index
+        image = request.FILES.get(f"block_image_{index}")
+
+        if block_type not in SERVICE_BLOCK_TYPES:
+            block_type = ServiceContentBlock.BLOCK_TEXT
+
+        try:
+            order = int(order_value)
+        except (TypeError, ValueError):
+            order = index
+
+        block = None
+        if block_id:
+            block = service.content_blocks.filter(id=block_id).first()
+
+        if block_id in delete_ids:
+            if block:
+                block.delete()
+            continue
+
+        has_image = bool(image) or bool(block and block.image)
+        if block_type == ServiceContentBlock.BLOCK_IMAGE:
+            if not has_image:
+                continue
+            text = ""
+        elif not text:
+            continue
+
+        if not block:
+            block = ServiceContentBlock(service=service)
+
+        block.block_type = block_type
+        block.text = text
+        block.order = max(order, 0)
+        if image:
+            block.image = image
+        block.save()
 
 
 def _content_image_files(request):
@@ -930,8 +1039,10 @@ def home(request):
     partners = Partner.objects.filter(is_active=True).order_by("order", "created_at")
     services = (
         Service.objects.filter(is_active=True, service_type__is_active=True)
-        .select_related("service_type")
+        .select_related("service_type", "service_type__category")
         .order_by(
+            "service_type__category__order",
+            "service_type__category__created_at",
             "service_type__order",
             "service_type__created_at",
             "order",
@@ -957,6 +1068,24 @@ def home(request):
             "hero": hero,
             "partners": partners,
         },
+    )
+
+
+def service_type_public(request, slug):
+    service_type = get_object_or_404(
+        ServiceType.objects.select_related("category")
+        .filter(slug=slug, is_active=True)
+        .filter(Q(category__isnull=True) | Q(category__is_active=True))
+    )
+    services = (
+        Service.objects.filter(service_type=service_type, is_active=True)
+        .select_related("service_type", "service_type__category")
+        .order_by("order", "created_at")
+    )
+    return render(
+        request,
+        "home/service_type_detail.html",
+        {"service_type": service_type, "services": services},
     )
 
 
@@ -2989,8 +3118,140 @@ def statement_delete(request, id):
 
 # ====================== CRUD SERVICE TYPES ======================
 @staff_required
+def service_category_list(request):
+    categories = ServiceCategory.objects.all().order_by("order", "created_at")
+    error = request.GET.get("error")
+    return render(
+        request,
+        "home/service_category_list.html",
+        {"categories": categories, "error": error},
+    )
+
+
+@staff_required
+def service_category_create(request):
+    if request.method == "POST":
+        name = (request.POST.get("name") or "").strip()
+        order = request.POST.get("order") or 0
+        is_active = request.POST.get("is_active") == "on"
+
+        if not name:
+            return render(
+                request,
+                "home/service_category_form.html",
+                {
+                    "title": "Thêm đề mục lớn",
+                    "error": "Bạn cần nhập tên đề mục.",
+                    "category": {
+                        "name": name,
+                        "order": order,
+                        "is_active": is_active,
+                    },
+                },
+            )
+
+        if ServiceCategory.objects.filter(name__iexact=name).exists():
+            return render(
+                request,
+                "home/service_category_form.html",
+                {
+                    "title": "Thêm đề mục lớn",
+                    "error": "Đề mục này đã tồn tại.",
+                    "category": {
+                        "name": name,
+                        "order": order,
+                        "is_active": is_active,
+                    },
+                },
+            )
+
+        ServiceCategory.objects.create(
+            name=name,
+            order=int(order),
+            is_active=is_active,
+        )
+        return redirect("service_category_list")
+
+    return render(
+        request,
+        "home/service_category_form.html",
+        {"title": "Thêm đề mục lớn"},
+    )
+
+
+@staff_required
+def service_category_update(request, id):
+    category = get_object_or_404(ServiceCategory, id=id)
+
+    if request.method == "POST":
+        name = (request.POST.get("name") or "").strip()
+        order = request.POST.get("order") or 0
+        is_active = request.POST.get("is_active") == "on"
+
+        if not name:
+            return render(
+                request,
+                "home/service_category_form.html",
+                {
+                    "title": "Sửa đề mục lớn",
+                    "error": "Bạn cần nhập tên đề mục.",
+                    "category": category,
+                },
+            )
+
+        duplicate = ServiceCategory.objects.filter(name__iexact=name).exclude(
+            id=category.id
+        )
+        if duplicate.exists():
+            return render(
+                request,
+                "home/service_category_form.html",
+                {
+                    "title": "Sửa đề mục lớn",
+                    "error": "Đề mục này đã tồn tại.",
+                    "category": category,
+                },
+            )
+
+        category.name = name
+        category.slug = ""
+        category.order = int(order)
+        category.is_active = is_active
+        category.save()
+        return redirect("service_category_list")
+
+    return render(
+        request,
+        "home/service_category_form.html",
+        {"title": "Sửa đề mục lớn", "category": category},
+    )
+
+
+@staff_required
+def service_category_delete(request, id):
+    category = get_object_or_404(ServiceCategory, id=id)
+
+    try:
+        category.delete()
+    except ProtectedError:
+        error = "Không thể xóa đề mục này vì vẫn còn loại dịch vụ đang sử dụng."
+        return redirect(f"{reverse('service_category_list')}?error={error}")
+
+    return redirect("service_category_list")
+
+
+@staff_required
 def service_type_list(request):
-    service_types = ServiceType.objects.all().order_by("order", "created_at")
+    service_types = (
+        ServiceType.objects.select_related("category")
+        .all()
+        .order_by(
+            "category__order",
+            "category__created_at",
+            "order",
+            "created_at",
+        )
+    )
     error = request.GET.get("error")
     return render(
         request,
@@ -3001,7 +3262,12 @@ def service_type_list(request):
 
 @staff_required
 def service_type_create(request):
+    categories = ServiceCategory.objects.filter(is_active=True).order_by(
+        "order", "created_at"
+    )
+
     if request.method == "POST":
+        category_id = (request.POST.get("category") or "").strip()
         name = (request.POST.get("name") or "").strip()
         order = request.POST.get("order") or 0
         is_active = request.POST.get("is_active") == "on"
@@ -3012,8 +3278,10 @@ def service_type_create(request):
                 "home/service_type_form.html",
                 {
                     "title": "Thêm loại dịch vụ",
+                    "categories": categories,
                     "error": "Bạn cần nhập tên loại.",
                     "service_type": {
+                        "category_id": category_id,
                         "name": name,
                         "order": order,
                         "is_active": is_active,
@@ -3027,8 +3295,10 @@ def service_type_create(request):
                 "home/service_type_form.html",
                 {
                     "title": "Thêm loại dịch vụ",
+                    "categories": categories,
                     "error": "Loại dịch vụ này đã tồn tại.",
                     "service_type": {
+                        "category_id": category_id,
                         "name": name,
                         "order": order,
                         "is_active": is_active,
@@ -3036,7 +3306,12 @@ def service_type_create(request):
                 },
             )
 
+        category = None
+        if category_id:
+            category = get_object_or_404(ServiceCategory, id=category_id)
+
         ServiceType.objects.create(
+            category=category,
             name=name,
             order=int(order),
             is_active=is_active,
@@ -3046,15 +3321,19 @@ def service_type_create(request):
     return render(
         request,
         "home/service_type_form.html",
-        {"title": "Thêm loại dịch vụ"},
+        {"title": "Thêm loại dịch vụ", "categories": categories},
     )
 
 
 @staff_required
 def service_type_update(request, id):
-    service_type = get_object_or_404(ServiceType, id=id)
+    service_type = get_object_or_404(ServiceType.objects.select_related("category"), id=id)
+    categories = ServiceCategory.objects.filter(is_active=True).order_by(
+        "order", "created_at"
+    )
 
     if request.method == "POST":
+        category_id = (request.POST.get("category") or "").strip()
         name = (request.POST.get("name") or "").strip()
         order = request.POST.get("order") or 0
         is_active = request.POST.get("is_active") == "on"
@@ -3065,6 +3344,7 @@ def service_type_update(request, id):
                 "home/service_type_form.html",
                 {
                     "title": "Sửa loại dịch vụ",
+                    "categories": categories,
                     "error": "Bạn cần nhập tên loại.",
                     "service_type": service_type,
                 },
@@ -3079,11 +3359,17 @@ def service_type_update(request, id):
                 "home/service_type_form.html",
                 {
                     "title": "Sửa loại dịch vụ",
+                    "categories": categories,
                     "error": "Loại dịch vụ này đã tồn tại.",
                     "service_type": service_type,
                 },
             )
 
+        category = None
+        if category_id:
+            category = get_object_or_404(ServiceCategory, id=category_id)
+
+        service_type.category = category
         service_type.name = name
         service_type.slug = ""
         service_type.order = int(order)
@@ -3094,7 +3380,11 @@ def service_type_update(request, id):
     return render(
         request,
         "home/service_type_form.html",
-        {"title": "Sửa loại dịch vụ", "service_type": service_type},
+        {
+            "title": "Sửa loại dịch vụ",
+            "service_type": service_type,
+            "categories": categories,
+        },
     )
 
 
@@ -3116,10 +3406,15 @@ def service_type_delete(request, id):
 def service_list(request):
     query = (request.GET.get("q") or "").strip()
     services = (
-        Service.objects.select_related("service_type")
+        Service.objects.select_related("service_type", "service_type__category")
         .all()
         .order_by(
-            "service_type__order", "service_type__created_at", "order", "created_at"
+            "service_type__category__order",
+            "service_type__category__created_at",
+            "service_type__order",
+            "service_type__created_at",
+            "order",
+            "created_at",
         )
     )
 
@@ -3129,6 +3424,7 @@ def service_list(request):
             | Q(content__icontains=query)
             | Q(icon__icontains=query)
             | Q(service_type__name__icontains=query)
+            | Q(service_type__category__name__icontains=query)
         ).distinct()
 
     error = request.GET.get("error")
@@ -3141,8 +3437,11 @@ def service_list(request):
 
 @staff_required
 def service_create(request):
-    service_types = ServiceType.objects.filter(is_active=True).order_by(
-        "order", "created_at"
+    service_types = (
+        ServiceType.objects.filter(is_active=True)
+        .filter(Q(category__is_active=True) | Q(category__isnull=True))
+        .select_related("category")
+        .order_by("category__order", "category__created_at", "order", "created_at")
     )
 
     if request.method == "POST":
@@ -3169,12 +3468,13 @@ def service_create(request):
                         "is_active": is_active,
                         "service_type_id": service_type_id,
                     },
+                    "block_rows": _posted_service_block_rows(request),
                 },
             )
 
         service_type = get_object_or_404(ServiceType, id=service_type_id)
 
-        Service.objects.create(
+        service = Service.objects.create(
             service_type=service_type,
             title=title,
             content=content,
@@ -3182,6 +3482,7 @@ def service_create(request):
             order=int(order),
             is_active=is_active,
         )
+        _save_service_content_blocks(request, service)
         return redirect("service_list")
 
     return render(
@@ -3190,6 +3491,7 @@ def service_create(request):
         {
             "title_page": "Thêm dịch vụ",
             "types": service_types,
+            "block_rows": [],
         },
     )
 
@@ -3197,8 +3499,11 @@ def service_create(request):
 @staff_required
 def service_update(request, id):
     service = get_object_or_404(Service.objects.select_related("service_type"), id=id)
-    service_types = ServiceType.objects.filter(is_active=True).order_by(
-        "order", "created_at"
+    service_types = (
+        ServiceType.objects.filter(is_active=True)
+        .filter(Q(category__is_active=True) | Q(category__isnull=True))
+        .select_related("category")
+        .order_by("category__order", "category__created_at", "order", "created_at")
     )
 
     if request.method == "POST":
@@ -3218,6 +3523,7 @@ def service_update(request, id):
                     "service": service,
                     "types": service_types,
                     "error": "Bạn cần chọn loại, nhập tiêu đề và nội dung.",
+                    "block_rows": _posted_service_block_rows(request, service),
                 },
             )
 
@@ -3230,6 +3536,7 @@ def service_update(request, id):
         service.order = int(order)
         service.is_active = is_active
         service.save()
+        _save_service_content_blocks(request, service)
         return redirect("service_list")
 
     return render(
@@ -3239,8 +3546,19 @@ def service_update(request, id):
             "title_page": "Sửa dịch vụ",
             "service": service,
             "types": service_types,
+            "block_rows": _service_block_form_rows(service),
         },
     )
+
+
+def service_detail(request, id):
+    service = get_object_or_404(
+        Service.objects.select_related("service_type", "service_type__category")
+        .prefetch_related("content_blocks"),
+        id=id,
+        is_active=True,
+    )
+    return render(request, "home/service_detail.html", {"service": service})
 
 
 @staff_required
@@ -3429,6 +3747,137 @@ def contact_info_toggle_status(request, pk):
             messages.success(request, f"Đã ẩn: {contact_info.branch_name}")
 
     return redirect("contact_info_list")
+
+
+def _floating_contact_button_form_data(request, button=None):
+    return {
+        "title": (request.POST.get("title") or "").strip(),
+        "action_type": (request.POST.get("action_type") or FloatingContactButton.ACTION_LINK).strip(),
+        "link_url": (request.POST.get("link_url") or "").strip(),
+        "info_text": (request.POST.get("info_text") or "").strip(),
+        "order": request.POST.get("order") or 0,
+        "is_active": request.POST.get("is_active") == "on",
+        "image": getattr(button, "image", None),
+    }
+
+
+def _floating_contact_button_error(data, image=None, button=None):
+    if not data["title"]:
+        return "Bạn cần nhập tên nút."
+    if data["action_type"] not in {
+        FloatingContactButton.ACTION_LINK,
+        FloatingContactButton.ACTION_INFO,
+    }:
+        return "Kiểu hành động không hợp lệ."
+    if data["action_type"] == FloatingContactButton.ACTION_LINK and not data["link_url"]:
+        return "Bạn cần nhập đường link cho nút."
+    if data["action_type"] == FloatingContactButton.ACTION_INFO and not data["info_text"]:
+        return "Bạn cần nhập thông tin hiển thị cho nút."
+    if not image and not getattr(button, "image", None):
+        return "Bạn cần tải hình ảnh cho nút."
+    return ""
+
+
+@staff_required
+def floating_contact_button_list(request):
+    buttons = FloatingContactButton.objects.all().order_by("order", "created_at")
+    return render(
+        request,
+        "home/floating_contact_button_list.html",
+        {"buttons": buttons},
+    )
+
+
+@staff_required
+def floating_contact_button_create(request):
+    if request.method == "POST":
+        data = _floating_contact_button_form_data(request)
+        image = request.FILES.get("image")
+        error = _floating_contact_button_error(data, image=image)
+        if error:
+            return render(
+                request,
+                "home/floating_contact_button_form.html",
+                {
+                    "title": "Thêm nút liên hệ nổi",
+                    "button": data,
+                    "error": error,
+                    "action_choices": FloatingContactButton.ACTION_CHOICES,
+                },
+            )
+
+        FloatingContactButton.objects.create(
+            title=data["title"],
+            action_type=data["action_type"],
+            link_url=data["link_url"],
+            info_text=data["info_text"],
+            image=image,
+            order=int(data["order"] or 0),
+            is_active=data["is_active"],
+        )
+        messages.success(request, "Thêm nút liên hệ nổi thành công.")
+        return redirect("floating_contact_button_list")
+
+    return render(
+        request,
+        "home/floating_contact_button_form.html",
+        {
+            "title": "Thêm nút liên hệ nổi",
+            "action_choices": FloatingContactButton.ACTION_CHOICES,
+        },
+    )
+
+
+@staff_required
+def floating_contact_button_update(request, id):
+    button = get_object_or_404(FloatingContactButton, id=id)
+
+    if request.method == "POST":
+        data = _floating_contact_button_form_data(request, button)
+        image = request.FILES.get("image")
+        error = _floating_contact_button_error(data, image=image, button=button)
+        if error:
+            data["id"] = button.id
+            return render(
+                request,
+                "home/floating_contact_button_form.html",
+                {
+                    "title": "Sửa nút liên hệ nổi",
+                    "button": data,
+                    "error": error,
+                    "action_choices": FloatingContactButton.ACTION_CHOICES,
+                },
+            )
+
+        button.title = data["title"]
+        button.action_type = data["action_type"]
+        button.link_url = data["link_url"]
+        button.info_text = data["info_text"]
+        button.order = int(data["order"] or 0)
+        button.is_active = data["is_active"]
+        if image:
+            button.image = image
+        button.save()
+        messages.success(request, "Cập nhật nút liên hệ nổi thành công.")
+        return redirect("floating_contact_button_list")
+
+    return render(
+        request,
+        "home/floating_contact_button_form.html",
+        {
+            "title": "Sửa nút liên hệ nổi",
+            "button": button,
+            "action_choices": FloatingContactButton.ACTION_CHOICES,
+        },
+    )
+
+
+@staff_required
+def floating_contact_button_delete(request, id):
+    button = get_object_or_404(FloatingContactButton, id=id)
+    button.delete()
+    messages.success(request, "Đã xóa nút liên hệ nổi.")
+    return redirect("floating_contact_button_list")
 
 
 @staff_required

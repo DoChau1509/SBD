@@ -49,6 +49,11 @@
 }
 
 .home-project-stage {
+    --hero-side-gap: clamp(24px, 3vw, 44px);
+    --hero-column-gap: clamp(20px, 1.8vw, 30px);
+    --hero-rail-width: clamp(280px, 22vw, 340px);
+    --hero-panel-top: calc(var(--navbar-h) + 46px);
+    --hero-panel-bottom: 46px;
     position: relative;
     z-index: 2;
     width: 100%;
@@ -155,14 +160,15 @@
 
 .hero-project-rail {
     position: absolute;
-    top: calc(var(--navbar-h) + 60px);
-    right: 44px;
+    top: var(--hero-panel-top);
+    bottom: var(--hero-panel-bottom);
+    right: var(--hero-side-gap);
     z-index: 4;
-    width: min(360px, 30vw);
+    width: var(--hero-rail-width);
     display: grid;
     grid-template-rows: auto auto minmax(0, 1fr) auto;
     gap: 10px;
-    max-height: calc(100vh - var(--navbar-h) - 110px);
+    max-height: none;
     opacity: 0;
     pointer-events: none;
     transform: translateX(34px);
@@ -316,8 +322,8 @@
 }
 
 .home-project-stage:hover .hero-project-focus {
-    inset: 11vh auto 11vh 4vw;
-    width: min(58vw, 900px);
+    inset: var(--hero-panel-top) auto var(--hero-panel-bottom) var(--hero-side-gap);
+    width: calc(100vw - (var(--hero-side-gap) * 2) - var(--hero-column-gap) - var(--hero-rail-width));
     border-radius: 8px;
     box-shadow: 0 28px 80px rgba(0, 0, 0, 0.36);
 }
@@ -568,6 +574,11 @@
 
 @media (max-width: 991.98px) {
     .home-project-stage {
+        --hero-side-gap: 18px;
+        --hero-column-gap: 0px;
+        --hero-rail-width: 100%;
+        --hero-panel-top: auto;
+        --hero-panel-bottom: auto;
         display: block;
         min-height: auto;
         padding: calc(var(--navbar-h) + 34px) 18px 40px;
@@ -602,6 +613,7 @@
     .hero-project-rail {
         position: relative;
         top: auto;
+        bottom: auto;
         right: auto;
         width: 100%;
         max-height: none;

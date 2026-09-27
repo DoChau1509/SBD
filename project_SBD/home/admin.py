@@ -9,7 +9,12 @@ from .models import (
     FAQ,
     LeadershipMember,
     AboutStatement,
+    ServiceCategory,
+    ServiceType,
+    Service,
+    ServiceContentBlock,
     ContactInfo,
+    FloatingContactButton,
     Notification,
     Consultation,
     Partner,
@@ -37,8 +42,13 @@ admin.site.register(FAQ)
 admin.site.register(LeadershipMember)
 
 admin.site.register(AboutStatement)
+admin.site.register(ServiceCategory)
+admin.site.register(ServiceType)
+admin.site.register(Service)
+admin.site.register(ServiceContentBlock)
 
 admin.site.register(ContactInfo)
+admin.site.register(FloatingContactButton)
 admin.site.register(Notification)
 admin.site.register(Consultation)
 admin.site.register(Partner)

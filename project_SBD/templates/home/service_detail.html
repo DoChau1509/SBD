@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<section class="section-top">
+  <div class="container">
+    <div class="col-lg-10 offset-lg-1 col-xs-12 text-center">
+      <div class="section-top-title wow fadeInRight" data-wow-duration="1s" data-wow-delay="0.3s">
+        <h1>{{ service.title }}</h1>
+        <div class="breadcrumb-nav">
+          <a href="{% url 'home' %}">Trang Chủ</a>
+          <span>/</span>
+          <a href="{% url 'service_type_public' service.service_type.slug %}">{{ service.service_type.name }}</a>
+          <span>/</span>
+          <strong>{{ service.title }}</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section style="padding: 90px 0; background: var(--light-bg);">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-10">
+        <article class="card border-0 shadow-sm" style="border-radius: 18px; overflow: hidden;">
+          <div class="card-body p-4 p-lg-5">
+            <div class="d-flex align-items-center gap-3 mb-4">
+              <div class="service-icon" style="width: 64px; height: 64px; margin: 0;">
+                <i class="{{ service.icon_css_class }}"></i>
+              </div>
+              <div>
+                <div class="text-muted small text-uppercase fw-semibold">
+                  {% if service.service_type.category %}{{ service.service_type.category.name }} / {% endif %}{{ service.service_type.name }}
+                </div>
+                <h2 class="mb-0">{{ service.title }}</h2>
+              </div>
+            </div>
+
+            <p class="fs-5 text-muted mb-4" style="line-height: 1.8;">{{ service.content }}</p>
+
+            {% if service.content_blocks.all %}
+              <div class="service-detail-content">
+                {% for block in service.content_blocks.all %}
+                  {% if block.block_type == 'image' %}
+                    {% if block.image %}
+                    <figure class="my-4">
+                      <img src="{{ block.image.url }}" alt="{{ service.title }}" class="img-fluid w-100" style="border-radius: 12px;">
+                    </figure>
+                    {% endif %}
+                  {% elif block.block_type == 'bold' %}
+                    <p class="fw-bold fs-5 mb-3" style="line-height: 1.85; color: var(--primary);">{{ block.text|linebreaksbr }}</p>
+                  {% else %}
+                    <p class="mb-3" style="line-height: 1.9; color: var(--text-color);">{{ block.text|linebreaksbr }}</p>
+                  {% endif %}
+                {% endfor %}
+              </div>
+            {% endif %}
+
+            <div class="mt-4">
+              <a href="{% url 'service_type_public' service.service_type.slug %}" class="btn btn-secondary">Quay lại</a>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

@@ -11,9 +11,14 @@
     "
   >
     <h2 style="margin: 0">{{ title_page }}</h2>
-    <a href="{% url 'service_type_add' %}" class="btn btn-outline-primary">
-      + Thêm loại mới
-    </a>
+    <div class="d-flex gap-2 flex-wrap">
+      <a href="{% url 'service_category_add' %}" class="btn btn-outline-primary">
+        + Thêm đề mục lớn
+      </a>
+      <a href="{% url 'service_type_add' %}" class="btn btn-outline-primary">
+        + Thêm loại mới
+      </a>
+    </div>
   </div>
 
   {% if error %}
@@ -27,7 +32,7 @@
   >
   <a href="{% url 'service_list' %}" class="btn btn-secondary">Quay lại</a>
   {% else %}
-  <form method="POST">
+  <form method="POST" enctype="multipart/form-data">
     {% csrf_token %}
 
     <div class="form-group">
@@ -37,15 +42,9 @@
         {% for item in types %}
         <option
           value="{{ item.id }}"
-          {%
-          if
-          service.service_type_id=""
-          ="item.id"
-          %}selected{%
-          endif
-          %}
+          {% if service.service_type_id == item.id %}selected{% endif %}
         >
-          {{ item.name }}
+          {% if item.category %}{{ item.category.name }}{% else %}Chưa phân loại{% endif %} / {{ item.name }}
         </option>
         {% endfor %}
       </select>
@@ -116,9 +115,172 @@
       </label>
     </div>
 
+    <div class="mt-4 mb-4">
+      <div class="d-flex justify-content-between align-items-center gap-2 flex-wrap mb-3">
+        <div>
+          <h4 class="mb-1">Nội dung chi tiết</h4>
+          <div class="text-muted small">
+            Thêm chữ thường, chữ in đậm hoặc ảnh. Các phần sẽ hiển thị theo thứ tự trên trang chi tiết.
+          </div>
+        </div>
+        <button type="button" class="btn btn-outline-primary btn-sm" id="add-service-block">
+          + Thêm phần
+        </button>
+      </div>
+
+      <div id="service-block-list">
+        {% for block in block_rows %}
+        <div class="service-block-row border rounded p-3 mb-3">
+          <input type="hidden" name="block_id" value="{{ block.id|default:'' }}">
+          <div class="row g-3 align-items-start">
+            <div class="col-md-3">
+              <label class="form-label">Loại phần</label>
+              <select name="block_type" class="form-control service-block-type">
+                <option value="text" {% if block.block_type == 'text' %}selected{% endif %}>Chữ thường</option>
+                <option value="bold" {% if block.block_type == 'bold' %}selected{% endif %}>Chữ in đậm</option>
+                <option value="image" {% if block.block_type == 'image' %}selected{% endif %}>Ảnh</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label">Thứ tự</label>
+              <input type="number" name="block_order" class="form-control" value="{{ block.order|default:forloop.counter0 }}" min="0">
+            </div>
+            <div class="col-md-7 text-end">
+              {% if block.id %}
+              <div class="form-check d-inline-flex align-items-center gap-2 mt-4">
+                <input class="form-check-input service-block-delete" type="checkbox" name="block_delete" value="{{ block.id }}" id="delete_block_{{ block.id }}">
+                <label class="form-check-label" for="delete_block_{{ block.id }}">Xóa phần này</label>
+              </div>
+              {% else %}
+              <button type="button" class="btn btn-outline-danger btn-sm mt-4 service-block-remove">Xóa phần này</button>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="service-block-text mt-3">
+            <label class="form-label">Nội dung chữ</label>
+            <textarea name="block_text" class="form-control" rows="4">{{ block.text|default:'' }}</textarea>
+          </div>
+
+          <div class="service-block-image mt-3">
+            <label class="form-label">Ảnh</label>
+            <input type="file" name="block_image_{{ forloop.counter0 }}" class="form-control" accept="image/*">
+            {% if block.image %}
+            <div class="mt-2">
+              <img src="{{ block.image.url }}" alt="{{ service.title|default:title_page }}" style="max-width: 180px; border-radius: 8px;">
+            </div>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
     <button type="submit" class="btn btn-primary">Lưu</button>
     <a href="{% url 'service_list' %}" class="btn btn-secondary">Hủy</a>
   </form>
   {% endif %}
 </div>
+
+<template id="service-block-template">
+  <div class="service-block-row border rounded p-3 mb-3">
+    <input type="hidden" name="block_id" value="">
+    <div class="row g-3 align-items-start">
+      <div class="col-md-3">
+        <label class="form-label">Loại phần</label>
+        <select name="block_type" class="form-control service-block-type">
+          <option value="text">Chữ thường</option>
+          <option value="bold">Chữ in đậm</option>
+          <option value="image">Ảnh</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <label class="form-label">Thứ tự</label>
+        <input type="number" name="block_order" class="form-control service-block-order" value="0" min="0">
+      </div>
+      <div class="col-md-7 text-end">
+        <button type="button" class="btn btn-outline-danger btn-sm mt-4 service-block-remove">Xóa phần này</button>
+      </div>
+    </div>
+    <div class="service-block-text mt-3">
+      <label class="form-label">Nội dung chữ</label>
+      <textarea name="block_text" class="form-control" rows="4"></textarea>
+    </div>
+    <div class="service-block-image mt-3">
+      <label class="form-label">Ảnh</label>
+      <input type="file" data-block-image class="form-control" accept="image/*">
+    </div>
+  </div>
+</template>
+
+<script>
+  (function () {
+    var list = document.getElementById("service-block-list");
+    var template = document.getElementById("service-block-template");
+    var addButton = document.getElementById("add-service-block");
+
+    if (!list || !template || !addButton) return;
+
+    function updateBlockIndexes() {
+      var rows = list.querySelectorAll(".service-block-row");
+      rows.forEach(function (row, index) {
+        var imageInput = row.querySelector("[data-block-image], input[type='file']");
+        var orderInput = row.querySelector(".service-block-order");
+        if (imageInput) {
+          imageInput.name = "block_image_" + index;
+          imageInput.removeAttribute("data-block-image");
+        }
+        if (orderInput && !orderInput.value) {
+          orderInput.value = index;
+        }
+      });
+    }
+
+    function syncBlockRow(row) {
+      var typeSelect = row.querySelector(".service-block-type");
+      var textGroup = row.querySelector(".service-block-text");
+      var imageGroup = row.querySelector(".service-block-image");
+      if (!typeSelect || !textGroup || !imageGroup) return;
+
+      var isImage = typeSelect.value === "image";
+      textGroup.style.display = isImage ? "none" : "";
+      imageGroup.style.display = isImage ? "" : "none";
+    }
+
+    function bindRow(row) {
+      var typeSelect = row.querySelector(".service-block-type");
+      var removeButton = row.querySelector(".service-block-remove");
+      var deleteCheckbox = row.querySelector(".service-block-delete");
+
+      if (typeSelect) {
+        typeSelect.addEventListener("change", function () {
+          syncBlockRow(row);
+        });
+      }
+      if (removeButton) {
+        removeButton.addEventListener("click", function () {
+          row.remove();
+          updateBlockIndexes();
+        });
+      }
+      if (deleteCheckbox) {
+        deleteCheckbox.addEventListener("change", function () {
+          row.style.opacity = deleteCheckbox.checked ? "0.45" : "";
+        });
+      }
+      syncBlockRow(row);
+    }
+
+    addButton.addEventListener("click", function () {
+      var fragment = template.content.cloneNode(true);
+      var row = fragment.querySelector(".service-block-row");
+      list.appendChild(fragment);
+      bindRow(row);
+      updateBlockIndexes();
+    });
+
+    list.querySelectorAll(".service-block-row").forEach(bindRow);
+    updateBlockIndexes();
+  })();
+</script>
 {% endblock %}

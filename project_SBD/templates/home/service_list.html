@@ -25,6 +25,9 @@
       <a href="{% url 'service_type_list' %}" class="btn btn-outline-primary">
         Loại dịch vụ
       </a>
+      <a href="{% url 'service_category_list' %}" class="btn btn-outline-primary">
+        Đề mục lớn
+      </a>
       <a href="{% url 'service_add' %}" class="btn btn-primary">
         + Thêm dịch vụ
       </a>
@@ -37,7 +40,7 @@
 
   <form class="admin-search mb-4" method="get" action="{% url 'service_list' %}">
     <div class="input-group">
-      <input type="search" name="q" class="form-control" value="{{ query }}" placeholder="Tìm dịch vụ theo tiêu đề, nội dung, icon hoặc loại dịch vụ" aria-label="Tìm kiếm dịch vụ">
+      <input type="search" name="q" class="form-control" value="{{ query }}" placeholder="Tìm dịch vụ theo tiêu đề, nội dung, icon, đề mục hoặc loại dịch vụ" aria-label="Tìm kiếm dịch vụ">
       <button class="btn btn-primary" type="submit">
         <i class="fa fa-search"></i> Tìm
       </button>
@@ -57,12 +60,13 @@
         <thead class="table-light">
           <tr>
             <th style="width:60px;">#</th>
+            <th>Đề mục lớn</th>
             <th>Loại</th>
             <th>Tiêu đề</th>
             <th>Icon</th>
             <th>Thứ tự</th>
             <th>Trạng thái</th>
-            <th class="text-end" style="width:180px;">Hành động</th>
+            <th class="text-end" style="width:240px;">Hành động</th>
           </tr>
         </thead>
 
@@ -70,6 +74,16 @@
           {% for service in services %}
           <tr>
             <td class="text-muted">{{ forloop.counter }}</td>
+
+            <td>
+              {% if service.service_type.category %}
+                <span class="badge bg-light text-dark border">
+                  {{ service.service_type.category.name }}
+                </span>
+              {% else %}
+                <span class="text-muted">Chưa phân loại</span>
+              {% endif %}
+            </td>
 
             <td>
               <span class="badge bg-light text-dark border">
@@ -99,6 +113,9 @@
             </td>
 
             <td class="text-end">
+              <a href="{% url 'service_detail' service.id %}" class="btn btn-sm btn-outline-primary">
+                Xem
+              </a>
               <a href="{% url 'service_edit' service.id %}" class="btn btn-sm btn-warning">
                 Sửa
               </a>
@@ -112,7 +129,7 @@
 
           {% empty %}
           <tr>
-            <td colspan="7" class="text-center text-muted py-4">
+            <td colspan="8" class="text-center text-muted py-4">
               Chưa có dịch vụ nào.
             </td>
           </tr>
