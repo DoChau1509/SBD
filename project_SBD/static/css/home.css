@@ -711,16 +711,32 @@
     background: var(--light-bg);
 }
 
+.service-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.service-grid-item,
+.service-grid-empty {
+    min-width: 0;
+}
+
+.service-grid-empty {
+    grid-column: 1 / -1;
+}
+
 .service-card {
     background: var(--white);
     border-radius: var(--radius);
-    padding: 40px 30px;
+    padding: 32px 20px 26px;
     text-align: center;
     box-shadow: var(--shadow-sm);
     border-bottom: 3px solid transparent;
     transition: var(--transition);
     height: 100%;
-    margin-bottom: 24px;
+    display: flex;
+    flex-direction: column;
 }
 
 .service-card:hover {
@@ -760,6 +776,34 @@
     color: #5f4a26;
     line-height: 1.75;
     margin: 0;
+    flex-grow: 1;
+}
+
+.service-card .btn {
+    align-self: center;
+}
+
+@media (max-width: 991.98px) {
+    .service-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 767.98px) {
+    .services-section {
+        padding: 72px 0;
+    }
+
+    .service-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+    }
+}
+
+@media (max-width: 479.98px) {
+    .service-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* ===== FEATURED PROJECTS ===== */

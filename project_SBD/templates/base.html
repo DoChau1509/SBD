@@ -310,13 +310,6 @@
           <nav class="site-navigation d-none d-xl-block">
             <ul class="site-menu">
               <li><a href="{% url 'home' %}" class="nav-link">Trang Chủ</a></li>
-              <li>
-                <a href="{% url 'about' %}" class="nav-link">Giới Thiệu</a>
-              </li>
-              <li><a href="{% url 'project' %}" class="nav-link">Dự Án</a></li>
-              <li>
-                <a href="{% url 'product' %}" class="nav-link">Sản phẩm</a>
-              </li>
               <li class="dropdown" data-bs-auto-close="outside">
                 <a
                   href="#"
@@ -375,6 +368,10 @@
                   {% endif %}
 
                 </ul>
+              </li>
+              <li><a href="{% url 'project' %}" class="nav-link">Dự Án</a></li>
+              <li>
+                <a href="{% url 'about' %}" class="nav-link">Giới Thiệu</a>
               </li>
               <li><a href="{% url 'post' %}" class="nav-link">Bài Viết</a></li>
               <li>
@@ -576,9 +573,6 @@
         <nav class="site-navigation">
           <ul class="site-menu" style="flex-direction: column; gap: 6px">
             <li><a href="{% url 'home' %}" class="nav-link">Trang Chủ</a></li>
-            <li><a href="{% url 'about' %}" class="nav-link">Giới Thiệu</a></li>
-            <li><a href="{% url 'project' %}" class="nav-link">Dự Án</a></li>
-            <li><a href="{% url 'product' %}" class="nav-link">Sản phẩm</a></li>
             <li class="mt-2 mb-1 fw-semibold text-uppercase text-muted small">
               Dịch vụ
             </li>
@@ -626,6 +620,8 @@
               {% endfor %}
 
             {% endif %}
+            <li><a href="{% url 'project' %}" class="nav-link">Dự Án</a></li>
+            <li><a href="{% url 'about' %}" class="nav-link">Giới Thiệu</a></li>
             {% comment %} <li>
               <a href="{% url 'office_rental' %}" class="nav-link">
                 Cho thuê văn phòng

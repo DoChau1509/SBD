@@ -110,9 +110,9 @@
         Cung cấp đầy đủ giải pháp xây dựng — từ thiết kế đến thi công hoàn thiện
       </p>
     </div>
-    <div class="row g-5">
+    <div class="service-grid">
       {% for service in services %}
-      <div class="col-lg-4 col-md-6">
+      <div class="service-grid-item">
         <div class="service-card wow fadeInUp">
           <div class="service-icon">
             <i class="{{ service.icon_css_class }}"></i>
@@ -125,7 +125,7 @@
         </div>
       </div>
       {% empty %}
-      <div class="col-12">
+      <div class="service-grid-empty">
         <div class="service-card wow fadeInUp text-center">
           <div class="service-icon">
             <i class="fa-solid fa-star"></i>
