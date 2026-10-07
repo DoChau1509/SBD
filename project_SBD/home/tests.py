@@ -11,13 +11,155 @@ from .models import (
     PasswordOTP,
     Product,
     ProductCategory,
+    Project,
+    ProjectCategory,
     SiteBrandSettings,
     StaffLoginActivity,
     StaffLoginActivityAccess,
     SpecializedServiceContent,
+    ServiceCategory,
+    ServiceType,
+    Service,
 )
 
 User = get_user_model()
+
+
+class PublicServiceCatalogueTests(TestCase):
+    def test_catalogue_lists_active_types_and_hides_empty_categories(self):
+        visible = ServiceCategory.objects.create(name="Dịch vụ trọn gói", order=1)
+        ServiceCategory.objects.create(name="Đề mục trống", order=2)
+        ServiceType.objects.create(category=visible, name="Tư vấn thiết kế", order=1)
+        ServiceType.objects.create(
+            category=visible, name="Loại đang ẩn", order=2, is_active=False
+        )
+
+        response = self.client.get(reverse("service_public"))
+
+        self.assertContains(response, "Dịch vụ trọn gói")
+        self.assertContains(response, "Tư vấn thiết kế")
+        self.assertNotContains(response, "Đề mục trống")
+        self.assertNotContains(response, "Loại đang ẩn")
+
+    def test_catalogue_uses_specialised_url_for_known_service_type(self):
+        category = ServiceCategory.objects.create(name="Dịch vụ chi tiết")
+        ServiceType.objects.create(
+            category=category, name="Công nghiệp", slug="cong-nghiep"
+        )
+
+        response = self.client.get(reverse("service_public"))
+
+        self.assertContains(response, f'href="{reverse("industrial")}"')
+
+    def test_navbar_services_link_directly_to_service_details(self):
+        category = ServiceCategory.objects.create(name="Dịch vụ trọn gói")
+        service_type = ServiceType.objects.create(
+            category=category, name="Tư vấn thiết kế"
+        )
+        service = Service.objects.create(
+            service_type=service_type,
+            title="Tư vấn thiết kế công nghiệp",
+            content="Nội dung dịch vụ",
+        )
+
+        response = self.client.get(reverse("home"))
+
+        detail_url = reverse("service_detail", args=[service.id])
+        self.assertContains(response, f'href="{detail_url}"')
+        self.assertNotContains(
+            response, reverse("service_type_public", args=[service_type.slug])
+        )
+
+
+class ServiceImageManagementTests(TestCase):
+    def setUp(self):
+        self.staff_user = User.objects.create_user(
+            username="service-editor",
+            password="StrongPass123!",
+            is_staff=True,
+        )
+        self.service_type = ServiceType.objects.create(name="Tư vấn")
+        self.client.force_login(self.staff_user)
+
+    def _service_data(self, **extra):
+        data = {
+            "service_type": self.service_type.id,
+            "title": "Tư vấn thiết kế",
+            "content": "Nội dung dịch vụ",
+            "order": 0,
+            "is_active": "on",
+        }
+        data.update(extra)
+        return data
+
+    def test_staff_can_add_replace_and_remove_service_image(self):
+        storage_settings = {
+            "default": {
+                "BACKEND": "django.core.files.storage.InMemoryStorage",
+            },
+            "staticfiles": {
+                "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+            },
+        }
+        with self.settings(STORAGES=storage_settings):
+            self.client.post(
+                reverse("service_add"),
+                self._service_data(
+                    image=SimpleUploadedFile(
+                        "service-one.jpg", b"first-image", content_type="image/jpeg"
+                    )
+                ),
+            )
+            service = Service.objects.get(title="Tư vấn thiết kế")
+            self.assertTrue(service.image.name)
+            first_name = service.image.name
+
+            self.client.post(
+                reverse("service_edit", args=[service.id]),
+                self._service_data(
+                    image=SimpleUploadedFile(
+                        "service-two.jpg", b"second-image", content_type="image/jpeg"
+                    )
+                ),
+            )
+            service.refresh_from_db()
+            self.assertNotEqual(service.image.name, first_name)
+
+            self.client.post(
+                reverse("service_edit", args=[service.id]),
+                self._service_data(remove_image="on"),
+            )
+            service.refresh_from_db()
+            self.assertFalse(service.image)
+
+
+class PublicProjectCatalogueTests(TestCase):
+    def test_project_page_renders_visible_categories_and_grid_cards(self):
+        category = ProjectCategory.objects.create(name="Công trình dân dụng")
+        hidden_category = ProjectCategory.objects.create(
+            name="Danh mục ẩn", is_hidden=True
+        )
+        project = Project.objects.create(
+            name="Khang Nam",
+            description="Dự án nhà ở xã hội",
+            image="",
+            category=category,
+        )
+        Project.objects.create(
+            name="Dự án ẩn",
+            description="Không hiển thị",
+            image="",
+            category=hidden_category,
+        )
+
+        response = self.client.get(reverse("project"))
+
+        self.assertContains(response, "Công trình dân dụng")
+        self.assertContains(response, "Khang Nam")
+        self.assertContains(response, f'data-category-id="{category.id}"')
+        self.assertContains(response, reverse("project_detail", args=[project.id]))
+        self.assertNotContains(response, "Danh mục ẩn")
+        self.assertNotContains(response, "Dự án ẩn")
 
 
 class ConsultationStatusFlowTests(TestCase):

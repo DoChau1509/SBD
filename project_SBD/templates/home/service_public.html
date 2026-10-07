@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+  .service-page { padding: 0 0 86px; background: #fff; }
+  .service-page__breadcrumb-wrap { background: #f4f4f4; }
+  .service-page__breadcrumb { margin: 0; padding: 14px 0; color: #6b7280; font-size: 14px; }
+  .service-page__breadcrumb a { color: inherit; text-decoration: none; }
+  .service-page__layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(420px, 1fr); min-height: 550px; overflow: hidden; background: #182b60; }
+  .service-page__image { position: relative; min-height: 550px; background: linear-gradient(135deg, #e6b923, #f7dc6d 35%, #18366b 36%, #0f2857); }
+  .service-page__image::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(10,25,55,.03), rgba(10,25,55,.22)); }
+  .service-page__image img { width: 100%; height: 100%; position: absolute; inset: 0; object-fit: cover; }
+  .service-page__image-fallback { position: absolute; inset: 0; z-index: 1; display: grid; place-items: center; color: rgba(255,255,255,.9); background: radial-gradient(circle at 28% 30%, rgba(68,157,198,.75), transparent 35%), linear-gradient(135deg, #1e4977, #111f4a); }
+  .service-page__image-fallback i { font-size: 100px; opacity: .8; }
+  .service-page__content { padding: 72px 56px 42px; color: #fff; }
+  .service-page__title { margin: 0 0 30px; font-size: clamp(28px, 3vw, 42px); font-weight: 800; letter-spacing: .3px; text-transform: uppercase; }
+  .service-page__title::after { content: ''; display: block; width: 100px; height: 2px; margin-top: 18px; background: #d6293a; }
+  .service-page__scroll { max-height: 370px; padding-right: 18px; overflow-y: auto; scrollbar-color: #d6293a rgba(255,255,255,.2); scrollbar-width: thin; }
+  .service-page__group { margin: 0 0 27px; }
+  .service-page__group:last-child { margin-bottom: 0; }
+  .service-page__group-title { margin: 0 0 10px; display: flex; align-items: center; gap: 12px; font-size: 18px; font-weight: 800; text-transform: uppercase; }
+  .service-page__group-title::before { content: ''; width: 11px; height: 11px; flex: 0 0 11px; border: 1px solid #fff; }
+  .service-page__links { list-style: none; padding: 0; margin: 0; }
+  .service-page__links li { margin: 7px 0; }
+  .service-page__links a { color: rgba(255,255,255,.95); text-decoration: none; font-size: 15px; line-height: 1.5; }
+  .service-page__links a:hover, .service-page__links a:focus { color: #f1c54f; }
+  .service-page__empty { color: rgba(255,255,255,.76); }
+  @media (max-width: 991.98px) { .service-page__layout { grid-template-columns: 1fr; } .service-page__image { min-height: 360px; } .service-page__content { padding: 44px 30px; } }
+  @media (max-width: 575.98px) { .service-page__image { min-height: 260px; } .service-page__content { padding: 34px 22px; } .service-page__scroll { max-height: none; overflow: visible; padding: 0; } }
+</style>
+
+<main class="service-page">
+  <div class="service-page__breadcrumb-wrap">
+    <div class="container service-page__breadcrumb"><a href="{% url 'home' %}">Trang chủ</a> <span class="mx-2">/</span> Dịch vụ</div>
+  </div>
+  <div class="container-fluid px-0">
+    <section class="service-page__layout">
+      <div class="service-page__image">
+        {% if service_page.hero_image %}
+          <img src="{{ service_page.hero_image.url }}" alt="{{ service_page.title }}">
+        {% else %}
+          <div class="service-page__image-fallback"><i class="fa-solid fa-compass-drafting" aria-hidden="true"></i></div>
+        {% endif %}
+      </div>
+      <div class="service-page__content">
+        <h1 class="service-page__title">{{ service_page.title }}</h1>
+        <div class="service-page__scroll">
+          {% for category in service_categories %}
+            <section class="service-page__group">
+              <h2 class="service-page__group-title">{{ category.name }}</h2>
+              <ul class="service-page__links">
+                {% for service_type in category.public_service_types %}
+                  <li><a href="{{ service_type.public_url }}">{{ service_type.name }}</a></li>
+                {% endfor %}
+              </ul>
+            </section>
+          {% endfor %}
+          {% if standalone_types %}
+            <section class="service-page__group">
+              <h2 class="service-page__group-title">Dịch vụ khác</h2>
+              <ul class="service-page__links">
+                {% for service_type in standalone_types %}
+                  <li><a href="{{ service_type.public_url }}">{{ service_type.name }}</a></li>
+                {% endfor %}
+              </ul>
+            </section>
+          {% endif %}
+          {% if not service_categories and not standalone_types %}
+            <p class="service-page__empty">Danh sách dịch vụ đang được cập nhật.</p>
+          {% endif %}
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container" style="margin-top: 100px; max-width: 860px;">
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+      <h2 class="fw-bold mb-1">Ảnh trang Dịch vụ</h2>
+      <p class="text-muted mb-0">Ảnh này xuất hiện ở cột trái của trang <a href="{% url 'service_public' %}" target="_blank">Dịch vụ</a>.</p>
+    </div>
+    <a href="{% url 'service_list' %}" class="btn btn-outline-secondary">Quản lý danh sách dịch vụ</a>
+  </div>
+
+  <form method="post" enctype="multipart/form-data" class="card shadow-sm">
+    {% csrf_token %}
+    <div class="card-body p-4">
+      <div class="mb-3">
+        <label for="service-page-title" class="form-label">Tiêu đề trang</label>
+        <input id="service-page-title" type="text" name="title" class="form-control" maxlength="200" value="{{ service_page.title }}" required>
+      </div>
+
+      <div class="mb-3">
+        <label for="service-page-image" class="form-label">Ảnh đại diện</label>
+        <input id="service-page-image" type="file" name="hero_image" class="form-control" accept="image/*">
+        <div class="form-text">Khuyến nghị dùng ảnh ngang, tối thiểu 1200 × 800 px. Tải ảnh mới sẽ tự thay thế ảnh cũ.</div>
+      </div>
+
+      {% if service_page.hero_image %}
+        <div class="mb-3">
+          <img src="{{ service_page.hero_image.url }}" alt="Ảnh hiện tại trang Dịch vụ" class="img-fluid rounded border" style="max-height: 320px; object-fit: cover;">
+          <div class="form-check mt-2">
+            <input class="form-check-input" type="checkbox" name="remove_hero_image" id="remove-hero-image">
+            <label class="form-check-label text-danger" for="remove-hero-image">Xóa ảnh hiện tại</label>
+          </div>
+        </div>
+      {% else %}
+        <div class="alert alert-light border mb-3">Chưa có ảnh. Trang Dịch vụ sẽ hiển thị nền minh họa mặc định.</div>
+      {% endif %}
+    </div>
+    <div class="card-footer bg-white d-flex justify-content-end gap-2">
+      <a href="{% url 'service_public' %}" class="btn btn-outline-secondary" target="_blank">Xem trang</a>
+      <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+    </div>
+  </form>
+</div>
+
+{% endblock %}

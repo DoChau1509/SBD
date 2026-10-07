@@ -1,463 +1,94 @@
 {% extends 'base.html' %}
 {% block content %}
-
 <style>
-	/* Filter tabs */
-	.filter-wrap { margin-bottom: 40px; }
-	.local-search {
-		max-width: 720px;
-		margin: 0 auto 26px;
-	}
-	.local-search .input-group {
-		box-shadow: 0 8px 26px rgba(26,46,74,0.08);
-	}
-	.local-search .form-control {
-		height: 50px;
-		border-color: rgba(26,46,74,0.16);
-		font-size: 15px;
-	}
-	.local-search .btn {
-		min-width: 112px;
-		font-weight: 700;
-	}
-	.local-search-note {
-		margin-top: 10px;
-		color: var(--text-muted);
-		font-size: 14px;
-	}
-	.portfolio-filters {
-		padding: 0; list-style: none;
-		display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;
-	}
-	.portfolio-filters li {
-		padding: 9px 24px;
-		border-radius: 4px;
-		font-size: 13px; font-weight: 600;
-		letter-spacing: 1px; text-transform: uppercase;
-		cursor: pointer;
-		border: 1px solid rgba(26,46,74,0.2);
-		color: var(--text-muted);
-		transition: all 0.3s;
-		user-select: none;
-	}
-	.portfolio-filters li.active,
-	.portfolio-filters li:hover {
-		background: var(--primary);
-		color: var(--white);
-		border-color: var(--primary);
-	}
-
-	/* Project Showcase */
-	.projects-section { padding: 90px 0; background: var(--light-bg); }
-	.project-showcase {
-		display: grid;
-		grid-template-columns: minmax(0, 1fr) 230px;
-		gap: 22px;
-		align-items: stretch;
-	}
-	.project-main {
-		position: relative;
-		min-height: 560px;
-		border-radius: 8px;
-		overflow: hidden;
-		box-shadow: 0 14px 42px rgba(26,46,74,0.14);
-		background: var(--white);
-	}
-	.project-main a { position: absolute; inset: 0; text-decoration: none; color: inherit; }
-	.project-main-media {
-		position: absolute;
-		inset: 0;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		background: radial-gradient(900px 300px at 20% 15%, rgba(201, 150, 62, 0.35) 0%, transparent 60%),
-					linear-gradient(135deg, rgba(8, 28, 50, 0.96) 0%, rgba(26, 60, 94, 0.96) 60%, rgba(201, 150, 62, 0.22) 100%);
-		color: rgba(255,255,255,0.92);
-		padding: 24px;
-	}
-	.project-main-media img {
-		width: 100%;
-		height: 100%;
-		object-fit: contain;
-		object-position: center;
-		display: block;
-	}
-	.project-main-media i { font-size: 84px; opacity: 0.92; }
-	.project-main-overlay {
-		position: absolute; inset: 0;
-		background: linear-gradient(to top, rgba(26,46,74,0.94) 0%, rgba(26,46,74,0.25) 62%, transparent 100%);
-		display: flex; flex-direction: column;
-		justify-content: flex-end; padding: 34px;
-	}
-	.project-main-overlay .category {
-		font-size: 11px; font-weight: 800;
-		letter-spacing: 2px; text-transform: uppercase;
-		color: var(--accent-light); margin-bottom: 8px;
-	}
-	.project-main-overlay h3 {
-		color: var(--white);
-		font-size: 34px;
-		margin: 0 0 10px;
-		line-height: 1.2;
-	}
-	.project-main-overlay p {
-		color: rgba(255,255,255,0.70);
-		font-size: 15px;
-		margin: 0;
-		line-height: 1.6;
-		max-width: 720px;
-	}
-	.project-main-overlay .meta {
-		margin-top: 14px;
-		color: rgba(255,255,255,0.60);
-		font-size: 13px;
-		display: flex;
-		align-items: center;
-		gap: 10px;
-	}
-	.project-thumbs-panel {
-		display: grid;
-		grid-template-rows: 40px minmax(0, 1fr) 40px;
-		gap: 10px;
-		min-height: 560px;
-	}
-	.project-thumb-nav {
-		border: 1px solid rgba(26,46,74,0.15);
-		background: var(--white);
-		color: var(--primary);
-		border-radius: 6px;
-		font-size: 16px;
-		transition: all 0.25s ease;
-	}
-	.project-thumb-nav:hover:not(:disabled) {
-		background: var(--primary);
-		color: var(--white);
-		border-color: var(--primary);
-	}
-	.project-thumb-nav:disabled { opacity: 0.38; cursor: not-allowed; }
-	.project-thumbs {
-		display: grid;
-		grid-template-rows: repeat(4, 1fr);
-		gap: 12px;
-		min-height: 0;
-	}
-	.project-thumb-button {
-		position: relative;
-		border: 0;
-		border-radius: 8px;
-		overflow: hidden;
-		padding: 0;
-		min-height: 0;
-		background: var(--white);
-		box-shadow: 0 4px 18px rgba(26,46,74,0.10);
-		cursor: pointer;
-	}
-	.project-thumb-button.is-hidden { display: none; }
-	.project-thumb-button.is-active { outline: 3px solid var(--accent); outline-offset: 0; }
-	.project-thumb-media {
-		position: absolute;
-		inset: 0;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		padding: 10px;
-		background: linear-gradient(135deg, rgba(8, 28, 50, 0.96), rgba(26, 60, 94, 0.96));
-		color: rgba(255,255,255,0.88);
-	}
-	.project-thumb-media img {
-		width: 100%;
-		height: 100%;
-		object-fit: contain;
-		display: block;
-	}
-	.project-thumb-media i { font-size: 28px; }
-	.project-thumb-label {
-		position: absolute;
-		left: 0;
-		right: 0;
-		bottom: 0;
-		padding: 24px 10px 9px;
-		background: linear-gradient(to top, rgba(26,46,74,0.92), transparent);
-		color: var(--white);
-		font-size: 12px;
-		font-weight: 700;
-		line-height: 1.35;
-		text-align: left;
-	}
-	.project-empty {
-		padding: 40px 0;
-		text-align: center;
-		color: var(--text-muted);
-	}
-	@media (max-width: 991px) {
-		.project-showcase {
-			grid-template-columns: 1fr;
-		}
-		.project-main,
-		.project-thumbs-panel {
-			min-height: auto;
-		}
-		.project-main {
-			height: 460px;
-		}
-		.project-thumbs-panel {
-			grid-template-columns: 40px minmax(0, 1fr) 40px;
-			grid-template-rows: auto;
-		}
-		.project-thumbs {
-			grid-template-columns: repeat(4, minmax(120px, 1fr));
-			grid-template-rows: 120px;
-		}
-		.project-thumb-nav[data-project-thumbs-prev] i { transform: rotate(-90deg); }
-		.project-thumb-nav[data-project-thumbs-next] i { transform: rotate(-90deg); }
-	}
-	@media (max-width: 575px) {
-		.project-main { height: 390px; }
-		.project-main-overlay { padding: 24px; }
-		.project-main-overlay h3 { font-size: 26px; }
-		.project-thumbs { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(2, 112px); }
-	}
+  .project-catalogue { padding: 32px 0 86px; background: #fff; }
+  .project-catalogue__filters { margin: 0 0 10px; display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; }
+  .project-catalogue__filter { min-width: 180px; padding: 11px 20px; border: 1px solid #c5232d; color: #a6222a; background: #fff; font-size: 15px; line-height: 1.2; transition: color .2s ease, background .2s ease; }
+  .project-catalogue__filter:hover, .project-catalogue__filter:focus, .project-catalogue__filter.is-active { color: #fff; background: #c91f2b; }
+  .project-catalogue__results { min-height: 24px; margin-bottom: 10px; color: #6b7280; font-size: 14px; text-align: center; }
+  .project-catalogue__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px 30px; }
+  .project-catalogue__card { position: relative; min-width: 0; aspect-ratio: 1.62 / 1; overflow: hidden; border-radius: 18px; background: #1a2e4a; box-shadow: 0 7px 20px rgba(15, 31, 51, .08); }
+  .project-catalogue__link { position: absolute; inset: 0; display: block; color: #fff; text-decoration: none; }
+  .project-catalogue__image { width: 100%; height: 100%; display: block; object-fit: cover; transition: transform .45s ease; }
+  .project-catalogue__fallback { width: 100%; height: 100%; display: grid; place-items: center; color: rgba(255,255,255,.8); background: linear-gradient(135deg, #203a5b, #0d1d32); }
+  .project-catalogue__fallback i { font-size: 64px; }
+  .project-catalogue__overlay { position: absolute; inset: 0; display: flex; align-items: flex-end; justify-content: center; padding: 48px 22px 18px; background: linear-gradient(to top, rgba(0,0,0,.82), rgba(0,0,0,.12) 55%, transparent 76%); }
+  .project-catalogue__title { margin: 0; color: #fff; font-size: clamp(16px, 1.35vw, 19px); font-weight: 700; line-height: 1.35; text-align: center; text-shadow: 0 2px 5px rgba(0,0,0,.55); }
+  .project-catalogue__card:hover .project-catalogue__image, .project-catalogue__link:focus .project-catalogue__image { transform: scale(1.045); }
+  .project-catalogue__link:focus-visible { outline: 3px solid #f3c85b; outline-offset: -3px; }
+  .project-catalogue__empty { grid-column: 1 / -1; padding: 70px 20px; color: #6b7280; text-align: center; }
+  @media (max-width: 991.98px) { .project-catalogue__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 575.98px) {
+    .project-catalogue { padding-top: 22px; }
+    .project-catalogue__filters { gap: 8px; }
+    .project-catalogue__filter { min-width: 0; flex: 1 1 calc(50% - 8px); padding: 10px 12px; font-size: 13px; }
+    .project-catalogue__grid { grid-template-columns: 1fr; gap: 18px; }
+    .project-catalogue__card { border-radius: 14px; }
+  }
 </style>
 
-<!-- PAGE HEADER -->
-<section class="section-top">
-	<div class="container">
-		<div class="col-lg-10 offset-lg-1 col-xs-12 text-center">
-			<div class="section-top-title wow fadeInRight" data-wow-duration="1s" data-wow-delay="0.3s">
-				<h1>Dự Án</h1>
-				<p>Các dự án được cập nhật từ hệ thống quản trị</p>
-				<div class="breadcrumb-nav">
-					<a href="{% url 'home' %}">Trang Chủ</a>
-					<span>/</span>
-					<strong>Dự Án</strong>
-				</div>
-			</div>
-		</div>
-	</div>
-</section>
+<main class="project-catalogue">
+  <div class="container-fluid px-3 px-lg-4">
+    {% if categories %}
+      <div class="project-catalogue__filters" role="tablist" aria-label="Lọc dự án theo danh mục">
+        {% for category in categories %}
+          <button
+            type="button"
+            class="project-catalogue__filter{% if forloop.first %} is-active{% endif %}"
+            data-project-filter="{{ category.id }}"
+            role="tab"
+            aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+          >{{ category.name }}</button>
+        {% endfor %}
+      </div>
+    {% endif %}
 
-<!-- PROJECTS -->
-<section class="projects-section">
-	<div class="container">
-		<div class="section-title text-center wow zoomIn">
-			<h2>Danh Sách Dự Án</h2>
-			<p>Lọc theo danh mục để tìm các dự án phù hợp</p>
-		</div>
+    <div class="project-catalogue__results" aria-live="polite">
+      {% if query %}Kết quả tìm kiếm cho “{{ query }}”{% endif %}
+    </div>
 
-		<form class="local-search wow fadeInUp" method="get" action="{% url 'project' %}">
-			<div class="input-group">
-				<input type="search" name="q" class="form-control" value="{{ query }}" placeholder="Tìm kiếm dự án theo tên, mô tả hoặc danh mục" aria-label="Tìm kiếm dự án">
-				<button class="btn btn-primary" type="submit">
-					<i class="fa fa-search"></i> Tìm
-				</button>
-				{% if query %}
-					<a class="btn btn-outline-secondary" href="{% url 'project' %}">Xóa</a>
-				{% endif %}
-			</div>
-			{% if query %}
-				<div class="local-search-note">Kết quả tìm kiếm cho "{{ query }}".</div>
-			{% endif %}
-		</form>
-
-		<div class="filter-wrap text-center wow fadeInUp">
-			<ul class="portfolio-filters" id="filter-list">
-				<li class="active" data-filter="all">Tất Cả</li>
-				{% for c in categories %}
-					<li data-filter="cat-{{ c.id }}">{{ c.name }}</li>
-				{% endfor %}
-			</ul>
-		</div>
-
-		{% if projects %}
-			<div class="project-showcase wow fadeInUp" id="projects-showcase">
-				{% with first_project=projects.0 %}
-					<div class="project-main">
-						<a href="{% url 'project_detail' first_project.id %}" id="project-main-link" aria-label="Xem chi tiết {{ first_project.name }}">
-							<div class="project-main-media" aria-hidden="true" id="project-main-media">
-								{% if first_project.image %}
-									<img src="{{ first_project.image.url }}" alt="{{ first_project.name }}" id="project-main-image">
-									<i class="fa fa-building-o" id="project-main-icon" hidden></i>
-								{% else %}
-									<img src="" alt="{{ first_project.name }}" id="project-main-image" hidden>
-									<i class="fa fa-building-o" id="project-main-icon"></i>
-								{% endif %}
-							</div>
-							<div class="project-main-overlay">
-								<div class="category" id="project-main-category">{{ first_project.category.name }}</div>
-								<h3 id="project-main-title">{{ first_project.name }}</h3>
-								<p id="project-main-desc">{{ first_project.description|default:""|truncatechars:180 }}</p>
-								<div class="meta">
-									<span id="project-main-date"><i class="fa fa-calendar-o"></i> {{ first_project.created_at|date:"d/m/Y" }}</span>
-									<span><i class="fa fa-arrow-right"></i> Xem chi tiết</span>
-								</div>
-							</div>
-						</a>
-					</div>
-
-					<div class="project-thumbs-panel" aria-label="Danh sách dự án">
-						<button type="button" class="project-thumb-nav" data-project-thumbs-prev aria-label="Dự án trước">
-							<i class="fa fa-chevron-up"></i>
-						</button>
-						<div class="project-thumbs" id="project-thumbs">
-							{% for p in projects %}
-								<button
-									type="button"
-									class="project-thumb-button{% if forloop.first %} is-active{% endif %}"
-									data-project-thumb
-									data-index="{{ forloop.counter0 }}"
-									data-title="{{ p.name }}"
-									data-category="{{ p.category.name }}"
-									data-desc="{{ p.description|default:''|truncatechars:180 }}"
-									data-date="{{ p.created_at|date:'d/m/Y' }}"
-									data-url="{% url 'project_detail' p.id %}"
-									data-image="{% if p.image %}{{ p.image.url }}{% endif %}"
-									data-filter-class="cat-{{ p.category_id }}"
-									aria-label="Chọn dự án {{ p.name }}"
-								>
-									<span class="project-thumb-media" aria-hidden="true">
-										{% if p.image %}
-											<img src="{{ p.image.url }}" alt="{{ p.name }}">
-										{% else %}
-											<i class="fa fa-building-o"></i>
-										{% endif %}
-									</span>
-									<span class="project-thumb-label">{{ p.name }}</span>
-								</button>
-							{% endfor %}
-						</div>
-						<button type="button" class="project-thumb-nav" data-project-thumbs-next aria-label="Dự án tiếp theo">
-							<i class="fa fa-chevron-down"></i>
-						</button>
-					</div>
-				{% endwith %}
-			</div>
-		{% else %}
-			<div class="project-empty">Chưa có dự án nào.</div>
-		{% endif %}
-	</div>
-</section>
-
-<!-- CTA -->
-<section style="background: linear-gradient(135deg, var(--accent) 0%, #b5832e 100%); padding: 80px 0; text-align: center;">
-	<div class="container">
-		<h2 style="color: var(--white); font-size: 38px; margin-bottom: 16px;">Có Dự Án Cần Thi Công?</h2>
-		<p style="color: rgba(255,255,255,0.85); font-size: 17px; margin-bottom: 32px;">Liên hệ ngay để nhận tư vấn miễn phí và báo giá chi tiết từ đội ngũ chuyên gia của chúng tôi.</p>
-		<a href="{% url 'contact' %}" class="btn-cta" style="background: var(--white); color: var(--accent); padding: 14px 36px; border-radius: 4px; font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; text-decoration: none; display: inline-block; transition: all 0.3s;">Gửi Yêu Cầu Tư Vấn</a>
-	</div>
-</section>
+    <section class="project-catalogue__grid" aria-label="Danh sách dự án">
+      {% for project in projects %}
+        <article class="project-catalogue__card" data-project-card data-category-id="{{ project.category_id }}">
+          <a class="project-catalogue__link" href="{% url 'project_detail' project.id %}" aria-label="Xem dự án {{ project.name }}">
+            {% if project.image %}
+              <img class="project-catalogue__image" src="{{ project.image.url }}" alt="{{ project.name }}" loading="lazy">
+            {% else %}
+              <div class="project-catalogue__fallback"><i class="fa fa-building-o" aria-hidden="true"></i></div>
+            {% endif %}
+            <div class="project-catalogue__overlay"><h2 class="project-catalogue__title">{{ project.name }}</h2></div>
+          </a>
+        </article>
+      {% empty %}
+        <div class="project-catalogue__empty">Chưa có dự án nào.</div>
+      {% endfor %}
+    </section>
+  </div>
+</main>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-	var filterList = document.getElementById('filter-list');
-	var showcase = document.getElementById('projects-showcase');
-	if (!filterList || !showcase) return;
+  var buttons = Array.prototype.slice.call(document.querySelectorAll('[data-project-filter]'));
+  var cards = Array.prototype.slice.call(document.querySelectorAll('[data-project-card]'));
+  if (!buttons.length || !cards.length) return;
 
-	var thumbs = Array.prototype.slice.call(showcase.querySelectorAll('[data-project-thumb]'));
-	var mainLink = document.getElementById('project-main-link');
-	var mainImage = document.getElementById('project-main-image');
-	var mainIcon = document.getElementById('project-main-icon');
-	var mainTitle = document.getElementById('project-main-title');
-	var mainCategory = document.getElementById('project-main-category');
-	var mainDesc = document.getElementById('project-main-desc');
-	var mainDate = document.getElementById('project-main-date');
-	var prevButton = showcase.querySelector('[data-project-thumbs-prev]');
-	var nextButton = showcase.querySelector('[data-project-thumbs-next]');
-	var activeThumbs = thumbs.slice();
-	var activeIndex = 0;
-	var windowStart = 0;
-	var visibleCount = 4;
+  function filterProjects(categoryId) {
+    cards.forEach(function (card) {
+      card.hidden = card.dataset.categoryId !== categoryId;
+    });
+    buttons.forEach(function (button) {
+      var active = button.dataset.projectFilter === categoryId;
+      button.classList.toggle('is-active', active);
+      button.setAttribute('aria-selected', active ? 'true' : 'false');
+    });
+  }
 
-	function syncVisibleCount() {
-		visibleCount = window.matchMedia('(max-width: 575px)').matches ? 4 : 4;
-	}
-
-	function showProject(thumb) {
-		if (!thumb) return;
-		activeIndex = activeThumbs.indexOf(thumb);
-		thumbs.forEach(function (item) {
-			item.classList.toggle('is-active', item === thumb);
-		});
-		mainLink.href = thumb.dataset.url || '#';
-		mainTitle.textContent = thumb.dataset.title || '';
-		mainCategory.textContent = thumb.dataset.category || '';
-		mainDesc.textContent = thumb.dataset.desc || '';
-		mainDate.innerHTML = '<i class="fa fa-calendar-o"></i> ' + (thumb.dataset.date || '');
-		if (thumb.dataset.image) {
-			mainImage.src = thumb.dataset.image;
-			mainImage.alt = thumb.dataset.title || '';
-			mainImage.hidden = false;
-			mainIcon.hidden = true;
-		} else {
-			mainImage.removeAttribute('src');
-			mainImage.hidden = true;
-			mainIcon.hidden = false;
-		}
-	}
-
-	function renderThumbWindow() {
-		syncVisibleCount();
-		if (activeThumbs.length <= visibleCount) {
-			windowStart = 0;
-		} else {
-			windowStart = Math.max(0, Math.min(windowStart, activeThumbs.length - visibleCount));
-		}
-		thumbs.forEach(function (thumb) {
-			var index = activeThumbs.indexOf(thumb);
-			var visible = index >= windowStart && index < windowStart + visibleCount;
-			thumb.classList.toggle('is-hidden', !visible);
-		});
-		prevButton.disabled = windowStart === 0;
-		nextButton.disabled = windowStart + visibleCount >= activeThumbs.length;
-	}
-
-	function applyFilter(filter) {
-		activeThumbs = thumbs.filter(function (thumb) {
-			return filter === 'all' || thumb.dataset.filterClass === filter;
-		});
-		windowStart = 0;
-		if (activeThumbs.length) {
-			showProject(activeThumbs[0]);
-		}
-		showcase.hidden = activeThumbs.length === 0;
-		renderThumbWindow();
-	}
-
-	thumbs.forEach(function (thumb) {
-		thumb.addEventListener('click', function () {
-			var index = activeThumbs.indexOf(thumb);
-			if (index >= 0) {
-				if (index < windowStart) windowStart = index;
-				if (index >= windowStart + visibleCount) windowStart = index - visibleCount + 1;
-			}
-			showProject(thumb);
-			renderThumbWindow();
-		});
-	});
-
-	prevButton.addEventListener('click', function () {
-		windowStart = Math.max(0, windowStart - 1);
-		renderThumbWindow();
-	});
-	nextButton.addEventListener('click', function () {
-		windowStart = Math.min(Math.max(0, activeThumbs.length - visibleCount), windowStart + 1);
-		renderThumbWindow();
-	});
-
-	filterList.addEventListener('click', function (e) {
-		var li = e.target.closest('li[data-filter]');
-		if (!li) return;
-
-		Array.prototype.slice.call(filterList.querySelectorAll('li')).forEach(function (el) {
-			el.classList.remove('active');
-		});
-		li.classList.add('active');
-
-		var filter = li.getAttribute('data-filter');
-		applyFilter(filter);
-	});
-	window.addEventListener('resize', renderThumbWindow);
-	renderThumbWindow();
+  buttons.forEach(function (button) {
+    button.addEventListener('click', function () {
+      filterProjects(button.dataset.projectFilter);
+    });
+  });
+  filterProjects(buttons[0].dataset.projectFilter);
 });
 </script>
-
 {% endblock %}

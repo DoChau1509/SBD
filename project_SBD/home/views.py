@@ -15,7 +15,7 @@ from django.conf import settings
 from django import forms
 from django.core.mail import EmailMultiAlternatives, get_connection
 from django.db import DatabaseError
-from django.db.models import Q
+from django.db.models import Prefetch, Q
 from django.db.models.deletion import ProtectedError
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
@@ -38,6 +38,7 @@ from .forms import (
     SiteBrandSettingsForm,
 )
 from .device_tracking import get_or_create_staff_device
+from .service_catalog import service_type_public_url
 from .models import (
     Product,
     ProductCategory,
@@ -52,6 +53,7 @@ from .models import (
     ServiceCategory,
     ServiceType,
     Service,
+    ServicePage,
     ServiceContentBlock,
     Certificate,
     ContactInfo,
@@ -1300,7 +1302,9 @@ def project(request):
     query = (request.GET.get("q") or "").strip()
     categories = ProjectCategory.objects.filter(is_hidden=False).order_by("name")
     projects = (
-        Project.objects.select_related("category").all().order_by("-created_at", "-id")
+        Project.objects.select_related("category")
+        .filter(category__is_hidden=False)
+        .order_by("-created_at", "-id")
     )
 
     if query:
@@ -3479,6 +3483,7 @@ def service_create(request):
             title=title,
             content=content,
             icon=icon,
+            image=request.FILES.get("image"),
             order=int(order),
             is_active=is_active,
         )
@@ -3533,6 +3538,10 @@ def service_update(request, id):
         service.title = title
         service.content = content
         service.icon = icon
+        if request.POST.get("remove_image") == "on":
+            service.image = None
+        elif request.FILES.get("image"):
+            service.image = request.FILES["image"]
         service.order = int(order)
         service.is_active = is_active
         service.save()
@@ -3558,7 +3567,77 @@ def service_detail(request, id):
         id=id,
         is_active=True,
     )
-    return render(request, "home/service_detail.html", {"service": service})
+    content_blocks = list(service.content_blocks.all())
+    hero_block = None
+    if not service.image:
+        hero_block = next(
+            (
+                block
+                for block in content_blocks
+                if block.block_type == ServiceContentBlock.BLOCK_IMAGE and block.image
+            ),
+            None,
+        )
+    detail_blocks = [block for block in content_blocks if block != hero_block]
+    return render(
+        request,
+        "home/service_detail.html",
+        {
+            "service": service,
+            "hero_block": hero_block,
+            "detail_blocks": detail_blocks,
+        },
+    )
+
+
+def service_public(request):
+    """Trang tổng quan dùng cùng danh mục loại dịch vụ với menu chính."""
+    active_types = ServiceType.objects.filter(is_active=True).order_by(
+        "order", "created_at"
+    )
+    categories = list(
+        ServiceCategory.objects.filter(is_active=True).prefetch_related(
+            Prefetch("service_types", queryset=active_types, to_attr="public_service_types")
+        ).order_by("order", "created_at")
+    )
+    categories = [category for category in categories if category.public_service_types]
+    standalone_types = list(active_types.filter(category__isnull=True))
+
+    for category in categories:
+        for service_type in category.public_service_types:
+            service_type.public_url = service_type_public_url(service_type)
+    for service_type in standalone_types:
+        service_type.public_url = service_type_public_url(service_type)
+
+    return render(
+        request,
+        "home/service_public.html",
+        {
+            "service_page": ServicePage.get_solo(),
+            "service_categories": categories,
+            "standalone_types": standalone_types,
+        },
+    )
+
+
+@staff_required
+def service_page_edit(request):
+    service_page = ServicePage.get_solo()
+
+    if request.method == "POST":
+        title = (request.POST.get("title") or "").strip()
+        service_page.title = title or service_page.title
+
+        if request.POST.get("remove_hero_image") == "on":
+            service_page.hero_image = None
+        elif request.FILES.get("hero_image"):
+            service_page.hero_image = request.FILES["hero_image"]
+
+        service_page.save()
+        messages.success(request, "Đã cập nhật ảnh và tiêu đề trang Dịch vụ.")
+        return redirect("service_page_edit")
+
+    return render(request, "home/service_page_form.html", {"service_page": service_page})
 
 
 @staff_required

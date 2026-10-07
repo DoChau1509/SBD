@@ -37,6 +37,7 @@
 
       <div class="management-nav-group{% if management_group == 'services' %} is-active{% endif %}">
         <div class="management-nav-title"><i class="fa-solid fa-screwdriver-wrench"></i> Dịch vụ</div>
+        <a href="{% url 'service_page_edit' %}"{% if management_url_name == 'service_page_edit' %} class="active"{% endif %}>Ảnh trang Dịch vụ</a>
         <a href="{% url 'service_list' %}"{% if management_url_name == 'service_list' %} class="active"{% endif %}>Dịch vụ trang chủ</a>
         <a href="{% url 'service_category_list' %}"{% if management_url_name == 'service_category_list' %} class="active"{% endif %}>Đề mục lớn dịch vụ</a>
         <a href="{% url 'service_type_list' %}"{% if management_url_name == 'service_type_list' %} class="active"{% endif %}>Loại dịch vụ</a>

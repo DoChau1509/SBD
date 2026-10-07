@@ -312,7 +312,7 @@
               <li><a href="{% url 'home' %}" class="nav-link">Trang Chủ</a></li>
               <li class="dropdown" data-bs-auto-close="outside">
                 <a
-                  href="#"
+                  href="{% url 'service_public' %}"
                   class="nav-link dropdown-toggle"
                   data-bs-toggle="dropdown"
                   aria-expanded="false"
@@ -334,13 +334,13 @@
                           </summary>
 
                           <ul class="service-menu-children list-unstyled mb-0">
-                            {% for service_type in item.children %}
+                            {% for service in item.children %}
                               <li>
                                 <a
                                   class="dropdown-item service-menu-child"
-                                  href="{{ service_type.url }}"
+                                  href="{{ service.url }}"
                                 >
-                                  {{ service_type.label }}
+                                  {{ service.label }}
                                 </a>
                               </li>
                             {% endfor %}
@@ -574,7 +574,7 @@
           <ul class="site-menu" style="flex-direction: column; gap: 6px">
             <li><a href="{% url 'home' %}" class="nav-link">Trang Chủ</a></li>
             <li class="mt-2 mb-1 fw-semibold text-uppercase text-muted small">
-              Dịch vụ
+              <a href="{% url 'service_public' %}" class="text-reset text-decoration-none">Dịch vụ</a>
             </li>
 
             {% if nav_service_items %}
@@ -590,13 +590,13 @@
                         <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
                       </summary>
                       <ul class="list-unstyled mb-0">
-                        {% for service_type in item.children %}
+                        {% for service in item.children %}
                           <li>
                             <a
-                              href="{{ service_type.url }}"
+                              href="{{ service.url }}"
                               class="nav-link mobile-service-child"
                             >
-                              {{ service_type.label }}
+                              {{ service.label }}
                             </a>
                           </li>
                         {% endfor %}

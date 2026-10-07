@@ -12,6 +12,7 @@ from .models import (
     ServiceCategory,
     ServiceType,
     Service,
+    ServicePage,
     ServiceContentBlock,
     ContactInfo,
     FloatingContactButton,
@@ -45,6 +46,7 @@ admin.site.register(AboutStatement)
 admin.site.register(ServiceCategory)
 admin.site.register(ServiceType)
 admin.site.register(Service)
+admin.site.register(ServicePage)
 admin.site.register(ServiceContentBlock)
 
 admin.site.register(ContactInfo)

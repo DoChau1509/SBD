@@ -13,6 +13,7 @@ urlpatterns = [
     path("product/<int:id>/", views.product_detail, name="product_detail"),
     path("post/", views.post_public, name="post"),
     path("post/<int:id>/", views.post_detail, name="post_detail"),
+    path("dich-vu/", views.service_public, name="service_public"),
     path("dich-vu/<slug:slug>/", views.service_type_public, name="service_type_public"),
     path("office-rental/", views.office_rental_public, name="office_rental"),
     path(
@@ -491,6 +492,7 @@ urlpatterns = [
         name="service_type_delete",
     ),
     # services
+    path("services/page/", views.service_page_edit, name="service_page_edit"),
     path("services/", views.service_list, name="service_list"),
     path("services/<int:id>/", views.service_detail, name="service_detail"),
     path("services/add/", views.service_create, name="service_add"),

@@ -6,11 +6,12 @@ from .models import (
     SiteBrandSettings,
     ServiceCategory,
     ServiceType,
+    Service,
     FloatingContactButton,
 )
 from django.db import DatabaseError
 from django.db.models import Prefetch
-from django.urls import NoReverseMatch, reverse
+from django.urls import reverse
 
 
 MANAGEMENT_URL_GROUPS = {
@@ -44,6 +45,7 @@ MANAGEMENT_URL_GROUPS = {
         "post_category_delete",
     },
     "services": {
+        "service_page_edit",
         "service_list",
         "service_add",
         "service_edit",
@@ -147,25 +149,6 @@ MANAGEMENT_URL_GROUPS = {
 
 MANAGEMENT_URL_NAMES = set().union(*MANAGEMENT_URL_GROUPS.values())
 
-SERVICE_TYPE_PUBLIC_URL_NAMES = {
-    "dan-dung": "civil",
-    "cong-nghiep": "industrial",
-    "thiet-ke-khong-gian-giao-duc": "education_space_design",
-    "nang-luong-cong-trinh-xanh": "energy_green",
-    "noi-that-thuong-mai": "interior_commercial",
-}
-
-
-def _service_type_public_url(service_type):
-    url_name = SERVICE_TYPE_PUBLIC_URL_NAMES.get(service_type.slug)
-    try:
-        if url_name:
-            return reverse(url_name)
-        return reverse("service_type_public", kwargs={"slug": service_type.slug})
-    except NoReverseMatch:
-        return reverse("home")
-
-
 def site_contact(request):
     contact = (
         ContactInfo.objects.filter(is_active=True)
@@ -189,25 +172,31 @@ def site_contact(request):
     ).order_by("order", "created_at")
     nav_service_items = []
     try:
+        nav_services = Service.objects.filter(is_active=True).order_by(
+            "order", "created_at"
+        )
+        nav_service_types_with_categories = ServiceType.objects.filter(
+            is_active=True
+        ).prefetch_related(
+            Prefetch(
+                "services",
+                queryset=nav_services,
+                to_attr="nav_services",
+            )
+        ).order_by("order", "created_at")
         nav_service_categories = list(
             ServiceCategory.objects.filter(is_active=True)
             .prefetch_related(
                 Prefetch(
                     "service_types",
-                    queryset=ServiceType.objects.filter(is_active=True).order_by(
-                        "order",
-                        "created_at",
-                    ),
+                    queryset=nav_service_types_with_categories,
                     to_attr="nav_service_types",
                 )
             )
             .order_by("order", "created_at")
         )
         nav_service_types = list(
-            ServiceType.objects.filter(is_active=True, category__isnull=True).order_by(
-                "order",
-                "created_at",
-            )
+            nav_service_types_with_categories.filter(category__isnull=True)
         )
         nav_service_items = sorted(
             [
@@ -219,25 +208,29 @@ def site_contact(request):
                     "created_at": category.created_at,
                     "children": [
                         {
-                            "label": service_type.name,
-                            "url": _service_type_public_url(service_type),
+                            "label": service.title,
+                            "url": reverse("service_detail", args=[service.id]),
                         }
                         for service_type in category.nav_service_types
+                        for service in service_type.nav_services
                     ],
                 }
                 for category in nav_service_categories
-                if category.nav_service_types
+                if any(
+                    service_type.nav_services
+                    for service_type in category.nav_service_types
+                )
             ]
             + [
                 {
                     "kind": "standalone",
-                    "label": service_type.name,
-                    "slug": service_type.slug,
-                    "url": _service_type_public_url(service_type),
-                    "order": service_type.order,
-                    "created_at": service_type.created_at,
+                    "label": service.title,
+                    "url": reverse("service_detail", args=[service.id]),
+                    "order": service.order,
+                    "created_at": service.created_at,
                 }
                 for service_type in nav_service_types
+                for service in service_type.nav_services
             ],
             key=lambda item: (item["order"], item["created_at"]),
         )

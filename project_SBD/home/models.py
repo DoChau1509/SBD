@@ -646,7 +646,9 @@ class ServiceType(models.Model):
 
 
 ############## Service
-class Service(models.Model):
+class Service(ManagedMediaCleanupModel):
+    managed_file_fields = ("image",)
+
     service_type = models.ForeignKey(
         ServiceType,
         on_delete=models.PROTECT,
@@ -664,6 +666,12 @@ class Service(models.Model):
             "Có thể nhập fa-eye, fa-solid fa-eye, cart-arrow-down "
             "hoặc URL icon từ Font Awesome."
         ),
+    )
+    image = models.ImageField(
+        upload_to="services/images/",
+        blank=True,
+        null=True,
+        verbose_name="Ảnh đại diện",
     )
     order = models.PositiveIntegerField(default=0, verbose_name="Thứ tự hiển thị")
     is_active = models.BooleanField(default=True, verbose_name="Hiển thị")
@@ -728,6 +736,37 @@ class Service(models.Model):
             return f"fa-solid fa-{raw}"
 
         return fallback
+
+    def __str__(self):
+        return self.title
+
+
+class ServicePage(ManagedMediaCleanupModel):
+    """Nội dung dùng chung cho trang tổng quan Dịch vụ."""
+
+    managed_file_fields = ("hero_image",)
+
+    title = models.CharField(
+        max_length=200,
+        default="Dịch vụ của Sao Bắc Đẩu",
+        verbose_name="Tiêu đề trang",
+    )
+    hero_image = models.ImageField(
+        upload_to="services/hero/",
+        blank=True,
+        null=True,
+        verbose_name="Ảnh đại diện trang dịch vụ",
+    )
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Trang dịch vụ"
+        verbose_name_plural = "Trang dịch vụ"
+
+    @classmethod
+    def get_solo(cls):
+        instance, _ = cls.objects.get_or_create(pk=1)
+        return instance
 
     def __str__(self):
         return self.title
