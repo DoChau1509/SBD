@@ -31,13 +31,20 @@
   <div class="container-fluid px-3 px-lg-4">
     {% if categories %}
       <div class="project-catalogue__filters" role="tablist" aria-label="Lọc dự án theo danh mục">
+        <button
+          type="button"
+          class="project-catalogue__filter is-active"
+          data-project-filter="all"
+          role="tab"
+          aria-selected="true"
+        >Tất cả</button>
         {% for category in categories %}
           <button
             type="button"
-            class="project-catalogue__filter{% if forloop.first %} is-active{% endif %}"
+            class="project-catalogue__filter"
             data-project-filter="{{ category.id }}"
             role="tab"
-            aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+            aria-selected="false"
           >{{ category.name }}</button>
         {% endfor %}
       </div>
@@ -74,7 +81,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function filterProjects(categoryId) {
     cards.forEach(function (card) {
-      card.hidden = card.dataset.categoryId !== categoryId;
+      card.hidden = categoryId !== 'all' && card.dataset.categoryId !== categoryId;
     });
     buttons.forEach(function (button) {
       var active = button.dataset.projectFilter === categoryId;
@@ -88,7 +95,7 @@ document.addEventListener('DOMContentLoaded', function () {
       filterProjects(button.dataset.projectFilter);
     });
   });
-  filterProjects(buttons[0].dataset.projectFilter);
+  filterProjects('all');
 });
 </script>
 {% endblock %}
