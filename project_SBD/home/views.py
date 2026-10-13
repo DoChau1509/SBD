@@ -14,6 +14,7 @@ from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from django import forms
 from django.core.mail import EmailMultiAlternatives, get_connection
+from django.core.paginator import Paginator
 from django.db import DatabaseError
 from django.db.models import Prefetch, Q
 from django.db.models.deletion import ProtectedError
@@ -1301,6 +1302,11 @@ def search(request):
 def project(request):
     query = (request.GET.get("q") or "").strip()
     categories = ProjectCategory.objects.filter(is_hidden=False).order_by("name")
+    category_id = request.GET.get("category") or ""
+    selected_category = next(
+        (category for category in categories if str(category.pk) == category_id),
+        None,
+    )
     projects = (
         Project.objects.select_related("category")
         .filter(category__is_hidden=False)
@@ -1314,10 +1320,30 @@ def project(request):
             | Q(category__name__icontains=query)
         ).distinct()
 
+    if selected_category:
+        projects = projects.filter(category=selected_category)
+
+    page_obj = Paginator(projects, 12).get_page(request.GET.get("page"))
+    pagination_params = request.GET.copy()
+    pagination_params.pop("page", None)
+    pagination_params.pop("category", None)
+    filter_query = pagination_params.urlencode()
+    if selected_category:
+        pagination_params["category"] = str(selected_category.pk)
+
     return render(
         request,
         "home/project.html",
-        {"projects": projects, "categories": categories, "query": query},
+        {
+            "projects": page_obj,
+            "page_obj": page_obj,
+            "page_range": page_obj.paginator.get_elided_page_range(page_obj.number),
+            "categories": categories,
+            "selected_category": selected_category,
+            "query": query,
+            "filter_query": filter_query,
+            "pagination_query": pagination_params.urlencode(),
+        },
     )
 
 

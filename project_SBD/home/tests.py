@@ -134,6 +134,44 @@ class ServiceImageManagementTests(TestCase):
 
 
 class PublicProjectCatalogueTests(TestCase):
+    def test_pagination_keeps_twelve_projects_per_page_without_duplicates(self):
+        category = ProjectCategory.objects.create(name="Nhà ở")
+        for index in range(25):
+            Project.objects.create(name=f"Nhà {index}", category=category, image="")
+        pages = [
+            self.client.get(reverse("project"), {"page": number})
+            for number in (1, 2, 3)
+        ]
+        ids = []
+        for response, count in zip(pages, (12, 12, 1)):
+            self.assertEqual(len(response.context["projects"]), count)
+            self.assertContains(response, 'aria-label="Phân trang dự án"')
+            ids.extend(project.pk for project in response.context["projects"])
+        self.assertEqual(len(set(ids)), 25)
+
+    def test_category_and_search_filter_before_pagination(self):
+        category = ProjectCategory.objects.create(name="Nhà ở")
+        other = ProjectCategory.objects.create(name="Văn phòng")
+        for index in range(13):
+            Project.objects.create(name=f"Nhà {index}", category=category, image="")
+        Project.objects.create(name="Nhà khác", category=other, image="")
+        response = self.client.get(
+            reverse("project"), {"category": category.pk, "q": "Nhà", "page": 2}
+        )
+        self.assertEqual(response.context["page_obj"].paginator.count, 13)
+        self.assertEqual(len(response.context["projects"]), 1)
+        self.assertEqual(response.context["selected_category"], category)
+        self.assertIn(f"category={category.pk}", response.context["pagination_query"])
+        self.assertIn("q=Nh%C3%A0", response.context["pagination_query"])
+        self.assertNotContains(response, "Nhà khác")
+
+    def test_invalid_page_and_category_are_handled(self):
+        response = self.client.get(reverse("project"), {"category": "invalid", "page": "bad"})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["page_obj"].number, 1)
+        self.assertIsNone(response.context["selected_category"])
+        self.assertNotContains(response, 'aria-label="Phân trang dự án"')
+
     def test_project_page_renders_visible_categories_and_grid_cards(self):
         category = ProjectCategory.objects.create(name="Công trình dân dụng")
         hidden_category = ProjectCategory.objects.create(

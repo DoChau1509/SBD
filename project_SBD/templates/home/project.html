@@ -1,9 +1,9 @@
 {% extends 'base.html' %}
 {% block content %}
 <style>
-  .project-catalogue { padding: 32px 0 86px; background: #fff; }
+  .project-catalogue { padding: calc(var(--navbar-h) + 32px) 0 86px; background: #fff; }
   .project-catalogue__filters { margin: 0 0 10px; display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; }
-  .project-catalogue__filter { min-width: 180px; padding: 11px 20px; border: 1px solid #c5232d; color: #a6222a; background: #fff; font-size: 15px; line-height: 1.2; transition: color .2s ease, background .2s ease; }
+  .project-catalogue__filter { min-width: 180px; padding: 11px 20px; border: 1px solid #c5232d; color: #a6222a; background: #fff; font-size: 15px; line-height: 1.4; display: flex; align-items: center; justify-content: center; text-align: center; text-decoration: none; overflow-wrap: anywhere; border-radius: 6px; transition: color .2s ease, background .2s ease; }
   .project-catalogue__filter:hover, .project-catalogue__filter:focus, .project-catalogue__filter.is-active { color: #fff; background: #c91f2b; }
   .project-catalogue__results { min-height: 24px; margin-bottom: 10px; color: #6b7280; font-size: 14px; text-align: center; }
   .project-catalogue__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px 30px; }
@@ -19,35 +19,30 @@
   .project-catalogue__empty { grid-column: 1 / -1; padding: 70px 20px; color: #6b7280; text-align: center; }
   @media (max-width: 991.98px) { .project-catalogue__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
   @media (max-width: 575.98px) {
-    .project-catalogue { padding-top: 22px; }
+    .project-catalogue { padding-top: calc(var(--navbar-h) + 22px); }
     .project-catalogue__filters { gap: 8px; }
     .project-catalogue__filter { min-width: 0; flex: 1 1 calc(50% - 8px); padding: 10px 12px; font-size: 13px; }
     .project-catalogue__grid { grid-template-columns: 1fr; gap: 18px; }
     .project-catalogue__card { border-radius: 14px; }
   }
+  .project-catalogue__pagination { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 32px; }
+  .project-catalogue__page { min-width: 42px; padding: 8px 12px; border: 1px solid #c5232d; border-radius: 6px; text-align: center; color: #a6222a; text-decoration: none; }
+  a.project-catalogue__page:hover, a.project-catalogue__page:focus-visible, .project-catalogue__page.is-active { background: #c91f2b; color: #fff; }
+  .project-catalogue__page.is-disabled { border-color: #ddd; color: #777; }
 </style>
 
 <main class="project-catalogue">
   <div class="container-fluid px-3 px-lg-4">
     {% if categories %}
-      <div class="project-catalogue__filters" role="tablist" aria-label="Lọc dự án theo danh mục">
-        <button
-          type="button"
-          class="project-catalogue__filter is-active"
-          data-project-filter="all"
-          role="tab"
-          aria-selected="true"
-        >Tất cả</button>
+      <nav class="project-catalogue__filters" aria-label="Lọc dự án theo loại">
+        <a class="project-catalogue__filter{% if not selected_category %} is-active{% endif %}"
+           href="?{{ filter_query }}"{% if not selected_category %} aria-current="true"{% endif %}>Tất cả</a>
         {% for category in categories %}
-          <button
-            type="button"
-            class="project-catalogue__filter"
-            data-project-filter="{{ category.id }}"
-            role="tab"
-            aria-selected="false"
-          >{{ category.name }}</button>
+          <a class="project-catalogue__filter{% if selected_category.pk == category.pk %} is-active{% endif %}"
+             href="?{{ filter_query }}{% if filter_query %}&amp;{% endif %}category={{ category.pk }}"
+             {% if selected_category.pk == category.pk %}aria-current="true"{% endif %}>{{ category.name }}</a>
         {% endfor %}
-      </div>
+      </nav>
     {% endif %}
 
     <div class="project-catalogue__results" aria-live="polite">
@@ -67,35 +62,33 @@
           </a>
         </article>
       {% empty %}
-        <div class="project-catalogue__empty">Chưa có dự án nào.</div>
+        <div class="project-catalogue__empty">Chưa có dự án phù hợp.</div>
       {% endfor %}
     </section>
+    {% if page_obj.paginator.num_pages > 1 %}
+      <nav class="project-catalogue__pagination" aria-label="Phân trang dự án">
+        {% if page_obj.has_previous %}
+          <a class="project-catalogue__page" href="?{{ pagination_query }}&amp;page={{ page_obj.previous_page_number }}">Trang trước</a>
+        {% else %}
+          <span class="project-catalogue__page is-disabled" aria-disabled="true">Trang trước</span>
+        {% endif %}
+        {% for number in page_range %}
+          {% if number == page_obj.paginator.ELLIPSIS %}
+            <span class="project-catalogue__page is-disabled">{{ number }}</span>
+          {% elif number == page_obj.number %}
+            <span class="project-catalogue__page is-active" aria-current="page">{{ number }}</span>
+          {% else %}
+            <a class="project-catalogue__page" href="?{{ pagination_query }}&amp;page={{ number }}" aria-label="Trang {{ number }}">{{ number }}</a>
+          {% endif %}
+        {% endfor %}
+        {% if page_obj.has_next %}
+          <a class="project-catalogue__page" href="?{{ pagination_query }}&amp;page={{ page_obj.next_page_number }}">Trang sau</a>
+        {% else %}
+          <span class="project-catalogue__page is-disabled" aria-disabled="true">Trang sau</span>
+        {% endif %}
+      </nav>
+    {% endif %}
   </div>
 </main>
 
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-  var buttons = Array.prototype.slice.call(document.querySelectorAll('[data-project-filter]'));
-  var cards = Array.prototype.slice.call(document.querySelectorAll('[data-project-card]'));
-  if (!buttons.length || !cards.length) return;
-
-  function filterProjects(categoryId) {
-    cards.forEach(function (card) {
-      card.hidden = categoryId !== 'all' && card.dataset.categoryId !== categoryId;
-    });
-    buttons.forEach(function (button) {
-      var active = button.dataset.projectFilter === categoryId;
-      button.classList.toggle('is-active', active);
-      button.setAttribute('aria-selected', active ? 'true' : 'false');
-    });
-  }
-
-  buttons.forEach(function (button) {
-    button.addEventListener('click', function () {
-      filterProjects(button.dataset.projectFilter);
-    });
-  });
-  filterProjects('all');
-});
-</script>
 {% endblock %}
